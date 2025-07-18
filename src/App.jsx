@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ScrollToTopOnRouteChange from './components/ScrollToTopOnRouteChange'
 import Home from './pages/Home'
 import Projects from './pages/Projects'
 import AIGateway from './pages/AIGateway'
@@ -13,6 +14,7 @@ import About from './pages/About'
 function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <ScrollToTopOnRouteChange />
       <Navbar />
       <main>
         <Routes>
