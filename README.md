@@ -14,6 +14,8 @@ A modern, interactive website showcasing Sompo Insurance's UK IT Innovation Hub 
 - **Project Tracking** - Current projects with progress indicators
 - **Ideas Portal** - Submit and track innovation ideas
 - **Professional Branding** - Consistent Sompo brand colors and styling
+- **Quote Generation** - Generate branded quote documents using the 2025 renewal schedule template
+- **Rating Modal** - Comprehensive rating and pricing analysis interface
 
 ## 🛠️ Tech Stack
 
@@ -148,6 +150,35 @@ sompo_ai_lab/
 - 4-phase MVP development process
 - Leadership section featuring Brad O'Connor (UK CIO)
 - "Why Our Process Works" benefits
+
+## 📄 Quote Generation
+
+The application includes a quote generation feature that uses the 2025 renewal schedule template with Sompo branding.
+
+### How It Works
+1. **Rating Process**: Complete the rating process using the comprehensive rating modal
+2. **Generate Quote**: Click "Generate Quote" button after rating is complete
+3. **Download**: The system will download a Word document with the insured's name and submission ID
+
+### Features
+- **Automatic Naming**: Quote files are automatically named with the format: `Quote_[InsuredName]_[SubmissionID].docx`
+- **Template Based**: Uses the official 2025 Renewal Schedule template stored in `/public`
+- **Multiple Access Points**: 
+  - Generate quotes from the Submission Detail page
+  - Download existing quotes from the Submissions list page
+- **Toast Notifications**: Success/error notifications for quote generation
+
+### Template Location
+The quote template is stored at: `/public/2025 Renewal Schedule - Les Ambassadeurs Ltd.docx`
+
+### Usage Example
+```javascript
+// The quote generator utility handles the download
+import { generateQuote } from './utils/quoteGenerator';
+
+// Generate quote with submission data
+await generateQuote(submission, ratingData);
+```
 
 ### 💡 Ideas
 - Innovation idea submission form

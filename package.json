@@ -1,9 +1,9 @@
 {
-  "name": "sompo-innovation-hub",
+  "name": "sompo-underwriting-workbench",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Sompo Insurance UK IT Innovation Hub - Internal website showcasing AI Gateway innovations and projects",
+  "description": "Sompo Insurance UK Underwriting Workbench - Complete underwriting workflow management system",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -33,4 +33,4 @@
     "tailwindcss": "^3.3.5",
     "vite": "^4.5.0"
   }
-} 
+}

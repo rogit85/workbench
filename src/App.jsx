@@ -1,35 +1,51 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import ScrollToTop from './components/ScrollToTop'
-import ScrollToTopOnRouteChange from './components/ScrollToTopOnRouteChange'
-import Home from './pages/Home'
-import Projects from './pages/Projects'
-import AIGateway from './pages/AIGateway'
-import Team from './pages/Team'
-import Ideas from './pages/Ideas'
-import About from './pages/About'
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTopOnRouteChange from "./components/ScrollToTopOnRouteChange";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Submissions from "./pages/Submissions";
+import SubmissionDetail from "./pages/SubmissionDetail";
+import Quotes from "./pages/Quotes";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <ScrollToTopOnRouteChange />
-      <Navbar />
-      <main>
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <ScrollToTopOnRouteChange />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/ai-gateway" element={<AIGateway />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/ideas" element={<Ideas />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Navbar />
+                <main className="pt-20">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/submissions" element={<Submissions />} />
+                    <Route
+                      path="/submissions/:id"
+                      element={<SubmissionDetail />}
+                    />
+                    <Route path="/quotes" element={<Quotes />} />
+                    <Route path="/reports" element={<Reports />} />
+                  </Routes>
+                </main>
+                <Footer />
+                <ScrollToTop />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </main>
-      <Footer />
-      <ScrollToTop />
-    </div>
-  )
+      </div>
+    </AuthProvider>
+  );
 }
 
-export default App 
+export default App;
