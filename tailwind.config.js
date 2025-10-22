@@ -23,7 +23,20 @@ export default {
             800: '#1F2937',
             900: '#111827',
           }
-        }
+        },
+        brand: '#E10032',
+        'brand-2': '#750006',
+        ink: '#0F1216',
+        text: '#2A2F33',
+        muted: '#6B757E',
+        bg: '#F6F7F9',
+        surface: '#FFFFFF',
+        border: '#E6E9EE',
+        green: '#2E7D32',
+        amber: '#FB8C00',
+        blue: '#1976D2',
+        purple: '#7C3AED',
+        grey: '#667085',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
