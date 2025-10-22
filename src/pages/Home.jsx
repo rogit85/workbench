@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,10 +13,8 @@ const Home = () => {
   const currency = (n) => (+n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Header title="Home" />
-
-      <main className="max-w-[1680px] mx-auto p-5.5 space-y-4">
+    <div className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto space-y-6">
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-[0_10px_30px_rgba(17,20,24,.06),0_2px_8px_rgba(17,20,24,.04)]">
           <h2 className="text-2xl font-bold mb-4">Welcome to Underwriting Workbench</h2>
           <p className="text-muted">Navigate through the app using the menu above.</p>

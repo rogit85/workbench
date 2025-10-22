@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '../components/Header';
 import { Save, Plus, Search, X } from 'lucide-react';
 
 const Notes = () => {
@@ -107,10 +106,8 @@ const Notes = () => {
   }).sort((a, b) => b.ts - a.ts);
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Header title="Notes" />
-
-      <main className="max-w-[1600px] mx-auto p-4">
+    <div className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto">
         <div className="grid grid-cols-[360px_1fr] gap-4">
           {/* Left: List */}
           <section className="bg-surface border border-border rounded-2xl shadow-[0_10px_30px_rgba(17,20,24,.06),0_2px_8px_rgba(17,20,24,.04)]">

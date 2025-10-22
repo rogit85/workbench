@@ -20,10 +20,10 @@ const Navbar = () => {
   }, []);
 
   const navigation = [
-    { name: "Dashboard", href: "/" },
-    { name: "Submissions", href: "/submissions" },
-    { name: "Quotes", href: "/quotes" },
-    { name: "Reports", href: "/reports" },
+    { name: "Home", href: "/" },
+    { name: "Work Queue", href: "/workqueue" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Toolkit", href: "/toolkit" },
   ];
 
   return (

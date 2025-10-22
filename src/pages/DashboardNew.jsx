@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 
 const DashboardNew = () => {
   const navigate = useNavigate();
@@ -134,10 +133,8 @@ const DashboardNew = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Header title="Dashboard" />
-
-      <main className="max-w-[1680px] mx-auto p-5.5 space-y-4">
+    <div className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto space-y-6">
         {/* Filters */}
         <section className="bg-surface border border-border rounded-2xl shadow-[0_10px_30px_rgba(17,20,24,.06),0_2px_8px_rgba(17,20,24,.04)]">
           <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">

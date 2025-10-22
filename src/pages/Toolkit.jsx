@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
 
 const Toolkit = () => {
   const [activeTab, setActiveTab] = useState('appetite');
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Header title="Toolkit" />
-
-      <main className="max-w-[1680px] mx-auto p-5.5 space-y-4">
+    <div className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto space-y-6">
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('appetite')}

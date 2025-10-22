@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 import { Search } from 'lucide-react';
 
 const WorkQueue = () => {
@@ -67,10 +66,8 @@ const WorkQueue = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Header title="Work Queue" />
-
-      <main className="max-w-[1680px] mx-auto p-5.5 space-y-4">
+    <div className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto space-y-6">
         <div className="sticky top-24 z-40 flex items-center gap-2.5 p-2.5 bg-white border border-border rounded-2xl shadow-[0_10px_30px_rgba(17,20,24,.06),0_2px_8px_rgba(17,20,24,.04)]">
           <div className="flex-1 flex gap-2 items-center bg-white border border-border rounded-xl px-3 py-2.5">
             <Search size={18} className="text-grey" />
