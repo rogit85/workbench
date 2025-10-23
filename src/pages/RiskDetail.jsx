@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -27,7 +30,10 @@ import {
   BookOpen,
   Search,
   Clock,
-  User
+  User,
+  ThumbsUp,
+  ThumbsDown,
+  Edit3
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -36,6 +42,9 @@ const SubmissionDetail = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [showEmailSource, setShowEmailSource] = useState(false)
+  const [currentWorkflowStep, setCurrentWorkflowStep] = useState(2) // Index of current step (Appetite Check)
+  const [fieldFeedback, setFieldFeedback] = useState({}) // { fieldName: { positive: bool, suggestion: string } }
+  const [editingSuggestion, setEditingSuggestion] = useState(null) // fieldName being edited
 
   // Comprehensive submission data matching all intake fields
   const submissionData = useMemo(() => {
@@ -401,21 +410,111 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
     { id: 'documents', label: 'Documents', icon: Upload },
   ]
 
-  const FieldDisplay = ({ label, value, highlight = false, confidence = null }) => (
-    <div>
-      <div className="text-xs text-gray-600 uppercase tracking-wider mb-1 flex items-center justify-between">
-        <span>{label}</span>
-        {confidence && (
-          <span className={`text-xs font-semibold ${confidence >= 95 ? 'text-green-600' : confidence >= 90 ? 'text-amber-600' : 'text-orange-600'}`}>
-            {confidence}% confidence
-          </span>
+  const FieldDisplay = ({ label, value, highlight = false, confidence = null, extracted = false, fieldKey = null }) => {
+    const feedback = fieldKey ? fieldFeedback[fieldKey] : null
+    const isEditing = editingSuggestion === fieldKey
+
+    const handleFeedback = (positive) => {
+      if (!fieldKey) return
+
+      if (positive) {
+        // Thumbs up - just mark as positive
+        setFieldFeedback(prev => ({
+          ...prev,
+          [fieldKey]: { positive: true, suggestion: null }
+        }))
+      } else {
+        // Thumbs down - open suggestion input
+        setEditingSuggestion(fieldKey)
+        setFieldFeedback(prev => ({
+          ...prev,
+          [fieldKey]: { positive: false, suggestion: prev[fieldKey]?.suggestion || '' }
+        }))
+      }
+    }
+
+    const handleSuggestionChange = (newSuggestion) => {
+      setFieldFeedback(prev => ({
+        ...prev,
+        [fieldKey]: { ...prev[fieldKey], suggestion: newSuggestion }
+      }))
+    }
+
+    const handleSuggestionSave = () => {
+      setEditingSuggestion(null)
+    }
+
+    return (
+      <div>
+        <div className="text-xs text-gray-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+          <span>{label}</span>
+          <div className="flex items-center gap-2">
+            {confidence && (
+              <span className={`text-xs font-semibold ${confidence >= 95 ? 'text-green-600' : confidence >= 90 ? 'text-amber-600' : 'text-orange-600'}`}>
+                {confidence}% confidence
+              </span>
+            )}
+            {extracted && fieldKey && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handleFeedback(true)}
+                  className={`p-1 rounded hover:bg-gray-100 transition-colors ${feedback?.positive === true ? 'text-green-600' : 'text-gray-400'}`}
+                  title="Correct extraction"
+                >
+                  <ThumbsUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleFeedback(false)}
+                  className={`p-1 rounded hover:bg-gray-100 transition-colors ${feedback?.positive === false ? 'text-red-600' : 'text-gray-400'}`}
+                  title="Incorrect - suggest correction"
+                >
+                  <ThumbsDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className={`text-sm font-semibold ${highlight ? 'text-sompo-red' : 'text-gray-900'}`}>
+          {value || 'N/A'}
+        </div>
+        {feedback?.positive === false && (
+          <div className="mt-2">
+            {isEditing ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={feedback.suggestion || ''}
+                  onChange={(e) => handleSuggestionChange(e.target.value)}
+                  onBlur={handleSuggestionSave}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSuggestionSave()
+                    if (e.key === 'Escape') {
+                      setEditingSuggestion(null)
+                    }
+                  }}
+                  placeholder="Enter correct value..."
+                  autoFocus
+                  className="flex-1 px-2 py-1 text-xs border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs bg-red-50 border border-red-200 rounded px-2 py-1">
+                <span className="text-red-700 flex-1">
+                  {feedback.suggestion ? `Suggestion: ${feedback.suggestion}` : 'Click to add suggestion'}
+                </span>
+                <button
+                  onClick={() => setEditingSuggestion(fieldKey)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <Edit3 className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
-      <div className={`text-sm font-semibold ${highlight ? 'text-sompo-red' : 'text-gray-900'}`}>
-        {value || 'N/A'}
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <PageTransition>
@@ -625,82 +724,100 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               Workflow Progress
             </h3>
 
-            {/* Horizontal Timeline */}
-            <div className="relative overflow-x-auto pb-2">
-              <div className="flex items-start gap-0 min-w-max">
-                {workflowStatuses.map((item, idx) => (
-                  <div key={idx} className="flex items-start flex-shrink-0">
-                    {/* Status Step */}
-                    <div className="flex flex-col items-center" style={{ width: '140px' }}>
-                      {/* Circle */}
-                      <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center z-10 ${
-                        item.completed
-                          ? 'bg-green-500 border-green-200'
-                          : item.inProgress
-                          ? 'bg-purple-500 border-purple-200 animate-pulse'
-                          : 'bg-gray-100 border-gray-300'
-                      }`}>
-                        {item.completed && <CheckCircle className="w-5 h-5 text-white" />}
-                        {item.inProgress && <Clock className="w-5 h-5 text-white" />}
-                      </div>
+            {/* Arrow Navigation Controls */}
+            <div className="flex items-center justify-between gap-4">
+              {/* Left Arrow */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setCurrentWorkflowStep(prev => Math.max(0, prev - 1))}
+                disabled={currentWorkflowStep === 0}
+                className={`p-3 rounded-full border-2 transition-all ${
+                  currentWorkflowStep === 0
+                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                    : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
+                }`}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </motion.button>
 
-                      {/* Status name */}
-                      <div className="mt-3 text-center">
-                        <div className={`font-semibold text-xs mb-1 ${
-                          item.completed
-                            ? 'text-gray-900'
-                            : item.inProgress
-                            ? 'text-purple-700'
-                            : 'text-gray-400'
-                        }`}>
-                          {item.status}
-                        </div>
+              {/* Current Step Display */}
+              <div className="flex-1 text-center">
+                <div className={`w-16 h-16 rounded-full border-4 flex items-center justify-center mx-auto mb-3 ${
+                  workflowStatuses[currentWorkflowStep].completed
+                    ? 'bg-green-500 border-green-200'
+                    : workflowStatuses[currentWorkflowStep].inProgress
+                    ? 'bg-purple-500 border-purple-200 animate-pulse'
+                    : 'bg-gray-100 border-gray-300'
+                }`}>
+                  {workflowStatuses[currentWorkflowStep].completed && <CheckCircle className="w-8 h-8 text-white" />}
+                  {workflowStatuses[currentWorkflowStep].inProgress && <Clock className="w-8 h-8 text-white" />}
+                </div>
 
-                        {/* Date and duration */}
-                        {item.date && (
-                          <div className="text-xs text-gray-600 mb-1">
-                            {item.date}
-                          </div>
-                        )}
-                        {item.duration && (
-                          <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {item.duration}
-                          </div>
-                        )}
-
-                        {/* Assignee info */}
-                        {item.completed && item.completedBy && (
-                          <div className="text-xs text-green-700 mt-1 flex items-center justify-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span className="truncate max-w-[120px]">{item.completedBy}</span>
-                          </div>
-                        )}
-                        {item.inProgress && item.assignee && (
-                          <div className="text-xs text-purple-700 mt-1 flex items-center justify-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span className="truncate max-w-[120px]">{item.assignee}</span>
-                          </div>
-                        )}
-                        {!item.completed && !item.inProgress && (
-                          <div className="text-xs text-gray-400 mt-1">
-                            Pending
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Connecting line (except for last item) */}
-                    {idx < workflowStatuses.length - 1 && (
-                      <div className="flex items-start pt-5 flex-shrink-0" style={{ width: '60px' }}>
-                        <div className={`h-0.5 w-full ${
-                          item.completed ? 'bg-green-300' : 'bg-gray-200'
-                        }`} />
-                      </div>
-                    )}
+                <div className="space-y-2">
+                  <div className={`font-bold text-xl ${
+                    workflowStatuses[currentWorkflowStep].completed
+                      ? 'text-gray-900'
+                      : workflowStatuses[currentWorkflowStep].inProgress
+                      ? 'text-purple-700'
+                      : 'text-gray-400'
+                  }`}>
+                    {workflowStatuses[currentWorkflowStep].status}
                   </div>
-                ))}
+
+                  {workflowStatuses[currentWorkflowStep].date && (
+                    <div className="text-sm text-gray-600">
+                      {workflowStatuses[currentWorkflowStep].date}
+                    </div>
+                  )}
+
+                  {workflowStatuses[currentWorkflowStep].duration && (
+                    <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {workflowStatuses[currentWorkflowStep].duration}
+                    </div>
+                  )}
+
+                  {workflowStatuses[currentWorkflowStep].completed && workflowStatuses[currentWorkflowStep].completedBy && (
+                    <div className="text-sm text-green-700 flex items-center justify-center gap-1">
+                      <User className="w-4 h-4" />
+                      <span>{workflowStatuses[currentWorkflowStep].completedBy}</span>
+                    </div>
+                  )}
+
+                  {workflowStatuses[currentWorkflowStep].inProgress && workflowStatuses[currentWorkflowStep].assignee && (
+                    <div className="text-sm text-purple-700 flex items-center justify-center gap-1">
+                      <User className="w-4 h-4" />
+                      <span>{workflowStatuses[currentWorkflowStep].assignee}</span>
+                    </div>
+                  )}
+
+                  {!workflowStatuses[currentWorkflowStep].completed && !workflowStatuses[currentWorkflowStep].inProgress && (
+                    <div className="text-sm text-gray-400">
+                      Pending
+                    </div>
+                  )}
+
+                  <div className="text-xs text-gray-500 mt-2">
+                    Step {currentWorkflowStep + 1} of {workflowStatuses.length}
+                  </div>
+                </div>
               </div>
+
+              {/* Right Arrow */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setCurrentWorkflowStep(prev => Math.min(workflowStatuses.length - 1, prev + 1))}
+                disabled={currentWorkflowStep === workflowStatuses.length - 1}
+                className={`p-3 rounded-full border-2 transition-all ${
+                  currentWorkflowStep === workflowStatuses.length - 1
+                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                    : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
+                }`}
+              >
+                <ChevronRight className="w-6 h-6" />
+              </motion.button>
             </div>
           </motion.div>
 
@@ -745,14 +862,47 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
                     label="Insured Name (Extracted)"
                     value={submissionData.insuredExtracted}
                     confidence={submissionData.extractionConfidence.insured}
+                    extracted={true}
+                    fieldKey="insuredName"
                   />
-                  <FieldDisplay label="Insured Address" value={submissionData.insuredAddress} />
-                  <FieldDisplay label="Insured Country" value={submissionData.insuredCountry} />
-                  <FieldDisplay label="Domicile" value={submissionData.domicile} />
+                  <FieldDisplay
+                    label="Insured Address (Extracted)"
+                    value={submissionData.insuredAddress}
+                    extracted={true}
+                    fieldKey="insuredAddress"
+                  />
+                  <FieldDisplay
+                    label="Insured Country (Extracted)"
+                    value={submissionData.insuredCountry}
+                    extracted={true}
+                    fieldKey="insuredCountry"
+                  />
+                  <FieldDisplay
+                    label="Domicile (Extracted)"
+                    value={submissionData.domicile}
+                    extracted={true}
+                    fieldKey="domicile"
+                  />
                   <FieldDisplay label="Account Number" value={submissionData.accountNo} />
                   <FieldDisplay label="DUNS Number" value={submissionData.dunsNumber} />
-                  <FieldDisplay label="Sector/Industry" value={submissionData.sector} />
-                  <FieldDisplay label="Sector Sub-Category" value={submissionData.sectorSubCategory} />
+                  <FieldDisplay
+                    label="Sector/Industry (Extracted)"
+                    value={submissionData.sector}
+                    extracted={true}
+                    fieldKey="sector"
+                  />
+                  <FieldDisplay
+                    label="Sector Sub-Category (Extracted)"
+                    value={submissionData.sectorSubCategory}
+                    extracted={true}
+                    fieldKey="sectorSubCategory"
+                  />
+                  <FieldDisplay
+                    label="Occupancy (Extracted)"
+                    value={submissionData.occupancy}
+                    extracted={true}
+                    fieldKey="occupancy"
+                  />
                 </div>
               </motion.div>
 
@@ -768,10 +918,30 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
                   Broker & Team
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Broker Organization" value={submissionData.broker} />
-                  <FieldDisplay label="Broker Office" value={submissionData.brokerOffice} />
-                  <FieldDisplay label="Broker Contact" value={submissionData.brokerContact} />
-                  <FieldDisplay label="Broker Email" value={submissionData.brokerContactEmail} />
+                  <FieldDisplay
+                    label="Broker Organization (Extracted)"
+                    value={submissionData.broker}
+                    extracted={true}
+                    fieldKey="broker"
+                  />
+                  <FieldDisplay
+                    label="Broker Office (Extracted)"
+                    value={submissionData.brokerOffice}
+                    extracted={true}
+                    fieldKey="brokerOffice"
+                  />
+                  <FieldDisplay
+                    label="Broker Contact (Extracted)"
+                    value={submissionData.brokerContact}
+                    extracted={true}
+                    fieldKey="brokerContact"
+                  />
+                  <FieldDisplay
+                    label="Broker Email (Extracted)"
+                    value={submissionData.brokerContactEmail}
+                    extracted={true}
+                    fieldKey="brokerEmail"
+                  />
                   <FieldDisplay label="Team" value={submissionData.team} />
                   <FieldDisplay label="Office Location" value={submissionData.officeLocation} />
                   <FieldDisplay label="Underwriter" value={submissionData.underwriter} />
@@ -791,9 +961,24 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
                   Policy Information
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Coverage Type" value={submissionData.coverage} />
-                  <FieldDisplay label="Inception Date" value={submissionData.inceptionDate} />
-                  <FieldDisplay label="Expiry Date" value={submissionData.expiryDate} />
+                  <FieldDisplay
+                    label="Coverage Type (Extracted)"
+                    value={submissionData.coverage}
+                    extracted={true}
+                    fieldKey="coverage"
+                  />
+                  <FieldDisplay
+                    label="Inception Date (Extracted)"
+                    value={submissionData.inceptionDate}
+                    extracted={true}
+                    fieldKey="inceptionDate"
+                  />
+                  <FieldDisplay
+                    label="Expiry Date (Extracted)"
+                    value={submissionData.expiryDate}
+                    extracted={true}
+                    fieldKey="expiryDate"
+                  />
                   <FieldDisplay label="Submission Date" value={submissionData.submissionDate} />
                   <FieldDisplay label="Attachment Type" value={submissionData.attachmentType} />
                   <FieldDisplay label="Direct / Assumed Fac" value={submissionData.assumedFac ? 'Assumed Fac' : 'Direct'} />
