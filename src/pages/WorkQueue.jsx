@@ -144,23 +144,23 @@ const WorkQueue = () => {
 
   // All available columns for spreadsheet
   const allColumns = [
-    { id: 'id', label: 'ID', enabled: true },
-    { id: 'insured', label: 'Insured', enabled: true },
-    { id: 'broker', label: 'Broker', enabled: true },
-    { id: 'lob', label: 'LOB', enabled: true },
-    { id: 'gwp', label: 'GWP', enabled: true },
-    { id: 'priority', label: 'Priority', enabled: true },
-    { id: 'source', label: 'Source', enabled: true },
-    { id: 'age', label: 'Age', enabled: true },
-    { id: 'status', label: 'Status', enabled: true },
-    { id: 'underwriter', label: 'Underwriter', enabled: false },
-    { id: 'team', label: 'Team', enabled: false },
-    { id: 'inceptionDate', label: 'Inception Date', enabled: false },
-    { id: 'limit', label: 'Limit', enabled: false },
-    { id: 'deductible', label: 'Deductible', enabled: false },
-    { id: 'coverage', label: 'Coverage', enabled: false },
-    { id: 'placementType', label: 'Placement Type', enabled: false },
-    { id: 'newRenewal', label: 'New/Renewal', enabled: false },
+    { id: 'id', label: 'ID', enabled: true, editable: false },
+    { id: 'insured', label: 'Insured', enabled: true, editable: true },
+    { id: 'broker', label: 'Broker', enabled: true, editable: true },
+    { id: 'lob', label: 'LOB', enabled: true, editable: true },
+    { id: 'gwp', label: 'GWP', enabled: true, editable: true },
+    { id: 'priority', label: 'Priority', enabled: true, editable: true },
+    { id: 'source', label: 'Source', enabled: true, editable: true },
+    { id: 'age', label: 'Age', enabled: true, editable: false },
+    { id: 'status', label: 'Status', enabled: true, editable: true },
+    { id: 'underwriter', label: 'Underwriter', enabled: true, editable: true },
+    { id: 'team', label: 'Team', enabled: true, editable: true },
+    { id: 'inceptionDate', label: 'Inception Date', enabled: true, editable: true },
+    { id: 'limit', label: 'Limit', enabled: true, editable: true },
+    { id: 'deductible', label: 'Deductible', enabled: false, editable: true },
+    { id: 'coverage', label: 'Coverage', enabled: false, editable: true },
+    { id: 'placementType', label: 'Placement Type', enabled: false, editable: true },
+    { id: 'newRenewal', label: 'New/Renewal', enabled: true, editable: true },
   ]
 
   const [visibleColumns, setVisibleColumns] = useState(allColumns)
@@ -168,6 +168,8 @@ const WorkQueue = () => {
     { id: 'default', name: 'Default View', columns: allColumns }
   ])
   const [currentView, setCurrentView] = useState('default')
+  const [editingCell, setEditingCell] = useState(null) // { rowId, columnId }
+  const [editValue, setEditValue] = useState('')
 
   // Load saved views from localStorage
   useEffect(() => {
@@ -228,8 +230,8 @@ const WorkQueue = () => {
 
   const [tasks, setTasks] = useState({
     received: [
-      { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email' },
-      { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API' },
+      { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', inceptionDate: '2025-01-15', limit: 5000000, newRenewal: 'New' },
+      { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API', underwriter: 'Sarah Chen', team: 'Specialty', inceptionDate: '2025-02-01', limit: 2000000, newRenewal: 'Renewal' },
     ],
     clearance: [
       { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email' },
@@ -462,6 +464,45 @@ const WorkQueue = () => {
     }).format(n)
   }
 
+  // Handle cell edit start
+  const startEdit = (rowId, columnId, currentValue) => {
+    setEditingCell({ rowId, columnId })
+    setEditValue(currentValue || '')
+  }
+
+  // Handle cell edit save
+  const saveEdit = () => {
+    if (!editingCell) return
+
+    const { rowId, columnId } = editingCell
+
+    // Find and update the submission
+    setTasks(prev => {
+      const newTasks = { ...prev }
+      for (const [status, items] of Object.entries(newTasks)) {
+        const itemIndex = items.findIndex(item => item.id === rowId)
+        if (itemIndex !== -1) {
+          newTasks[status] = [...items]
+          newTasks[status][itemIndex] = {
+            ...newTasks[status][itemIndex],
+            [columnId]: columnId === 'gwp' || columnId === 'limit' ? Number(editValue) || 0 : editValue
+          }
+          break
+        }
+      }
+      return newTasks
+    })
+
+    setEditingCell(null)
+    setEditValue('')
+  }
+
+  // Handle cell edit cancel
+  const cancelEdit = () => {
+    setEditingCell(null)
+    setEditValue('')
+  }
+
   // Get all submissions in a flat array for spreadsheet view
   const getAllSubmissions = () => {
     return Object.entries(tasks).flatMap(([status, items]) =>
@@ -470,35 +511,150 @@ const WorkQueue = () => {
   }
 
   // Render cell content based on column type
-  const renderCell = (submission, columnId) => {
+  const renderCell = (submission, column) => {
+    const isEditing = editingCell?.rowId === submission.id && editingCell?.columnId === column.id
+    const columnId = column.id
+
+    // If currently editing this cell, show input
+    if (isEditing) {
+      if (columnId === 'lob') {
+        return (
+          <select
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={saveEdit}
+            autoFocus
+            className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+          >
+            <option value="Property">Property</option>
+            <option value="Casualty">Casualty</option>
+            <option value="Marine">Marine</option>
+            <option value="Aviation">Aviation</option>
+            <option value="Energy">Energy</option>
+            <option value="Cyber">Cyber</option>
+            <option value="Financial Institutions">Financial Institutions</option>
+            <option value="Healthcare Liability">Healthcare Liability</option>
+            <option value="Life Sciences">Life Sciences</option>
+          </select>
+        )
+      } else if (columnId === 'priority') {
+        return (
+          <select
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={saveEdit}
+            autoFocus
+            className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+          >
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        )
+      } else if (columnId === 'source') {
+        return (
+          <select
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={saveEdit}
+            autoFocus
+            className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+          >
+            <option value="Email">Email</option>
+            <option value="API">API</option>
+            <option value="Manual">Manual</option>
+          </select>
+        )
+      } else if (columnId === 'newRenewal') {
+        return (
+          <select
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={saveEdit}
+            autoFocus
+            className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+          >
+            <option value="New">New</option>
+            <option value="Renewal">Renewal</option>
+          </select>
+        )
+      } else {
+        return (
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={saveEdit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveEdit()
+              if (e.key === 'Escape') cancelEdit()
+            }}
+            autoFocus
+            className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+          />
+        )
+      }
+    }
+
+    // Otherwise show normal cell content with click to edit
     switch (columnId) {
       case 'id':
         return <span className="font-medium text-gray-900">{submission.id}</span>
       case 'insured':
-        return <span className="text-gray-900">{submission.insured}</span>
+        return (
+          <span
+            className="text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.insured)}
+          >
+            {submission.insured}
+          </span>
+        )
       case 'broker':
-        return <span className="text-gray-600">{submission.broker}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.broker)}
+          >
+            {submission.broker}
+          </span>
+        )
       case 'lob':
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm ${getLOBColor(submission.lob)}`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm cursor-pointer hover:opacity-80 ${getLOBColor(submission.lob)}`}
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.lob)}
+          >
             {submission.lob}
           </span>
         )
       case 'gwp':
-        return <span className="font-semibold text-gray-900">{currency(submission.gwp)}</span>
+        return (
+          <span
+            className="font-semibold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.gwp)}
+          >
+            {currency(submission.gwp)}
+          </span>
+        )
       case 'priority':
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            submission.priority === 'High' ? 'bg-sompo-red text-white' :
-            submission.priority === 'Medium' ? 'bg-gray-600 text-white' :
-            'bg-gray-400 text-white'
-          }`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 ${
+              submission.priority === 'High' ? 'bg-sompo-red text-white' :
+              submission.priority === 'Medium' ? 'bg-gray-600 text-white' :
+              'bg-gray-400 text-white'
+            }`}
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.priority)}
+          >
             {submission.priority}
           </span>
         )
       case 'source':
         return (
-          <span className={`px-2 py-0.5 rounded text-xs font-medium ${getSourceBadgeColor(submission.source)}`}>
+          <span
+            className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer hover:opacity-80 ${getSourceBadgeColor(submission.source)}`}
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.source)}
+          >
             {submission.source}
           </span>
         )
@@ -509,7 +665,7 @@ const WorkQueue = () => {
           <select
             value={submission.status}
             onChange={(e) => handleStatusChange(submission.id, e.target.value)}
-            className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sompo-red"
+            className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sompo-red cursor-pointer"
           >
             {columns.map(col => (
               <option key={col.id} value={col.id}>{col.title}</option>
@@ -517,21 +673,77 @@ const WorkQueue = () => {
           </select>
         )
       case 'underwriter':
-        return <span className="text-gray-600">{submission.underwriter || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.underwriter)}
+          >
+            {submission.underwriter || '-'}
+          </span>
+        )
       case 'team':
-        return <span className="text-gray-600">{submission.team || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.team)}
+          >
+            {submission.team || '-'}
+          </span>
+        )
       case 'inceptionDate':
-        return <span className="text-gray-600">{submission.inceptionDate || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.inceptionDate)}
+          >
+            {submission.inceptionDate || '-'}
+          </span>
+        )
       case 'limit':
-        return <span className="text-gray-900">{submission.limit ? currency(submission.limit) : '-'}</span>
+        return (
+          <span
+            className="text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.limit)}
+          >
+            {submission.limit ? currency(submission.limit) : '-'}
+          </span>
+        )
       case 'deductible':
-        return <span className="text-gray-600">{submission.deductible ? currency(submission.deductible) : '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.deductible)}
+          >
+            {submission.deductible ? currency(submission.deductible) : '-'}
+          </span>
+        )
       case 'coverage':
-        return <span className="text-gray-600">{submission.coverage || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.coverage)}
+          >
+            {submission.coverage || '-'}
+          </span>
+        )
       case 'placementType':
-        return <span className="text-gray-600">{submission.placementType || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.placementType)}
+          >
+            {submission.placementType || '-'}
+          </span>
+        )
       case 'newRenewal':
-        return <span className="text-gray-600">{submission.newRenewal || '-'}</span>
+        return (
+          <span
+            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            onClick={() => column.editable && startEdit(submission.id, columnId, submission.newRenewal)}
+          >
+            {submission.newRenewal || '-'}
+          </span>
+        )
       default:
         return '-'
     }
@@ -699,7 +911,7 @@ const WorkQueue = () => {
                       >
                         {visibleColumns.filter(col => col.enabled).map(col => (
                           <td key={col.id} className="px-4 py-3 text-sm">
-                            {renderCell(submission, col.id)}
+                            {renderCell(submission, col)}
                           </td>
                         ))}
                         <td className="px-4 py-3">
