@@ -369,9 +369,39 @@ const Analytics = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-6">{title}</h3>
-        <div className="flex items-center justify-center gap-8">
-          {/* Pie Chart SVG */}
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="font-semibold text-gray-900">{title}</h3>
+          {/* Legend - Top Right */}
+          <div className="space-y-1 max-w-xs">
+            {slices.map((slice, idx) => {
+              const isHovered = hoveredSlice === idx
+              return (
+                <div
+                  key={slice.label}
+                  className={`flex items-center gap-2 cursor-pointer transition-all ${isHovered ? 'transform scale-105' : ''}`}
+                  onMouseEnter={() => setHoveredSlice(idx)}
+                  onMouseLeave={() => setHoveredSlice(null)}
+                >
+                  <div
+                    className="w-3 h-3 rounded flex-shrink-0"
+                    style={{ backgroundColor: slice.color }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-xs truncate ${isHovered ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                      {slice.label}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {showCurrency ? currency(slice.value) : `${slice.value} submissions`} ({slice.percentage.toFixed(1)}%)
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Pie Chart SVG - Centered */}
+        <div className="flex items-center justify-center">
           <div className="relative">
             <svg width={center * 2} height={center * 2} className="transform transition-transform">
               {slices.map((slice, idx) => (
@@ -394,39 +424,6 @@ const Analytics = () => {
                 />
               ))}
             </svg>
-            {/* Center label */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-4xl font-bold text-gray-900">{entries.length}</div>
-              <div className="text-sm text-gray-500">Categories</div>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="space-y-2">
-            {slices.map((slice, idx) => {
-              const isHovered = hoveredSlice === idx
-              return (
-                <div
-                  key={slice.label}
-                  className={`flex items-center gap-3 cursor-pointer transition-all ${isHovered ? 'transform scale-105' : ''}`}
-                  onMouseEnter={() => setHoveredSlice(idx)}
-                  onMouseLeave={() => setHoveredSlice(null)}
-                >
-                  <div
-                    className="w-4 h-4 rounded flex-shrink-0"
-                    style={{ backgroundColor: slice.color }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className={`text-sm truncate ${isHovered ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-                      {slice.label}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {showCurrency ? currency(slice.value) : `${slice.value} submissions`} ({slice.percentage.toFixed(1)}%)
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
           </div>
         </div>
       </div>
@@ -580,9 +577,14 @@ const Analytics = () => {
                 <div>
                   <p className="text-gray-600 text-sm font-medium">Total GWP</p>
                   <p className="text-3xl font-bold text-gray-900 mt-1">{currency(kpis.totalGWP)}</p>
-                  <div className="flex items-center mt-2">
-                    <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-sm font-medium text-green-600">+12% vs last period</span>
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
+                      <span className="text-sm font-medium text-green-600">+12%</span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Avg: <span className="font-semibold text-gray-900">{currency(kpis.avgGWP)}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
