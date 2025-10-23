@@ -558,14 +558,6 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
                 <ExternalLink className="w-4 h-4" />
                 Send to HX Rating
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Approve & Proceed
-              </motion.button>
             </div>
           </div>
 
