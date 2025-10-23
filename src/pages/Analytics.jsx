@@ -369,10 +369,36 @@ const Analytics = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">{title}</h3>
-          {/* Legend - Top Right */}
-          <div className="space-y-0.5 max-w-xs">
+        <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
+
+        <div className="flex items-start justify-between gap-6">
+          {/* Pie Chart SVG - Left Side */}
+          <div className="flex-shrink-0">
+            <svg width={center * 2} height={center * 2} className="transform transition-transform">
+              {slices.map((slice, idx) => (
+                <motion.path
+                  key={slice.label}
+                  d={getSlicePath(slice.startAngle, slice.endAngle)}
+                  fill={slice.color}
+                  stroke="white"
+                  strokeWidth="2"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{
+                    opacity: hoveredSlice === idx ? 1 : 0.9,
+                    scale: hoveredSlice === idx ? 1.05 : 1
+                  }}
+                  transition={{ duration: 0.3 }}
+                  onMouseEnter={() => setHoveredSlice(idx)}
+                  onMouseLeave={() => setHoveredSlice(null)}
+                  className="cursor-pointer"
+                  style={{ transformOrigin: `${center}px ${center}px` }}
+                />
+              ))}
+            </svg>
+          </div>
+
+          {/* Legend - Right Side */}
+          <div className="flex-1 space-y-0.5">
             {slices.map((slice, idx) => {
               const isHovered = hoveredSlice === idx
               return (
@@ -397,33 +423,6 @@ const Analytics = () => {
                 </div>
               )
             })}
-          </div>
-        </div>
-
-        {/* Pie Chart SVG - Centered */}
-        <div className="flex items-start justify-center">
-          <div className="relative">
-            <svg width={center * 2} height={center * 2} className="transform transition-transform">
-              {slices.map((slice, idx) => (
-                <motion.path
-                  key={slice.label}
-                  d={getSlicePath(slice.startAngle, slice.endAngle)}
-                  fill={slice.color}
-                  stroke="white"
-                  strokeWidth="2"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                    opacity: hoveredSlice === idx ? 1 : 0.9,
-                    scale: hoveredSlice === idx ? 1.05 : 1
-                  }}
-                  transition={{ duration: 0.3 }}
-                  onMouseEnter={() => setHoveredSlice(idx)}
-                  onMouseLeave={() => setHoveredSlice(null)}
-                  className="cursor-pointer"
-                  style={{ transformOrigin: `${center}px ${center}px` }}
-                />
-              ))}
-            </svg>
           </div>
         </div>
       </div>
