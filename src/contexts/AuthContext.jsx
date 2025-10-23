@@ -1,75 +1,28 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext({});
 
-// Test credentials
-const TEST_USERS = [
-  {
-    username: 'demo',
-    password: 'demo123',
-    role: 'user',
-    fullName: 'Demo User'
-  },
-  {
-    username: 'admin',
-    password: 'admin123',
-    role: 'admin',
-    fullName: 'Admin User'
-  },
-  {
-    username: 'underwriter',
-    password: 'underwriter123',
-    role: 'underwriter',
-    fullName: 'Test Underwriter'
-  }
-];
+// Default user (no authentication required)
+const DEFAULT_USER = {
+  username: 'underwriter',
+  role: 'Senior Underwriter',
+  fullName: 'Jeremy Isaacs'
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = (username, password) => {
-    const foundUser = TEST_USERS.find(
-      u => u.username === username && u.password === password
-    );
-
-    if (foundUser) {
-      const userInfo = {
-        username: foundUser.username,
-        role: foundUser.role,
-        fullName: foundUser.fullName
-      };
-      setUser(userInfo);
-      localStorage.setItem('user', JSON.stringify(userInfo));
-      return { success: true };
-    }
-
-    return { success: false, error: 'Invalid credentials' };
-  };
+  const [user, setUser] = useState(DEFAULT_USER);
+  const [loading, setLoading] = useState(false);
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    navigate('/login');
+    // Logout just resets to default user
+    setUser(DEFAULT_USER);
   };
 
   const value = {
     user,
-    login,
     logout,
     loading,
-    isAuthenticated: !!user
+    isAuthenticated: true
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
