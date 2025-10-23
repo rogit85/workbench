@@ -348,8 +348,8 @@ const Analytics = () => {
       }
     })
 
-    const radius = 100
-    const center = 120
+    const radius = 160
+    const center = 180
 
     // Function to calculate SVG path for pie slice
     const getSlicePath = (startAngle, endAngle) => {
@@ -396,8 +396,8 @@ const Analytics = () => {
             </svg>
             {/* Center label */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-2xl font-bold text-gray-900">{entries.length}</div>
-              <div className="text-xs text-gray-500">Categories</div>
+              <div className="text-4xl font-bold text-gray-900">{entries.length}</div>
+              <div className="text-sm text-gray-500">Categories</div>
             </div>
           </div>
 
