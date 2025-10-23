@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -42,9 +42,9 @@ const SubmissionDetail = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [showEmailSource, setShowEmailSource] = useState(false)
-  const [currentWorkflowStep, setCurrentWorkflowStep] = useState(2) // Index of current step (Appetite Check)
   const [fieldFeedback, setFieldFeedback] = useState({}) // { fieldName: { positive: bool, suggestion: string } }
   const [editingSuggestion, setEditingSuggestion] = useState(null) // fieldName being edited
+  const scrollContainerRef = useRef(null)
 
   // Comprehensive submission data matching all intake fields
   const submissionData = useMemo(() => {
@@ -724,101 +724,129 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               Workflow Progress
             </h3>
 
-            {/* Arrow Navigation Controls */}
-            <div className="flex items-center justify-between gap-4">
-              {/* Left Arrow */}
+            {/* Horizontal Timeline with Arrow Controls */}
+            <div className="relative">
+              {/* Left Scroll Arrow */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setCurrentWorkflowStep(prev => Math.max(0, prev - 1))}
-                disabled={currentWorkflowStep === 0}
-                className={`p-3 rounded-full border-2 transition-all ${
-                  currentWorkflowStep === 0
-                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                    : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
-                }`}
+                onClick={() => {
+                  if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+                  }
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white border-2 border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white shadow-lg transition-all"
+                style={{ marginLeft: '-20px' }}
               >
                 <ChevronLeft className="w-6 h-6" />
               </motion.button>
 
-              {/* Current Step Display */}
-              <div className="flex-1 text-center">
-                <div className={`w-16 h-16 rounded-full border-4 flex items-center justify-center mx-auto mb-3 ${
-                  workflowStatuses[currentWorkflowStep].completed
-                    ? 'bg-green-500 border-green-200'
-                    : workflowStatuses[currentWorkflowStep].inProgress
-                    ? 'bg-purple-500 border-purple-200 animate-pulse'
-                    : 'bg-gray-100 border-gray-300'
-                }`}>
-                  {workflowStatuses[currentWorkflowStep].completed && <CheckCircle className="w-8 h-8 text-white" />}
-                  {workflowStatuses[currentWorkflowStep].inProgress && <Clock className="w-8 h-8 text-white" />}
-                </div>
+              {/* Scrollable Timeline Container */}
+              <div
+                ref={scrollContainerRef}
+                className="overflow-x-auto pb-2 scrollbar-hide"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+              >
+                <div className="flex items-start gap-0 min-w-max px-8">
+                  {workflowStatuses.map((item, idx) => (
+                    <div key={idx} className="flex items-start flex-shrink-0">
+                      {/* Status Step */}
+                      <div className="flex flex-col items-center" style={{ width: '140px' }}>
+                        {/* Circle */}
+                        <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center z-10 ${
+                          item.completed
+                            ? 'bg-green-500 border-green-200'
+                            : item.inProgress
+                            ? 'bg-purple-500 border-purple-200 animate-pulse'
+                            : 'bg-gray-100 border-gray-300'
+                        }`}>
+                          {item.completed && <CheckCircle className="w-5 h-5 text-white" />}
+                          {item.inProgress && <Clock className="w-5 h-5 text-white" />}
+                        </div>
 
-                <div className="space-y-2">
-                  <div className={`font-bold text-xl ${
-                    workflowStatuses[currentWorkflowStep].completed
-                      ? 'text-gray-900'
-                      : workflowStatuses[currentWorkflowStep].inProgress
-                      ? 'text-purple-700'
-                      : 'text-gray-400'
-                  }`}>
-                    {workflowStatuses[currentWorkflowStep].status}
-                  </div>
+                        {/* Status name */}
+                        <div className="mt-3 text-center">
+                          <div className={`font-semibold text-xs mb-1 ${
+                            item.completed
+                              ? 'text-gray-900'
+                              : item.inProgress
+                              ? 'text-purple-700'
+                              : 'text-gray-400'
+                          }`}>
+                            {item.status}
+                          </div>
 
-                  {workflowStatuses[currentWorkflowStep].date && (
-                    <div className="text-sm text-gray-600">
-                      {workflowStatuses[currentWorkflowStep].date}
+                          {/* Date and duration */}
+                          {item.date && (
+                            <div className="text-xs text-gray-600 mb-1">
+                              {item.date}
+                            </div>
+                          )}
+                          {item.duration && (
+                            <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {item.duration}
+                            </div>
+                          )}
+
+                          {/* Assignee info */}
+                          {item.completed && item.completedBy && (
+                            <div className="text-xs text-green-700 mt-1 flex items-center justify-center gap-1">
+                              <User className="w-3 h-3" />
+                              <span className="truncate max-w-[120px]">{item.completedBy}</span>
+                            </div>
+                          )}
+                          {item.inProgress && item.assignee && (
+                            <div className="text-xs text-purple-700 mt-1 flex items-center justify-center gap-1">
+                              <User className="w-3 h-3" />
+                              <span className="truncate max-w-[120px]">{item.assignee}</span>
+                            </div>
+                          )}
+                          {!item.completed && !item.inProgress && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              Pending
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Connecting line (except for last item) */}
+                      {idx < workflowStatuses.length - 1 && (
+                        <div className="flex items-start pt-5 flex-shrink-0" style={{ width: '60px' }}>
+                          <div className={`h-0.5 w-full ${
+                            item.completed ? 'bg-green-300' : 'bg-gray-200'
+                          }`} />
+                        </div>
+                      )}
                     </div>
-                  )}
-
-                  {workflowStatuses[currentWorkflowStep].duration && (
-                    <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {workflowStatuses[currentWorkflowStep].duration}
-                    </div>
-                  )}
-
-                  {workflowStatuses[currentWorkflowStep].completed && workflowStatuses[currentWorkflowStep].completedBy && (
-                    <div className="text-sm text-green-700 flex items-center justify-center gap-1">
-                      <User className="w-4 h-4" />
-                      <span>{workflowStatuses[currentWorkflowStep].completedBy}</span>
-                    </div>
-                  )}
-
-                  {workflowStatuses[currentWorkflowStep].inProgress && workflowStatuses[currentWorkflowStep].assignee && (
-                    <div className="text-sm text-purple-700 flex items-center justify-center gap-1">
-                      <User className="w-4 h-4" />
-                      <span>{workflowStatuses[currentWorkflowStep].assignee}</span>
-                    </div>
-                  )}
-
-                  {!workflowStatuses[currentWorkflowStep].completed && !workflowStatuses[currentWorkflowStep].inProgress && (
-                    <div className="text-sm text-gray-400">
-                      Pending
-                    </div>
-                  )}
-
-                  <div className="text-xs text-gray-500 mt-2">
-                    Step {currentWorkflowStep + 1} of {workflowStatuses.length}
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Right Arrow */}
+              {/* Right Scroll Arrow */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setCurrentWorkflowStep(prev => Math.min(workflowStatuses.length - 1, prev + 1))}
-                disabled={currentWorkflowStep === workflowStatuses.length - 1}
-                className={`p-3 rounded-full border-2 transition-all ${
-                  currentWorkflowStep === workflowStatuses.length - 1
-                    ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                    : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
-                }`}
+                onClick={() => {
+                  if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+                  }
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white border-2 border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white shadow-lg transition-all"
+                style={{ marginRight: '-20px' }}
               >
                 <ChevronRight className="w-6 h-6" />
               </motion.button>
             </div>
+
+            <style jsx>{`
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
           </motion.div>
 
           {/* Tabs */}
