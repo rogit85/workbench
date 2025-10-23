@@ -8,11 +8,7 @@ import {
   Edit,
   CheckCircle,
   AlertTriangle,
-  XCircle,
-  TrendingUp,
-  Activity,
-  Inbox,
-  Filter
+  XCircle
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
@@ -20,28 +16,6 @@ import ManualSubmissionModal from '../components/ManualSubmissionModal'
 const Intake = () => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    status: 'all',
-    lob: 'all',
-    source: 'all',
-    dateFrom: '',
-    dateTo: '',
-    searchQuery: ''
-  })
-
-  const lobs = [
-    'Agriculture', 'Aviation', 'Casualty', 'Cyber', 'Energy', 'Environmental',
-    'Errors & Omissions / Professional Indemnity', 'Financial Institutions',
-    'Healthcare Liability', 'Life Sciences', 'Management Liability', 'Marine',
-    'Property', 'Specialty', 'Surety'
-  ]
-
-  const stats = [
-    { label: 'Today', value: 47, change: '+12%', icon: TrendingUp, color: 'blue' },
-    { label: 'This Week', value: 231, change: '+8%', icon: Activity, color: 'green' },
-    { label: 'Pending Review', value: 18, change: '-3%', icon: Inbox, color: 'amber' },
-    { label: 'Auto-Cleared', value: 156, change: '+15%', icon: CheckCircle, color: 'emerald' },
-  ]
 
   // All submissions
   const allSubmissions = [
@@ -191,45 +165,6 @@ const Intake = () => {
     },
   ]
 
-  // Filter logic
-  const filteredSubmissions = allSubmissions.filter(submission => {
-    // Status filter
-    if (filters.status !== 'all') {
-      if (submission.status !== filters.status) return false
-    }
-
-    // LoB filter
-    if (filters.lob !== 'all' && submission.lob !== filters.lob) return false
-
-    // Source filter
-    if (filters.source !== 'all' && submission.source !== filters.source) return false
-
-    // Search query filter
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase()
-      const searchableText = [
-        submission.insured,
-        submission.broker,
-        submission.lob,
-        submission.status,
-        submission.id
-      ].join(' ').toLowerCase()
-      if (!searchableText.includes(query)) return false
-    }
-
-    return true
-  })
-
-  const resetFilters = () => {
-    setFilters({
-      status: 'all',
-      lob: 'all',
-      source: 'all',
-      dateFrom: '',
-      dateTo: '',
-      searchQuery: ''
-    })
-  }
 
   const handleManualSubmission = (submission) => {
     console.log('New manual submission:', submission)
@@ -334,186 +269,6 @@ const Intake = () => {
               </motion.button>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {stats.map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">{stat.label}</div>
-                      <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                      <div className={`text-sm font-medium mt-1 ${
-                        stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.change} vs last period
-                      </div>
-                    </div>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      stat.color === 'blue' ? 'bg-blue-100' :
-                      stat.color === 'green' ? 'bg-green-100' :
-                      stat.color === 'amber' ? 'bg-amber-100' :
-                      'bg-emerald-100'
-                    }`}>
-                      <stat.icon className={`w-6 h-6 ${
-                        stat.color === 'blue' ? 'text-blue-600' :
-                        stat.color === 'green' ? 'text-green-600' :
-                        stat.color === 'amber' ? 'text-amber-600' :
-                        'text-emerald-600'
-                      }`} />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Comprehensive Filters */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 mb-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-sompo-red" />
-                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-              </div>
-              <button
-                onClick={resetFilters}
-                className="text-sm font-medium text-sompo-red hover:text-sompo-dark-red"
-              >
-                Reset All
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* Search */}
-              <div className="lg:col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-2">Search</label>
-                <input
-                  type="text"
-                  placeholder="Search by insured, broker, ID..."
-                  value={filters.searchQuery}
-                  onChange={(e) => setFilters({...filters, searchQuery: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                />
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Status</label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => setFilters({...filters, status: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                >
-                  <option value="all">All Status</option>
-                  <option value="Received">Received</option>
-                  <option value="Clearance">Clearance</option>
-                  <option value="Appetite Check">Appetite Check</option>
-                  <option value="Sanctions">Sanctions</option>
-                  <option value="Rating">Rating</option>
-                  <option value="Peer Review">Peer Review</option>
-                  <option value="Quoted">Quoted</option>
-                  <option value="Firm Order">Firm Order</option>
-                  <option value="Bound">Bound</option>
-                  <option value="Issued">Issued</option>
-                  <option value="Registered">Registered</option>
-                  <option value="Declined">Declined</option>
-                </select>
-              </div>
-
-              {/* Line of Business */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Line of Business</label>
-                <select
-                  value={filters.lob}
-                  onChange={(e) => setFilters({...filters, lob: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                >
-                  <option value="all">All LoB</option>
-                  {lobs.map((lob) => (
-                    <option key={lob} value={lob}>{lob}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Source */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Source</label>
-                <select
-                  value={filters.source}
-                  onChange={(e) => setFilters({...filters, source: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                >
-                  <option value="all">All Sources</option>
-                  <option value="Email">Email</option>
-                  <option value="API">API</option>
-                  <option value="Manual">Manual</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Date Range */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Date From</label>
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Date To</label>
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Active Filters Display */}
-            {(filters.status !== 'all' || filters.lob !== 'all' || filters.source !== 'all' || filters.searchQuery) && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium text-gray-700">Active filters:</span>
-                  {filters.status !== 'all' && (
-                    <span className="px-3 py-1 bg-sompo-red text-white rounded-full text-xs font-medium">
-                      Status: {filters.status}
-                    </span>
-                  )}
-                  {filters.lob !== 'all' && (
-                    <span className="px-3 py-1 bg-sompo-red text-white rounded-full text-xs font-medium">
-                      LoB: {filters.lob}
-                    </span>
-                  )}
-                  {filters.source !== 'all' && (
-                    <span className="px-3 py-1 bg-sompo-red text-white rounded-full text-xs font-medium">
-                      Source: {filters.source}
-                    </span>
-                  )}
-                  {filters.searchQuery && (
-                    <span className="px-3 py-1 bg-sompo-red text-white rounded-full text-xs font-medium">
-                      Search: "{filters.searchQuery}"
-                    </span>
-                  )}
-                  <span className="text-sm text-gray-600">
-                    ({filteredSubmissions.length} result{filteredSubmissions.length !== 1 ? 's' : ''})
-                  </span>
-                </div>
-              </div>
-            )}
-          </motion.div>
 
           {/* Submissions Feed */}
           <motion.div
@@ -526,18 +281,12 @@ const Intake = () => {
             </div>
 
             <div className="divide-y divide-gray-200">
-              {filteredSubmissions.length === 0 ? (
+              {allSubmissions.length === 0 ? (
                 <div className="p-12 text-center">
-                  <p className="text-gray-500 text-lg">No submissions match your filters</p>
-                  <button
-                    onClick={resetFilters}
-                    className="mt-4 px-4 py-2 bg-sompo-red text-white rounded-lg font-medium hover:bg-sompo-dark-red"
-                  >
-                    Reset Filters
-                  </button>
+                  <p className="text-gray-500 text-lg">No submissions found</p>
                 </div>
               ) : (
-                filteredSubmissions.map((submission, idx) => (
+                allSubmissions.map((submission, idx) => (
                 <motion.div
                   key={submission.id}
                   initial={{ opacity: 0, x: -20 }}
