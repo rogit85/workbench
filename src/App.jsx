@@ -9,6 +9,7 @@ import AIAssistant from "./components/AIAssistant";
 import Intake from "./pages/Intake";
 import WorkQueue from "./pages/WorkQueue";
 import Analytics from "./pages/Analytics";
+import Dashboard from "./pages/Dashboard";
 import RiskDetail from "./pages/RiskDetail";
 import Configuration from "./pages/Configuration";
 
@@ -20,10 +21,10 @@ function App() {
         <Navbar />
         <main className="pt-40">
           <Routes>
-            <Route path="/" element={<Intake />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/intake" element={<Intake />} />
             <Route path="/workqueue" element={<WorkQueue />} />
-            <Route path="/dashboard" element={<Analytics />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/risk/:id" element={<RiskDetail />} />
             <Route path="/reports" element={<Analytics />} />
