@@ -6,7 +6,6 @@ import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopOnRouteChange from "./components/ScrollToTopOnRouteChange";
 import AIAssistant from "./components/AIAssistant";
-import Intake from "./pages/Intake";
 import WorkQueue from "./pages/WorkQueue";
 import Analytics from "./pages/Analytics";
 import Dashboard from "./pages/Dashboard";
@@ -22,7 +21,6 @@ function App() {
         <main className="pt-40">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/intake" element={<Intake />} />
             <Route path="/workqueue" element={<WorkQueue />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />

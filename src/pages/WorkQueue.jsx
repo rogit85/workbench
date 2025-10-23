@@ -132,7 +132,7 @@ const WorkQueue = () => {
   const navigate = useNavigate()
   const [activeId, setActiveId] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [viewMode, setViewMode] = useState('kanban') // 'kanban' or 'spreadsheet'
+  const [viewMode, setViewMode] = useState('spreadsheet') // 'kanban' or 'spreadsheet'
   const [showColumnSettings, setShowColumnSettings] = useState(false)
   const [showSaveView, setShowSaveView] = useState(false)
   const [viewName, setViewName] = useState('')

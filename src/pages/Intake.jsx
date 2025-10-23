@@ -268,7 +268,7 @@ const Intake = () => {
                 Add Submission
               </motion.button>
             </div>
-
+          </motion.div>
 
           {/* Submissions Feed */}
           <motion.div

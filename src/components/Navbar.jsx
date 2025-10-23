@@ -20,7 +20,7 @@ const Navbar = () => {
   }, []);
 
   const navigation = [
-    { name: "Intake", href: "/intake" },
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Work Queue", href: "/workqueue" },
     { name: "Analytics", href: "/analytics" },
     { name: "Configuration", href: "/configuration" },
