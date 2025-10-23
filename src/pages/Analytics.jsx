@@ -245,7 +245,13 @@ const Analytics = () => {
     const labelHeight = 40 // Fixed height for labels to prevent layout shift
 
     return (
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+        transition={{ duration: 0.3 }}
+        className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+      >
         <h3 className="font-semibold text-gray-900 mb-6">{title}</h3>
         <div className="flex gap-4">
           {/* Vertical Axis */}
@@ -317,13 +323,14 @@ const Analytics = () => {
             })}
           </div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
   // Pie Chart Component
   const PieChart = ({ data, title, showCurrency = false, colors = null }) => {
     const [hoveredSlice, setHoveredSlice] = useState(null)
+    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
     const entries = Object.entries(data)
     const total = entries.reduce((sum, [, value]) => sum + value, 0)
 
@@ -368,13 +375,27 @@ const Analytics = () => {
     }
 
     return (
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+        transition={{ duration: 0.3 }}
+        className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+      >
         <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
 
         <div className="flex items-start justify-between gap-6">
           {/* Pie Chart SVG - Left Side */}
-          <div className="flex-shrink-0">
-            <svg width={center * 2} height={center * 2} className="transform transition-transform">
+          <div className="flex-shrink-0 relative">
+            <svg
+              width={center * 2}
+              height={center * 2}
+              className="transform transition-transform"
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+              }}
+            >
               {slices.map((slice, idx) => (
                 <motion.path
                   key={slice.label}
@@ -395,6 +416,30 @@ const Analytics = () => {
                 />
               ))}
             </svg>
+
+            {/* Tooltip */}
+            <AnimatePresence>
+              {hoveredSlice !== null && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="absolute pointer-events-none z-10 bg-gray-900 text-white px-3 py-2 rounded-lg shadow-xl text-sm"
+                  style={{
+                    left: tooltipPos.x + 10,
+                    top: tooltipPos.y - 10,
+                  }}
+                >
+                  <div className="font-semibold">{slices[hoveredSlice].label}</div>
+                  <div className="text-xs mt-1">
+                    {showCurrency ? currency(slices[hoveredSlice].value) : `${slices[hoveredSlice].value} submissions`}
+                  </div>
+                  <div className="text-xs text-gray-300">
+                    {slices[hoveredSlice].percentage.toFixed(1)}%
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Legend - Right Side */}
@@ -425,7 +470,7 @@ const Analytics = () => {
             })}
           </div>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
@@ -570,7 +615,9 @@ const Analytics = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -595,8 +642,9 @@ const Analytics = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -616,8 +664,9 @@ const Analytics = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+              transition={{ delay: 0.2, duration: 0.3 }}
+              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -637,8 +686,9 @@ const Analytics = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div>
