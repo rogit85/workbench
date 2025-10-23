@@ -369,10 +369,10 @@ const Analytics = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-3">
           <h3 className="font-semibold text-gray-900">{title}</h3>
           {/* Legend - Top Right */}
-          <div className="space-y-1 max-w-xs">
+          <div className="space-y-0.5 max-w-xs">
             {slices.map((slice, idx) => {
               const isHovered = hoveredSlice === idx
               return (
@@ -387,10 +387,10 @@ const Analytics = () => {
                     style={{ backgroundColor: slice.color }}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className={`text-xs truncate ${isHovered ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                    <div className={`text-xs leading-tight truncate ${isHovered ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
                       {slice.label}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 leading-tight">
                       {showCurrency ? currency(slice.value) : `${slice.value} submissions`} ({slice.percentage.toFixed(1)}%)
                     </div>
                   </div>
@@ -401,7 +401,7 @@ const Analytics = () => {
         </div>
 
         {/* Pie Chart SVG - Centered */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-start justify-center">
           <div className="relative">
             <svg width={center * 2} height={center * 2} className="transform transition-transform">
               {slices.map((slice, idx) => (
@@ -821,7 +821,7 @@ const Analytics = () => {
           </div>
 
           {/* Pie Charts Row - New vs Renewal and Submissions by Status */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 items-start">
             <PieChart
               data={{ 'New Business': kpis.newCount, 'Renewals': kpis.renewalCount }}
               title="New vs Renewal Business"
