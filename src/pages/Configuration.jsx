@@ -1,0 +1,448 @@
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Settings, Plus, Trash2, Save, Send, X, FileText, Shield, AlertTriangle, CheckCircle } from 'lucide-react'
+import PageTransition from '../components/PageTransition'
+
+const Configuration = () => {
+  const [activeTab, setActiveTab] = useState('appetite')
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+
+  // Appetite Builder State
+  const [appetiteRules, setAppetiteRules] = useState([])
+  const [currentRule, setCurrentRule] = useState({
+    field: 'LOB',
+    operator: 'is',
+    value: '',
+    outcome: 'Accept',
+    rationale: ''
+  })
+
+  const [appetiteTemplates, setAppetiteTemplates] = useState([
+    {
+      id: 'at1',
+      name: 'Property Core v1',
+      description: 'UK retail, core hazard',
+      status: 'Draft',
+      rules: [
+        { field: 'LOB', operator: 'is', value: 'Property', outcome: 'Accept', rationale: 'In-core' },
+        { field: 'TIV', operator: '<=', value: '250000000', outcome: 'Accept', rationale: 'Cap line size' },
+        { field: 'Sprinklered', operator: 'is', value: 'true', outcome: 'Accept', rationale: 'HPR standard' },
+        { field: 'NatCatZone', operator: '!=', value: 'A', outcome: 'Refer', rationale: 'Flood referral' }
+      ]
+    }
+  ])
+
+  // Wordings State
+  const [wordings, setWordings] = useState([
+    { id: 'w1', code: 'LMA3100', title: 'General Conditions', lob: 'Property', category: 'Condition', status: 'Approved', tags: ['core', 'base'] },
+    { id: 'w2', code: 'LMA5522', title: 'Cyber Exclusion', lob: 'Property', category: 'Exclusion', status: 'Approved', tags: ['exclusion', 'cyber'] },
+    { id: 'w3', code: 'LMA9001', title: 'Flood Endorsement', lob: 'Property', category: 'Endorsement', status: 'Pending', tags: ['flood', 'endorsement'] }
+  ])
+
+  const [wordingComposer, setWordingComposer] = useState([])
+  const [wordingTemplates, setWordingTemplates] = useState([
+    { id: 'wt1', name: 'PAR Base v1', status: 'Approved', clauses: ['w1', 'w2'] }
+  ])
+
+  const fieldOptions = [
+    'LOB', 'Geography', 'TIV', 'Construction', 'Sprinklered',
+    'Occupancy', 'NatCatZone', 'Loss Ratio', 'Broker Tier',
+    'Distance to Coast', 'Year Built'
+  ]
+
+  const operatorOptions = [
+    { value: 'is', label: 'is' },
+    { value: 'in', label: 'in' },
+    { value: '>=', label: '≥' },
+    { value: '<=', label: '≤' },
+    { value: 'between', label: 'between' },
+    { value: 'contains', label: 'contains' },
+    { value: '!=', label: 'is not' }
+  ]
+
+  const addAppetiteRule = () => {
+    if (!currentRule.value.trim()) {
+      alert('Please enter a value')
+      return
+    }
+    setAppetiteRules([...appetiteRules, { ...currentRule }])
+    setCurrentRule({ ...currentRule, value: '', rationale: '' })
+  }
+
+  const deleteAppetiteRule = (index) => {
+    setAppetiteRules(appetiteRules.filter((_, i) => i !== index))
+  }
+
+  const saveAppetiteTemplate = () => {
+    if (appetiteRules.length === 0) {
+      alert('Add at least one rule')
+      return
+    }
+    const name = prompt('Template name:') || `Appetite ${Date.now()}`
+    const description = prompt('Description:') || ''
+    setAppetiteTemplates([
+      { id: `at${Date.now()}`, name, description, status: 'Draft', rules: [...appetiteRules] },
+      ...appetiteTemplates
+    ])
+    setAppetiteRules([])
+    alert('Template saved!')
+  }
+
+  const loadTemplateToBuilder = (template) => {
+    setAppetiteRules([...template.rules])
+    setShowTemplateModal(false)
+  }
+
+  const getOutcomeColor = (outcome) => {
+    switch (outcome) {
+      case 'Accept': return 'bg-green-100 text-green-800 border-green-300'
+      case 'Refer': return 'bg-purple-100 text-purple-800 border-purple-300'
+      case 'Decline': return 'bg-red-100 text-red-800 border-red-300'
+      default: return 'bg-gray-100 text-gray-800 border-gray-300'
+    }
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Approved': return 'bg-green-100 text-green-800 border-green-300'
+      case 'Pending': return 'bg-amber-100 text-amber-800 border-amber-300'
+      case 'Draft': return 'bg-gray-100 text-gray-800 border-gray-300'
+      default: return 'bg-gray-100 text-gray-800 border-gray-300'
+    }
+  }
+
+  return (
+    <PageTransition>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1680px] mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+              <Settings className="w-8 h-8 text-sompo-red" />
+              Configuration Toolkit
+            </h1>
+            <p className="text-gray-600">Build appetite rules and manage policy wordings</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('appetite')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                activeTab === 'appetite'
+                  ? 'bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Appetite Builder
+            </button>
+            <button
+              onClick={() => setActiveTab('wordings')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                activeTab === 'wordings'
+                  ? 'bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Wordings Creator & Picker
+            </button>
+          </div>
+
+          {/* Appetite Builder Tab */}
+          {activeTab === 'appetite' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Builder */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Build Rules Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Build Business Rules</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCurrentRule({ field: 'LOB', operator: 'is', value: '', outcome: 'Accept', rationale: '' })}
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={addAppetiteRule}
+                        className="px-3 py-1.5 text-sm bg-sompo-red text-white rounded-lg hover:bg-sompo-dark-red flex items-center gap-1"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Rule
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <select
+                      value={currentRule.field}
+                      onChange={(e) => setCurrentRule({ ...currentRule, field: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                    >
+                      {fieldOptions.map(f => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                    <select
+                      value={currentRule.operator}
+                      onChange={(e) => setCurrentRule({ ...currentRule, operator: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                    >
+                      {operatorOptions.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
+                    </select>
+                    <input
+                      type="text"
+                      value={currentRule.value}
+                      onChange={(e) => setCurrentRule({ ...currentRule, value: e.target.value })}
+                      placeholder="Value"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                    />
+                    <select
+                      value={currentRule.outcome}
+                      onChange={(e) => setCurrentRule({ ...currentRule, outcome: e.target.value })}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                    >
+                      <option value="Accept">Accept</option>
+                      <option value="Refer">Refer</option>
+                      <option value="Decline">Decline</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={currentRule.rationale}
+                      onChange={(e) => setCurrentRule({ ...currentRule, rationale: e.target.value })}
+                      placeholder="Rationale / commentary"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red col-span-2"
+                    />
+                  </div>
+
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="text-xs text-gray-600 uppercase tracking-wider mb-1">Rule Preview</div>
+                    <div className="text-sm font-mono text-gray-900">
+                      IF {currentRule.field} {currentRule.operator} {currentRule.value || '…'} THEN {currentRule.outcome}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">Current Rule Set</div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">#</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">When</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Outcome</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Rationale</th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {appetiteRules.length === 0 ? (
+                            <tr>
+                              <td colSpan="5" className="px-4 py-3 text-sm text-gray-500 text-center">No rules added.</td>
+                            </tr>
+                          ) : (
+                            appetiteRules.map((rule, idx) => (
+                              <tr key={idx}>
+                                <td className="px-4 py-3 text-sm">{idx + 1}</td>
+                                <td className="px-4 py-3 text-sm font-mono">{rule.field} {rule.operator} {rule.value}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getOutcomeColor(rule.outcome)}`}>
+                                    {rule.outcome}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-600">{rule.rationale || '—'}</td>
+                                <td className="px-4 py-3">
+                                  <button
+                                    onClick={() => deleteAppetiteRule(idx)}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Right Column - Templates */}
+              <div className="space-y-6">
+                {/* Save Template Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Save as Template</h3>
+                    <button
+                      onClick={saveAppetiteTemplate}
+                      className="px-3 py-1.5 text-sm bg-sompo-red text-white rounded-lg hover:bg-sompo-dark-red flex items-center gap-1"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Save your current rule set as a reusable template for future submissions.
+                  </p>
+                </motion.div>
+
+                {/* My Templates Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">My Templates</h3>
+                  <div className="space-y-3">
+                    {appetiteTemplates.map(template => (
+                      <div
+                        key={template.id}
+                        className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setSelectedTemplate(template)
+                          setShowTemplateModal(true)
+                        }}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">{template.name}</div>
+                            <div className="text-sm text-gray-600">{template.description}</div>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(template.status)}`}>
+                            {template.status}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500">{template.rules.length} rules</div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          )}
+
+          {/* Wordings Tab */}
+          {activeTab === 'wordings' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Wordings Catalog</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Code</th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Title</th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {wordings.map(wording => (
+                        <tr key={wording.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm font-mono">{wording.code}</td>
+                          <td className="px-4 py-3 text-sm">{wording.title}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(wording.status)}`}>
+                              {wording.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Wording Templates</h3>
+                <div className="space-y-3">
+                  {wordingTemplates.map(template => (
+                    <div key={template.id} className="p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold text-gray-900">{template.name}</div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(template.status)}`}>
+                          {template.status}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500">{template.clauses.length} clauses</div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Template Detail Modal */}
+      <AnimatePresence>
+        {showTemplateModal && selectedTemplate && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setShowTemplateModal(false)} />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              >
+                <div className="bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white px-6 py-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">{selectedTemplate.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => loadTemplateToBuilder(selectedTemplate)}
+                      className="px-3 py-1.5 text-sm bg-white text-sompo-red rounded-lg hover:bg-gray-100"
+                    >
+                      Load into Builder
+                    </button>
+                    <button onClick={() => setShowTemplateModal(false)} className="text-white hover:bg-white/20 rounded-full p-1">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto max-h-[calc(80vh-80px)]">
+                  <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
+                  <div className="space-y-3">
+                    {selectedTemplate.rules.map((rule, idx) => (
+                      <div key={idx} className="p-4 border border-gray-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <code className="text-sm font-mono">{rule.field} {rule.operator} {rule.value}</code>
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getOutcomeColor(rule.outcome)}`}>
+                            {rule.outcome}
+                          </span>
+                        </div>
+                        {rule.rationale && <div className="text-sm text-gray-600">Rationale: {rule.rationale}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+    </PageTransition>
+  )
+}
+
+export default Configuration

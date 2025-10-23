@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Underwriting Workbench — Home</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#6F1111; --brand-2:#7A1414;          /* darker red */
+      --ink:#0F1216; --text:#2A2F33; --muted:#6B757E;
+      --bg:#F6F7F9; --surface:#fff; --border:#E6E9EE;
+      --shadow:0 10px 30px rgba(17,20,24,.06),0 2px 8px rgba(17,20,24,.04);
+      --green:#2E7D32; --amber:#FB8C00; --blue:#1976D2; --purple:#7C3AED; --grey:#667085;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui}
+    a{color:inherit;text-decoration:none}
+
+    /* App bar */
+    .appbar{position:sticky;top:0;z-index:1000;display:grid;grid-template-columns:280px 1fr auto;gap:16px;align-items:center;
+            padding:14px 20px;background:linear-gradient(180deg,var(--brand),var(--brand-2));color:#fff;box-shadow:var(--shadow)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#fff,rgba(255,255,255,.9));display:grid;place-items:center}
+    .logo svg{width:22px;height:22px;stroke:none;fill:var(--brand)}
+    .title{font-weight:800}
+    .appnav{display:flex;gap:8px}
+    .navbtn{border:none;background:rgba(255,255,255,.14);color:#fff;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .navbtn.primary{background:#fff;color:var(--brand)}
+    .profile{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:6px 10px 6px 6px}
+    .avatar{width:34px;height:34px;border-radius:999px;background:#fff;display:grid;place-items:center;color:var(--brand);font-weight:900}
+
+    .wrap{max-width:1680px;margin:0 auto;padding:22px;display:grid;gap:16px}
+
+    /* Sticky search — larger offset & frosted on scroll */
+    .stickySearch{
+      position:sticky; top:96px; z-index:900;                /* larger gap from red bar */
+      display:flex; align-items:center; gap:10px; padding:10px;
+      background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);
+      transition:background .2s ease, backdrop-filter .2s ease, border-color .2s ease, opacity .2s ease;
+    }
+    .stickySearch.frosted{background:rgba(255,255,255,.7); backdrop-filter: blur(10px) saturate(160%); border-color:#DADDE5;}
+    .searchInput{flex:1;display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+    .searchInput input{border:none;outline:none;flex:1;font-size:14px}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:700;white-space:nowrap}
+    .chip.active{background:#ffe3e3;border-color:#ffc9c9;color:#6F1111}
+    .btn2{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:700;white-space:nowrap}
+    .btn2.primary{background:linear-gradient(180deg,var(--brand-2),var(--brand));border-color:transparent;color:#fff}
+    .btn2.small{padding:6px 10px}
+
+    /* Neutral icons */
+    .icon{width:18px;height:18px;display:inline-block;vertical-align:-3px;fill:var(--grey);stroke:var(--grey)}
+
+    /* KPI row */
+    .gridKPI{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    .kpi{position:relative;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;background:#fff;padding:16px;cursor:pointer}
+    .kpi .val{font-size:28px;font-weight:800}
+    .kpi .delta{font-weight:800}
+    .delta.up{color:var(--green)} .delta.down{color:var(--brand)}
+    .spark{position:absolute;right:12px;bottom:10px;width:100px;height:28px}
+
+    /* Greeting + carousel */
+    .hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .bd{padding:14px 16px}
+    .carousel{position:relative; overflow:visible;}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;overflow:hidden}
+    .cardItem{position:relative;border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px;cursor:pointer}
+    .status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;font-weight:700;background:#FAFBFC}
+    .st-cleared{color:#333;background:#F2F3F5}.st-sub{color:#fff;background:var(--blue);border-color:transparent}.st-quo{color:#fff;background:var(--amber);border-color:transparent}.st-bnd{color:#fff;background:var(--green);border-color:transparent}
+    .prio{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px}
+    .prio.high{color:#fff;background:var(--brand)}.prio.med{color:#fff;background:#6B757E}.prio.low{color:#fff;background:#9E9E9E}
+    /* minimal chevrons outside */
+    .chev{position:absolute;top:50%;transform:translateY(-50%);background:transparent;border:none;padding:0;margin:0;cursor:pointer}
+    .chev.left{left:-44px} .chev.right{right:-44px}
+    .chev svg{width:24px;height:24px;stroke:var(--grey);fill:none;stroke-width:2}
+
+    /* Two-column deck */
+    .twoCol{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+    .stack{display:grid;gap:16px}
+
+    /* Tiles */
+    .tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    .tile{border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}
+    .tile .lbl{font-size:12px;color:#6B757E;text-transform:uppercase;letter-spacing:.12em}
+    .tile .num{font-size:22px;font-weight:800}
+    .tinybar{height:8px;border-radius:8px;background:#EEF0F3;position:relative;overflow:hidden;margin-top:6px;border:1px solid var(--border)}
+    .tinybar > span{position:absolute;left:0;top:0;bottom:0;border-radius:8px}
+    .t-cleared{background:#C9CFD6}.t-sub{background:var(--blue)}.t-ref{background:var(--purple)}.t-quo{background:var(--amber)}.t-bnd{background:var(--green)}
+
+    /* News */
+    .news-list .topic{font-size:12px;color:#6B757E;margin:8px 0 4px}
+    .news-list a{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff;margin-bottom:8px;text-decoration:none}
+    .news-list img{width:16px;height:16px;border-radius:4px}
+    .news-list .src{margin-left:auto;color:#8a8f97;font-size:12px}
+
+    /* Table & actions */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;text-align:left}
+    th{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#6B757E;cursor:pointer}
+    .tableTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .btnRow{display:flex;gap:8px;align-items:center}
+    .hidden{display:none!important}
+    .actionbar{display:none;align-items:center;gap:8px;padding:10px;border-top:1px solid var(--border);background:#FAFBFC}
+    .actionbar.show{display:flex}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;border:1px solid var(--border);background:#fff;font-size:12px}
+
+    @media(max-width:1400px){
+      .gridKPI{grid-template-columns:repeat(2,1fr)}
+      .cards{grid-template-columns:1fr}
+      .twoCol{grid-template-columns:1fr}
+      .tiles{grid-template-columns:repeat(2,1fr)}
+    }
+/* === ADDITIONS (non-breaking) === */
+.btn2.ghost{background:transparent;border-color:var(--border)}
+.iconbtn{border:none;background:transparent;cursor:pointer;padding:4px;border-radius:8px}
+.iconbtn:hover{background:#F1F3F6}
+.iconbtn svg{width:16px;height:16px;fill:none;stroke:var(--grey)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#fff}
+.input, .select, .textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px}
+.modal{position:fixed;inset:0;background:rgba(16,18,24,.45);display:none;align-items:center;justify-content:center;z-index:1300}
+.modal > .panel{width:min(720px,92vw);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips .tag{cursor:default}
+.viewbar{display:flex;gap:8px;align-items:center}
+.dropdown{position:relative;display:inline-block}
+.dropdown-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);min-width:220px;display:none;padding:6px}
+.dropdown.open .dropdown-menu{display:block}
+.dropdown-menu .row{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:8px}
+.dropdown-menu .row:hover{background:#F7F8FA}
+.hide-col{display:none!important}
+
+  </style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">
+    <div class="logo" aria-label="Workbench">
+      <!-- Shield with person SVG -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2l7 3v6c0 5-3.5 8.4-7 9.9C8.5 19.4 5 16 5 11V5l7-3zM12 7a2.75 2.75 0 110 5.5A2.75 2.75 0 0112 7zm0 6.5c-2.8 0-5 1.6-5 3.5v1.2c1.7 1.1 3.5 2 5 2.6 1.5-.6 3.3-1.5 5-2.6V17c0-1.9-2.2-3.5-5-3.5z"/>
+      </svg>
+    </div>
+    <div><div style="font-size:12px;opacity:.9;letter-spacing:.18em;text-transform:uppercase">Underwriting Workbench</div><div class="title">Home</div></div>
+  </div>
+  <div class="appnav">
+    <button class="navbtn primary" onclick="location.href='index.html'">Home</button>
+    <button class="navbtn" onclick="location.href='workqueue.html'">Work Queue</button>
+    <button class="navbtn" onclick="location.href='dashboard.html'">Dashboard</button>
+    <button class="navbtn" onclick="location.href='toolkit.html'">Toolkit</button>
+  </div>
+  <div class="profile"><div class="avatar">MN</div><div><div style="font-weight:700">Marin Nikolla</div><div style="font-size:12px;opacity:.85">Lead Underwriter</div></div></div>
+</header>
+
+
+<main class="wrap">
+  <!-- Sticky search (now always available, including Focus mode) -->
+  <div class="stickySearch" id="searchBar">
+    <div class="searchInput">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.35-4.35m1.6-4.9a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <input id="q" placeholder="Search risks, insureds, brokers, products, stage… (Enter)"/>
+    </div>
+    <div class="chip active" data-stage="">All</div>
+    <div class="chip" data-stage="Cleared">Cleared</div>
+    <div class="chip" data-stage="Submissions">Submissions</div>
+    <div class="chip" data-stage="Quoted">Quoted</div>
+    <div class="chip" data-stage="Bound">Bound</div>
+    <button class="btn2" onclick="location.href='workqueue.html'">Workflow view</button>
+    <button class="btn2" onclick="location.href='dashboard.html'">Team Dashboard</button>
+    <button class="btn2 primary" id="btnAdd">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Add submission
+    </button>
+  </div>
+  <div class="quickFilters" id="quickFilters"></div>
+
+  <!-- KPI row -->
+  <section class="gridKPI" id="topKpis">
+    <div class="card kpi" id="kpi_written_card">
+      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.12em;font-size:12px">Total Written Premium</div><div class="val" id="kpi_written">$—</div></div>
+      <div class="delta" id="kpi_written_delta">—</div><svg class="spark" id="spark_written"></svg>
+    </div>
+    <div class="card kpi" id="kpi_quoted_card">
+      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.12em;font-size:12px">Quoted Premium</div><div class="val" id="kpi_quoted">$—</div></div>
+      <div class="delta" id="kpi_quoted_delta">—</div><svg class="spark" id="spark_quoted"></svg>
+    </div>
+    <div class="card kpi" id="kpi_inbound_card">
+      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.12em;font-size:12px">Inbound Submissions (7d)</div><div class="val" id="kpi_inbound">—</div></div>
+      <div class="delta" id="kpi_inbound_delta">—</div><svg class="spark" id="spark_inbound"></svg>
+    </div>
+    <div class="card kpi" id="card_new">
+      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.12em;font-size:12px">New Business</div><div class="val" id="kpi_new">$—</div></div>
+      <div class="delta" id="kpi_new_delta">—</div><svg class="spark" id="spark_new"></svg>
+    </div>
+    <div class="card kpi" id="card_renewal">
+      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.12em;font-size:12px">Renewal Business</div><div class="val" id="kpi_renewal">$—</div></div>
+      <div class="delta" id="kpi_renewal_delta">—</div><svg class="spark" id="spark_renewal"></svg>
+    </div>
+  </section>
+
+  <!-- Pick up -->
+  <section class="card">
+    <div class="bd">
+      <div class="muted" style="text-transform:uppercase;letter-spacing:.12em">Good day</div>
+      <h2 style="margin:.2rem 0 0;color:var(--ink)">Pick up where you left off</h2>
+      <div class="carousel" style="margin-top:12px">
+        <button class="chev left" id="prevCards" aria-label="previous"><svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="cards" id="pickupCards"></div>
+        <button class="chev right" id="nextCards" aria-label="next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two-column deck -->
+  <section class="twoCol">
+    <div class="stack">
+      <div class="card">
+        <div class="hd"><strong>Throughput</strong><span class="muted" style="font-size:12px">Today</span></div>
+        <div class="bd"><div class="tiles" id="tiles"></div></div>
+      </div>
+      <div class="card">
+        <div class="hd"><strong>Recent Activity</strong></div>
+        <div class="bd" id="activity"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><strong>Market News</strong></div>
+      <div class="bd">
+        <div class="news-list">
+          <div class="topic">Cat</div>
+          <a href="https://www.insuranceinsider.com/" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=insuranceinsider.com&sz=32"><span>NatCat capacity tightens in Q4 placements</span><span class="src">Insurance Insider →</span></a>
+          <a href="https://www.reinsurancene.ws/" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=reinsurancene.ws&sz=32"><span>Retro renewals set tone for Jan 1</span><span class="src">Reinsurance News →</span></a>
+          <div class="topic">Casualty</div>
+          <a href="https://www.businessinsurance.com/" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=businessinsurance.com&sz=32"><span>Underwriters signal firming in property rates</span><span class="src">Business Insurance →</span></a>
+          <div class="topic">Reinsurance/Markets</div>
+          <a href="https://www.bloomberg.com/markets" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=bloomberg.com&sz=32"><span>Credit spreads widen; implications for P&C capital</span><span class="src">Bloomberg →</span></a>
+          <a href="https://www.ft.com/" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=ft.com&sz=32"><span>Global risk outlook: inflation and SCS losses</span><span class="src">FT →</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table -->
+  <section class="card">
+    <div class="hd">
+      <strong>Book of Business</strong>
+      <div class="tableTop">
+        <div class="btnRow"></div>
+        <div class="btnRow">
+          <button class="btn2" id="btnFocus">⤢ Focus</button>
+          <button class="btn2 hidden" id="btnActions">⚡ Actions</button>  <!-- only visible in Focus -->
+          <button class="btn2" id="btnExport">⬇︎ Export CSV</button>
+        </div>
+      </div>
+    </div>
+    <div class="bd">
+      <div id="batchBar" class="actionbar">
+        <span id="selCount" class="tag">Selected: 0</span>
+        <span id="selPremium" class="tag">Premium: $0</span>
+        <button class="btn2 small" id="actDelete">🗑 Delete</button>
+        <button class="btn2 small" id="actNTU">🚫 NTU / Decline</button>
+        <button class="btn2 small" id="actRefer">📤 Refer</button>
+        <button class="btn2 small" id="actAssign">👥 Assign</button>
+        <button class="btn2 small" id="actCols">▦ Columns</button>
+        <button class="btn2 small" id="actSaveView">💾 Save view</button>
+        <div class="dropdown" id="viewsDropdown">
+          <button class="btn2 small">📂 Load view</button>
+          <div class="dropdown-menu" id="viewsMenu"></div>
+        </div>
+        <button class="btn2 small" id="btnSelectToggle">✔︎ Select all</button>
+        <button class="btn2 small" id="actClear">Clear</button>
+      </div>
+      
+      <!-- Lock Changes Bar (only shown in Focus + Actions mode) -->
+      <div id="lockBar" style="display:none;background:var(--green);color:white;padding:8px 20px;margin:8px 0;border-radius:8px;align-items:center;gap:12px;box-shadow:var(--shadow)">
+        <span style="font-weight:600">🔒 Lock Changes</span>
+        <input type="text" id="lockComment" placeholder="Enter comment for changes..." style="flex:1;padding:6px 12px;border:none;border-radius:6px;background:rgba(255,255,255,0.9);color:var(--text)">
+        <button id="lockChangesBtn" style="background:white;color:var(--green);border:none;padding:6px 12px;border-radius:6px;font-weight:600;cursor:pointer">Lock Changes</button>
+        <button id="cancelLockBtn" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Cancel</button>
+      </div>
+      <div style="overflow:auto">
+        <table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
+        <div id="emptyState" class="hidden" style="padding:30px;text-align:center;color:#6B757E">
+          <div style="font-weight:800;margin-bottom:6px">No results</div>
+          <div>Try clearing filters or adding a submission.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Add Submission modal (with doc classification) -->
+<div id="subModal" style="position:fixed;inset:0;background:rgba(16,18,24,.45);display:none;align-items:center;justify-content:center;z-index:1200">
+  <div style="width:min(860px,92vw);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)">
+    <div class="hd"><strong>New Submission</strong><button class="btn2" onclick="toggleSub(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <label>Insured <input id="subClient" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px"></label>
+      <label>Line of Business
+        <select id="subLOB" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+          <option>Property</option><option>Casualty</option><option>Specialty</option><option>Marine</option>
+        </select>
+      </label>
+      <label>Product <input id="subProd" placeholder="e.g., PAR, Excess Liab" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px"></label>
+      <label>Estimated Premium (USD) <input type="number" id="subPrem" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px"></label>
+      <label>New or Renewal
+        <select id="subBiz" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+          <option>New</option><option>Renewal</option>
+        </select>
+      </label>
+
+      <!-- Document classification -->
+      <div style="border:1px dashed var(--border);border-radius:12px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          <strong>Upload documents</strong>
+          <input type="file" id="subFiles" multiple style="margin-left:auto">
+        </div>
+        <div id="docList" class="muted" style="font-size:12px">No files selected.</div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleSub(false)">Cancel</button>
+        <button class="btn2 primary" onclick="saveSubmission()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NTU / Decline modal -->
+<div id="ntuModal" style="position:fixed;inset:0;background:rgba(16,18,24,.45);display:none;align-items:center;justify-content:center;z-index:1200">
+  <div style="width:min(520px,92vw);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)">
+    <div class="hd"><strong>NTU / Decline</strong><button class="btn2" onclick="toggleNTU(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <label>Reason
+        <select id="ntuReason" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+          <option>Outside appetite</option><option>Insufficient information</option><option>Pricing not competitive</option><option>Broker request to NTU</option><option>Duplicate submission</option>
+        </select>
+      </label>
+      <label>Comments
+        <textarea id="ntuComment" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px"></textarea>
+      </label>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleNTU(false)">Cancel</button>
+        <button class="btn2 primary" id="ntuOk">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Refer modal -->
+<div id="referModal" style="position:fixed;inset:0;background:rgba(16,18,24,.45);display:none;align-items:center;justify-content:center;z-index:1200">
+  <div style="width:min(520px,92vw);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)">
+    <div class="hd"><strong>Refer / Reassign</strong><button class="btn2" onclick="toggleRefer(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <label>Underwriter
+        <select id="referUW" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+          <option>Marin Nikolla</option><option>Alex Morgan</option><option>Priya Rao</option><option>Ben Turner</option>
+        </select>
+      </label>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleRefer(false)">Cancel</button>
+        <button class="btn2 primary" id="referOk">Reassign</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+  
+
+
+/* ====== DATA (in-memory) ====== */
+const SEED=[
+ {"id":"a0","insured":"Atlas Foods Group","broker":"Howden","lob":"Property","product":"Food & Bev Package","biz":"Renewal","eff":"2025-10-01","premium":190000,"stage":"Cleared","age":"5h","priority":"Medium","channel":"Broker","uw":"Sarah Chen","territory":"West Coast","class":"Food Processing","exposure":"$50M","retention":"$100K","deductible":"$25K","coverage":"$25M","rating":"A+","lossRatio":"0.85"},
+ {"id":"a1","insured":"Orion AeroSystems","broker":"Crestline Broking","lob":"Property","product":"Aviation PAR","biz":"New","eff":"2025-11-01","premium":980000,"stage":"Quoted","age":"3d","priority":"High","channel":"Broker","uw":"Mike Rodriguez","territory":"Southwest","class":"Aerospace","exposure":"$200M","retention":"$250K","deductible":"$50K","coverage":"$50M","rating":"A","lossRatio":"0.92"},
+ {"id":"a2","insured":"Hyperion Biotech","broker":"Apex Risk Partners","lob":"Specialty","product":"Life Science Liability","biz":"New","eff":"2025-12-12","premium":460000,"stage":"Submissions","age":"1d","priority":"Medium","channel":"Direct","uw":"Jennifer Walsh","territory":"Northeast","class":"Biotech","exposure":"$75M","retention":"$50K","deductible":"$10K","coverage":"$10M","rating":"A-","lossRatio":"0.78"},
+ {"id":"a3","insured":"Neptune Offshore Wind","broker":"Westshore Willis","lob":"Marine","product":"Offshore Construction","biz":"Renewal","eff":"2025-12-31","premium":1875000,"stage":"Bound","age":"6h","priority":"High","channel":"Broker","uw":"David Kim","territory":"Gulf Coast","class":"Energy","exposure":"$500M","retention":"$500K","deductible":"$100K","coverage":"$100M","rating":"A+","lossRatio":"0.65"},
+ {"id":"a4","insured":"Lumenova Data Centers","broker":"Cairnstone","lob":"Property","product":"NatCat Excess","biz":"Renewal","eff":"2025-10-30","premium":1320000,"stage":"Bound","age":"5d","priority":"High","channel":"Direct","uw":"Lisa Thompson","territory":"Southeast","class":"Technology","exposure":"$300M","retention":"$200K","deductible":"$75K","coverage":"$75M","rating":"A","lossRatio":"0.88"},
+ {"id":"a5","insured":"Phoenix Rail & Freight","broker":"Gullwing Re","lob":"Casualty","product":"Excess Liability","biz":"New","eff":"2025-11-05","premium":720000,"stage":"Quoted","age":"4d","priority":"Medium","channel":"MGA","uw":"Robert Chen","territory":"Midwest","class":"Transportation","exposure":"$150M","retention":"$100K","deductible":"$25K","coverage":"$25M","rating":"B+","lossRatio":"1.05"},
+ {"id":"a6","insured":"Vivid Motors EV","broker":"Aon Global","lob":"Specialty","product":"Tech E&O","biz":"New","eff":"2025-11-20","premium":540000,"stage":"Submissions","age":"1d","priority":"High","channel":"Broker","uw":"Amanda Foster","territory":"West Coast","class":"Automotive","exposure":"$120M","retention":"$75K","deductible":"$15K","coverage":"$15M","rating":"A-","lossRatio":"0.95"},
+ {"id":"a7","insured":"Evergreen Supermarkets","broker":"Lockton City","lob":"Property","product":"Retail Package","biz":"Renewal","eff":"2025-12-01","premium":310000,"stage":"Submissions","age":"7h","priority":"Medium","channel":"Direct","uw":"Kevin O'Brien","territory":"Northeast","class":"Retail","exposure":"$80M","retention":"$50K","deductible":"$10K","coverage":"$20M","rating":"B+","lossRatio":"1.12"},
+ {"id":"a8","insured":"Silverline Hospitality","broker":"Marsh Europe","lob":"Property","product":"Hotels PAR","biz":"New","eff":"2025-10-12","premium":880000,"stage":"Quoted","age":"2d","priority":"High","channel":"Broker","uw":"Maria Garcia","territory":"Southeast","class":"Hospitality","exposure":"$180M","retention":"$125K","deductible":"$30K","coverage":"$30M","rating":"A","lossRatio":"0.82"},
+ {"id":"a9","insured":"NorthSea Energy","broker":"Aon Offshore","lob":"Marine","product":"Offshore Construction","biz":"Renewal","eff":"2025-12-31","premium":1750000,"stage":"Bound","age":"2d","priority":"High","channel":"Broker","uw":"James Wilson","territory":"Gulf Coast","class":"Energy","exposure":"$450M","retention":"$400K","deductible":"$80K","coverage":"$80M","rating":"A+","lossRatio":"0.71"}
+];
+let ALL=[...SEED];
+
+/* ====== UTIL ====== */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const currency=n=>(+n).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const parseAgeToDays=a=>a?.endsWith('d')?+a.replace('d',''):0;
+const statusClass=s=>s==='Cleared'?'st-cleared':s==='Submissions'?'st-sub':s==='Quoted'?'st-quo':'st-bnd';
+const prioClass = p => (p === 'High' ? 'high' : p === 'Low' ? 'low' : 'med');
+const pctDelta=(cur,base)=>{const d=cur-base, p=Math.round((d/(base||1))*100); return {txt:(d>=0?'↑ ':'↓ ')+Math.abs(p)+'%', cls:(d>=0?'up':'down')};};
+
+/* ====== FROSTED SEARCH on scroll ====== */
+const searchBar=$('#searchBar');
+window.addEventListener('scroll',()=>{ if(window.scrollY>8) searchBar.classList.add('frosted'); else searchBar.classList.remove('frosted'); });
+
+/* ====== KPIs ====== */
+function drawSpark(id, arr, color){
+  const svg=$(id); const w=svg.clientWidth||100, h=svg.clientHeight||28; svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  const mn=Math.min(...arr), mx=Math.max(...arr), dx=w/(arr.length-1||1);
+  const pts=arr.map((v,i)=>[Math.round(i*dx), Math.round(h - ((v-mn)/(mx-mn||1))*h)]);
+  svg.innerHTML=`<path d="M${pts.map(p=>p.join(',')).join(' L ')}" fill="none" stroke="${color}" stroke-width="2"/>`;
+}
+function kpis(){
+  const written=ALL.filter(r=>r.stage==='Bound').reduce((a,b)=>a+(+b.premium||0),0);
+  const quoted =ALL.filter(r=>r.stage==='Quoted').reduce((a,b)=>a+(+b.premium||0),0);
+  const inbound=ALL.filter(r=>r.stage==='Submissions' && parseAgeToDays(r.age)<=7).length;
+  const newPrem=ALL.filter(r=>r.biz==='New').reduce((a,b)=>a+(+b.premium||0),0);
+  const renPrem=ALL.filter(r=>r.biz==='Renewal').reduce((a,b)=>a+(+b.premium||0),0);
+  const base={written:Math.max(1,Math.round(written*0.9)), quoted:Math.max(1,Math.round(quoted*0.95)), inbound:Math.max(1,Math.round(inbound*0.85)), newB:Math.max(1,Math.round(newPrem*0.92)), renB:Math.max(1,Math.round(renPrem*0.94))};
+
+  $('#kpi_written').textContent=currency(written);   let d=pctDelta(written,base.written);   $('#kpi_written_delta').textContent=d.txt; $('#kpi_written_delta').className='delta '+d.cls;
+  $('#kpi_quoted').textContent=currency(quoted);     d=pctDelta(quoted,base.quoted);         $('#kpi_quoted_delta').textContent=d.txt; $('#kpi_quoted_delta').className='delta '+d.cls;
+  $('#kpi_inbound').textContent=inbound;             d=pctDelta(inbound,base.inbound);       $('#kpi_inbound_delta').textContent=d.txt; $('#kpi_inbound_delta').className='delta '+d.cls;
+  $('#kpi_new').textContent=currency(newPrem);       d=pctDelta(newPrem,base.newB);          $('#kpi_new_delta').textContent=d.txt; $('#kpi_new_delta').className='delta '+d.cls;
+  $('#kpi_renewal').textContent=currency(renPrem);   d=pctDelta(renPrem,base.renB);          $('#kpi_renewal_delta').textContent=d.txt; $('#kpi_renewal_delta').className='delta '+d.cls;
+
+  drawSpark('#spark_written',[80,82,79,83,85,88,90],'#2E7D32');
+  drawSpark('#spark_quoted' ,[60,62,65,63,66,67,70],'#FB8C00');
+  drawSpark('#spark_inbound',[5,7,6,8,9,7,10],'#1976D2');
+  drawSpark('#spark_new'    ,[40,44,42,48,47,50,52],'#7A1414');
+  drawSpark('#spark_renewal',[55,54,56,58,59,61,60],'#6B757E');
+}
+['#kpi_written_card','#kpi_quoted_card','#kpi_inbound_card','#card_new','#card_renewal'].forEach((sel,i)=>{
+  const map=['written','quoted','inbound','new','renewal']; document.querySelector(sel).onclick=()=>location.href=`dashboard.html?filter=${map[i]}`;
+});
+
+/* ====== Pickup Carousel ====== */
+let startIdx=0;
+function openRisk(id){ location.href='risk.html?id='+encodeURIComponent(id); }
+function renderPickup(rows){
+  const list=[...rows].sort((a,b)=>parseAgeToDays(a.age)-parseAgeToDays(b.age));
+  const total=list.length, endIdx=Math.min(startIdx+3,total), view=list.slice(startIdx,endIdx);
+  $('#pickupCards').innerHTML=view.map(r=>`
+    <div class="cardItem" onclick="openRisk('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="status ${statusClass(r.stage)}">${r.stage}</div>
+        <div class="prio ${prioClass(r.priority)}">${r.priority}</div>
+      </div>
+      <div style="font-weight:800;margin-top:8px">${r.insured}</div>
+      <div class="muted">${r.product} • ${r.lob}</div>
+      <div style="margin-top:6px;font-size:12px" class="muted">Est. ${currency(r.premium)}</div>
+    </div>`).join('');
+  $('#prevCards').disabled=(startIdx<=0);
+  $('#nextCards').disabled=(endIdx>=total);
+}
+$('#prevCards').onclick=()=>{ startIdx=Math.max(0,startIdx-3); renderPickup(ALL); };
+$('#nextCards').onclick=()=>{ if(startIdx+3<ALL.length){ startIdx=Math.min(ALL.length-3,startIdx+3); renderPickup(ALL);} };
+
+/* ====== Tiles + Activity ====== */
+function renderTiles(rows){
+  const stages=['Cleared','Submissions','Quoted','Bound','Referrals'];
+  const colors=['t-cleared','t-sub','t-quo','t-bnd','t-ref'];
+  const counts=stages.map(s=>rows.filter(r=>r.stage===s).length);
+  const max=Math.max(...counts,1);
+  $('#tiles').innerHTML=stages.map((s,i)=>`
+    <div class="tile">
+      <div class="lbl">${s}</div>
+      <div class="num">${counts[i]}</div>
+      <div class="tinybar"><span class="${colors[i]}" style="width:${Math.round(counts[i]/max*100)}%"></span></div>
+    </div>`).join('');
+}
+function renderActivity(rows){
+  const a=$('#activity'); const sample=rows.slice(0,5);
+  a.innerHTML=sample.map(r=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer"
+         onclick="openRisk('${r.id}')">
+      <div><div style="font-weight:800">${r.insured}</div><div class="muted">${r.broker} • ${r.product}</div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="status ${statusClass(r.stage)}">${r.stage}</span><span class="muted" style="font-size:12px">${r.age||'—'} ago</span></div>
+    </div>`).join('')||'<div class="muted">No recent activity.</div>';
+}
+
+/* ====== Table (Focus + Actions) ====== */
+const COLS=[{k:'insured',label:'Client'},{k:'lob',label:'LOB'},{k:'product',label:'Product'},{k:'biz',label:'New/Renewal'},{k:'stage',label:'Stage'},{k:'premium',label:'Est. Premium',fmt:v=>currency(v)},{k:'priority',label:'Priority'},{k:'channel',label:'Channel'},{k:'broker',label:'Broker'},{k:'eff',label:'Effective'},{k:'uw',label:'UW'},{k:'territory',label:'Territory'},{k:'class',label:'Class'},{k:'exposure',label:'Exposure'},{k:'retention',label:'Retention'},{k:'deductible',label:'Deductible'},{k:'coverage',label:'Coverage'},{k:'rating',label:'Rating'},{k:'lossRatio',label:'Loss Ratio',fmt:v=>v?`${(+v*100).toFixed(1)}%`:'—'}];
+
+let sortKey='insured', sortDir=1, selectionMode=false, selected=new Set(), focusOn=false, selectAllOn=false;
+const thead=$('#thead'), tbody=$('#tbody');
+
+function buildThead(){
+  thead.innerHTML='';
+  const cols=(selectionMode?['select']:[]).concat(COLS.map(c=>c.k));
+  // Add edit column if in selection mode
+  if(selectionMode) cols.unshift('edit');
+  cols.forEach(k=>{
+    const label=k==='select'?'':k==='edit'?'':COLS.find(c=>c.k===k).label;
+    const th=document.createElement('th'); 
+    th.textContent=label;
+    // Add data attribute for column identification
+    if(label) th.setAttribute('data-col', label);
+    if(k!=='select' && k!=='edit') th.onclick=()=>{ sortKey=k; sortDir=-sortDir; renderTable(currentRows()); };
+    if(k==='select' || k==='edit'){ th.style.width='42px'; th.style.cursor='default'; }
+    thead.appendChild(th);
+  });
+}
+
+function currentRows(){
+  const query=($('#q').value||'').toLowerCase().trim();
+  const stage=document.querySelector('.chip.active')?.dataset.stage||'';
+
+  return ALL.filter(r=>{
+    const sOK=!stage||r.stage===stage;
+    if(!query) return sOK;
+    // search across *all* table attributes
+    const vals = [
+      r.insured, r.lob, r.product, r.biz, r.stage, r.priority,
+      r.channel, r.broker, r.eff, String(r.premium)
+    ].join(' ').toLowerCase();
+    return sOK && vals.includes(query);
+  });
+}
+
+function renderTable(rows){
+  rows=[...rows].sort((a,b)=>{const ka=a[sortKey], kb=b[sortKey]; return (sortKey==='premium'?(+ka)-(+kb):String(ka).localeCompare(String(kb)))*sortDir;});
+  tbody.innerHTML='';
+  const cols=(selectionMode?['select']:[]).concat(COLS.map(c=>c.k));
+  // Add edit column if in selection mode
+  if(selectionMode) cols.unshift('edit');
+
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    if(selectionMode){
+      tr.style.cursor='default';
+      tr.addEventListener('click',e=>{
+        if(e.target.tagName!=='INPUT' && e.target.tagName!=='BUTTON'){ 
+          const cb=tr.querySelector('input[type="checkbox"]'); 
+          cb.checked=!cb.checked; 
+          cb.dispatchEvent(new Event('change')); 
+        }
+      });
+    }else{
+      tr.style.cursor='pointer';
+      tr.onclick=()=>openRisk(r.id);
+    }
+    tr.innerHTML=cols.map(k=>{
+      if(k==='select') return `<td style="width:42px"><input type="checkbox" data-id="${r.id}" ${selected.has(r.id)?'checked':''}></td>`;
+      if(k==='edit') return `<td style="width:42px"><button class="iconbtn" title="Edit" onclick="openEdit(${JSON.stringify(r).replace(/"/g, '&quot;')})"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 000-1.42L18.37 3.29a1.004 1.004 0 00-1.42 0l-1.34 1.34 3.75 3.75 1.35-1.34z"/></svg></button></td>`;
+      
+      const col=COLS.find(c=>c.k===k); 
+      const v=r[k]; 
+      const label = col?.label || '';
+      
+      // Make certain columns editable only in Focus mode with Actions on
+      const editableCols = ['uw', 'territory', 'class', 'exposure', 'retention', 'deductible', 'coverage', 'rating', 'lossRatio'];
+      if (editableCols.includes(k) && focusOn && selectionMode) {
+        const inputType = k === 'lossRatio' ? 'number' : k === 'rating' ? 'text' : 'text';
+        const step = k === 'lossRatio' ? '0.01' : '';
+        const placeholder = k === 'lossRatio' ? '0.85' : k === 'rating' ? 'A+' : '';
+        return `<td data-col="${label}"><input type="${inputType}" value="${v||''}" step="${step}" placeholder="${placeholder}" 
+                           onchange="updateField('${r.id}', '${k}', this.value)" 
+                           style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:white;font-size:12px"></td>`;
+      }
+      
+      return `<td data-col="${label}">${col.fmt?col.fmt(v):v}</td>`;
+    }).join('');
+    tbody.appendChild(tr);
+  });
+
+  if(selectionMode){
+    tbody.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+      cb.addEventListener('change',e=>{
+        const id=e.target.dataset.id; if(e.target.checked) selected.add(id); else selected.delete(id);
+        updateSelectionSummary();
+      });
+    });
+  }
+
+  $('#emptyState').classList.toggle('hidden', rows.length>0);
+  updateSelectToggleLabel();
+}
+
+function updateSelectionSummary(){
+  const list=ALL.filter(r=>selected.has(r.id));
+  const sum=list.reduce((a,b)=>a+(+b.premium||0),0);
+  $('#selCount').textContent='Selected: '+list.length;
+  $('#selPremium').textContent='Premium: '+currency(sum);
+  $('#batchBar').classList.toggle('show', list.length>0 || selectionMode);
+}
+
+function updateSelectToggleLabel(){
+  const total=currentRows().length;
+  const label = (selected.size>0 && selected.size===total) ? '✖︎ Deselect all' : '✔︎ Select all';
+  $('#btnSelectToggle').textContent = label;
+}
+
+/* Focus toggle — table + search only */
+function setFocus(on){
+  focusOn=on;
+  document.getElementById('topKpis').classList.toggle('hidden', on);
+  document.querySelectorAll('main > section.card')[0].classList.toggle('hidden', on); // pick-up
+  document.querySelector('.twoCol').classList.toggle('hidden', on); // tiles/news/activity deck
+  // keep search bar visible in focus
+  document.getElementById('quickFilters').classList.toggle('hidden', on); // hide quick chips in focus
+  document.getElementById('btnActions').classList.toggle('hidden', !on); // Actions only in focus
+  document.getElementById('btnFocus').textContent = on ? '⤢ Exit Focus' : '⤢ Focus';
+  if(!on && selectionMode){ // leaving focus disables selection mode
+    selectionMode=false; selected.clear(); updateSelectionSummary(); buildThead(); renderTable(currentRows());
+    document.getElementById('btnActions').textContent='⚡ Actions';
+    selectAllOn=false;
+    // Clear any pending changes and hide lock bar when leaving focus
+    pendingChanges.clear();
+    updateLockBarVisibility();
+  }
+}
+document.getElementById('btnFocus').onclick=()=>setFocus(!focusOn);
+
+/* Actions (selection mode) */
+document.getElementById('btnActions').onclick=()=>{
+  selectionMode=!selectionMode; selected.clear(); updateSelectionSummary(); buildThead(); renderTable(currentRows());
+  document.getElementById('btnActions').textContent = selectionMode ? '⚡ Actions (On)' : '⚡ Actions';
+};
+document.getElementById('btnSelectToggle').onclick=()=>{
+  const rows=currentRows();
+  const allSelected = selected.size===rows.length && rows.length>0;
+  if(allSelected){ selected.clear(); }
+  else{ selected = new Set(rows.map(r=>r.id)); }
+  renderTable(rows);
+  updateSelectionSummary();
+};
+document.getElementById('actClear').onclick=()=>{ selected.clear(); updateSelectionSummary(); renderTable(currentRows()); };
+
+/* Delete */
+document.getElementById('actDelete').onclick=()=>{
+  if(selected.size===0) return;
+  if(!confirm(`Delete ${selected.size} record(s)?`)) return;
+  const set=new Set(selected);
+  ALL=ALL.filter(r=>!set.has(r.id));
+  selected.clear(); updateSelectionSummary(); renderAll();
+};
+/* NTU / Decline */
+function toggleNTU(open){ document.getElementById('ntuModal').style.display=open?'flex':'none'; }
+document.getElementById('actNTU').onclick=()=>{ if(selected.size===0) return; toggleNTU(true); };
+document.getElementById('ntuOk').onclick=()=>{
+  const reason=document.getElementById('ntuReason').value, comment=document.getElementById('ntuComment').value.trim();
+  if(!confirm(`Mark ${selected.size} item(s) NTU/Decline?`)) return;
+  ALL.forEach(r=>{ if(selected.has(r.id)) r.decision={type:'NTU/Decline',reason,comment,ts:Date.now()}; });
+  toggleNTU(false); selected.clear(); updateSelectionSummary(); renderAll();
+};
+/* Refer */
+function toggleRefer(open){ document.getElementById('referModal').style.display=open?'flex':'none'; }
+document.getElementById('actRefer').onclick=()=>{ if(selected.size===0) return; toggleRefer(true); };
+document.getElementById('actAssign').onclick=()=>{ if(selected.size===0) return; toggleAssign(true); };
+document.getElementById('actCols').onclick=()=>{ openColsModal(); };
+document.getElementById('actSaveView').onclick=()=>{ toggleSaveView(true); };
+
+// Load view dropdown
+document.getElementById('viewsDropdown').querySelector('button').addEventListener('click', ()=>{
+  document.getElementById('viewsDropdown').classList.toggle('open');
+  renderViewsMenu();
+});
+document.addEventListener('click', (e)=>{
+  if(!document.getElementById('viewsDropdown').contains(e.target)) {
+    document.getElementById('viewsDropdown').classList.remove('open');
+  }
+});
+document.getElementById('referOk').onclick=()=>{
+  const uw=document.getElementById('referUW').value;
+  if(!confirm(`Reassign ${selected.size} risk(s) to ${uw}?`)) return;
+  ALL.forEach(r=>{ if(selected.has(r.id)) r.assignee=uw; });
+  toggleRefer(false); selected.clear(); updateSelectionSummary(); renderAll();
+};
+
+/* Quick facets */
+function buildFacets(){
+  const query=($('#q').value||'').toLowerCase().trim();
+  const pool=ALL.filter(r=>!query || [
+    r.insured, r.lob, r.product, r.biz, r.stage, r.priority, r.channel, r.broker, r.eff, String(r.premium)
+  ].join(' ').toLowerCase().includes(query));
+  const top=(arr,key)=>Object.entries(arr.reduce((m,x)=>{m[x[key]]=(m[x[key]]||0)+1;return m;},{})).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([v])=>v);
+  const lob=top(pool,'lob'), broker=top(pool,'broker'), prod=top(pool,'product');
+  const bar=$('#quickFilters'); bar.innerHTML='';
+  const addChip=(label,val)=>{ const c=document.createElement('button'); c.className='chip'; c.textContent=label+': '+val; c.onclick=()=>{ $('#q').value = ( $('#q').value+' '+val ).trim(); renderAll(); }; bar.appendChild(c); };
+  lob.forEach(v=>addChip('LOB',v)); broker.forEach(v=>addChip('Broker',v)); prod.forEach(v=>addChip('Product',v));
+  bar.classList.toggle('show', bar.childElementCount>0);
+}
+
+/* Search & stage chips */
+$('#q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ buildFacets(); renderAll(); } });
+$$('.chip').forEach(ch=>ch.addEventListener('click',()=>{ $$('.chip').forEach(c=>c.classList.remove('active')); ch.classList.add('active'); renderAll(); }));
+
+/* Export CSV */
+$('#btnExport').onclick=()=>{
+  const rows=currentRows(); const head=COLS.map(c=>c.label);
+  const lines=[head.join(',')].concat(rows.map(r=>COLS.map(c=>`"${String(c.fmt?c.fmt(r[c.k]).replace(/[$,]/g,''):r[c.k]).replace(/"/g,'""')}"`).join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='book_of_business.csv'; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* Add Submission + doc classification */
+function toggleSub(open){ $('#subModal').style.display=open?'flex':'none'; }
+$('#btnAdd').onclick=()=>toggleSub(true);
+const CLASS_OPTIONS=['Submission','Loss Runs','Financials','SOV','Engineering','Bordereau','Other'];
+$('#subFiles').addEventListener('change',e=>{
+  const box=$('#docList');
+  if(!e.target.files.length){ box.textContent='No files selected.'; return; }
+  const rows=[...e.target.files].map((f,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px dashed #eee">
+      <div class="muted">${f.name}</div>
+      <select data-i="${i}" class="muted" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px">
+        ${CLASS_OPTIONS.map(c=>`<option>${c}</option>`).join('')}
+      </select>
+    </div>`).join('');
+  box.innerHTML=rows;
+});
+function saveSubmission(){
+  const files=$('#subFiles').files;
+  const selects=[...document.querySelectorAll('#docList select')];
+  const docs=selects.map((s,idx)=>({name:files[idx]?.name||`doc-${idx+1}.pdf`, class:s.value}));
+  const rec={id:'u'+Date.now(),insured:$('#subClient').value||'Unnamed Client',broker:'—',lob:$('#subLOB').value,product:$('#subProd').value||'—',biz:$('#subBiz').value,eff:new Date().toISOString().slice(0,10),premium:+($('#subPrem').value||0),stage:'Submissions',age:'0d',priority:'Medium',channel:'Broker',docs};
+  ALL=[rec, ...ALL]; toggleSub(false); renderAll();
+}
+
+/* ====== Render all ====== */
+function renderAll(){kpis(); renderPickup(ALL); renderTiles(ALL); renderActivity(ALL); buildThead(); renderTable(currentRows());}
+renderAll();
+
+/* KPI → Dashboard (safety) */
+document.getElementById('card_new').onclick=()=>location.href='dashboard.html?filter=new';
+document.getElementById('card_renewal').onclick=()=>location.href='dashboard.html?filter=renewal';
+
+
+</script>
+
+<!-- === EDIT RECORD MODAL (ADD) === -->
+<div id="editModal" class="modal">
+  <div class="panel">
+    <div class="hd"><strong>Edit Record</strong><button class="btn2" onclick="toggleEdit(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <input type="hidden" id="editId">
+      <div class="grid2">
+        <label>Insured <input id="editInsured" class="input"></label>
+        <label>Broker <input id="editBroker" class="input"></label>
+      </div>
+      <div class="grid2">
+        <label>LOB <input id="editLOB" class="input"></label>
+        <label>Product <input id="editProduct" class="input"></label>
+      </div>
+      <div class="grid2">
+        <label>New/Renewal <select id="editBiz" class="select"><option>New</option><option>Renewal</option></select></label>
+        <label>Stage <select id="editStage" class="select"><option>Cleared</option><option>Submissions</option><option>Quoted</option><option>Bound</option></select></label>
+      </div>
+      <div class="grid2">
+        <label>Premium (USD) <input id="editPremium" type="number" class="input"></label>
+        <label>Effective <input id="editEff" type="date" class="input"></label>
+      </div>
+
+      <!-- Upload + classify -->
+      <div style="border:1px dashed var(--border);border-radius:12px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          <strong>Attach / classify documents</strong>
+          <input type="file" id="editFiles" multiple style="margin-left:auto">
+        </div>
+        <div id="editDocList" class="muted" style="font-size:12px">No files selected.</div>
+      </div>
+
+
+      <label>Comment on edit (required) <textarea id="editComment" rows="3" class="textarea" placeholder="What changed and why?"></textarea></label>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleEdit(false)">Cancel</button>
+        <button class="btn2 primary" id="editSaveBtn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === ASSIGN MODAL (ADD) === -->
+<div id="assignModal" class="modal">
+  <div class="panel">
+    <div class="hd"><strong>Assign</strong><button class="btn2" onclick="toggleAssign(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <div class="grid2">
+        <label>Assign to
+          <select id="assignWho" class="select">
+            <option>Marin Nikolla (UW)</option>
+            <option>Alex Morgan (UW)</option>
+            <option>Priya Rao (UW)</option>
+            <option>Ben Turner (UW)</option>
+            <option>Jordan Lee (UA)</option>
+            <option>Morgan Patel (UA)</option>
+          </select>
+        </label>
+        <label>Tags (comma-separated) <input id="assignTags" class="input" placeholder="rush, loss-runs, renewal"></label>
+      </div>
+      <label>Comment (required) <textarea id="assignComment" rows="3" class="textarea" placeholder="Why are you assigning this?"></textarea></label>
+      <div class="chips" id="assignPreview"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleAssign(false)">Cancel</button>
+        <button class="btn2 primary" id="assignGo">Assign</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === COLUMNS MODAL (ADD) === -->
+<div id="colsModal" class="modal">
+  <div class="panel">
+    <div class="hd"><strong>Add / Remove Columns</strong><button class="btn2" onclick="toggleCols(false)">✕</button></div>
+    <div class="bd" id="colsList" style="display:grid;grid-template-columns:repeat(2,minmax(200px,1fr));gap:8px"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px">
+      <button class="btn2" onclick="toggleCols(false)">Close</button>
+      <button class="btn2 primary" id="colsApply">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- === SAVE VIEW MODAL (ADD) === -->
+<div id="saveViewModal" class="modal">
+  <div class="panel">
+    <div class="hd"><strong>Save Table View</strong><button class="btn2" onclick="toggleSaveView(false)">✕</button></div>
+    <div class="bd" style="display:grid;gap:10px">
+      <label>View name <input id="viewName" class="input" placeholder="e.g., High Priority Quotes"></label>
+      <div class="muted" style="font-size:12px">Saves: search text, stage chip, sort, and column visibility.</div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn2" onclick="toggleSaveView(false)">Cancel</button>
+        <button class="btn2 primary" id="saveViewBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= ADD-ONLY POST-SCRIPT: Enhancements =========
+   NOTE: This code hooks into your existing globals without modifying prior lines.
+*/
+
+/* ---------- Helpers ---------- */
+const ViewsKey = 'uwbViews:v1';
+const visibleCols = new Set(); // empty = show all
+const CLASS_OPTIONS2 = ['Submission','Loss Runs','Financials','SOV','Engineering','Bordereau','Other'];
+
+function $all(s){ return Array.from(document.querySelectorAll(s)); }
+
+/* Persist / Load views */
+function loadViews(){ try{ return JSON.parse(localStorage.getItem(ViewsKey)||'[]'); }catch(e){ return []; } }
+function saveViews(v){ localStorage.setItem(ViewsKey, JSON.stringify(v)); }
+
+/* Column visibility application (no edits to original renderer) */
+function applyColumnVisibility(){
+  // Get all table headers with data-col attributes
+  const headers = document.querySelectorAll('#thead th[data-col]');
+  
+  // Get all table cells with data-col attributes
+  const cells = document.querySelectorAll('#tbody td[data-col]');
+  
+  // Process headers
+  headers.forEach(th => {
+    const colName = th.getAttribute('data-col');
+    const hide = visibleCols.has(colName);
+    th.classList.toggle('hide-col', hide);
+  });
+  
+  // Process cells
+  cells.forEach(td => {
+    const colName = td.getAttribute('data-col');
+    const hide = visibleCols.has(colName);
+    td.classList.toggle('hide-col', hide);
+  });
+}
+
+
+
+/* ---------- EDIT RECORD ---------- */
+
+function updateCustomAttribute(attrId, field, value) {
+  const attr = customAttributes.find(a => a.id === attrId);
+  if (attr) {
+    attr[field] = value;
+    if (field === 'dataType') {
+      // Reset value when data type changes
+      attr.value = '';
+    }
+    renderCustomAttributes();
+  }
+}
+
+function renderCustomAttributes() {
+  const container = $('#customAttributesList');
+  container.innerHTML = customAttributes.map(attr => `
+    <div class="custom-attr-item" style="border:1px solid var(--border);border-radius:8px;padding:10px;background:#f8f9fa">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px">
+        <div>
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Attribute Name</label>
+          <input type="text" value="${attr.name}" onchange="updateCustomAttribute('${attr.id}', 'name', this.value)" 
+                 placeholder="e.g., Risk Score" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Data Type</label>
+          <select onchange="updateCustomAttribute('${attr.id}', 'dataType', this.value)" 
+                  style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+            ${Object.entries(DATA_TYPES).map(([key, type]) => 
+              `<option value="${key}" ${attr.dataType === key ? 'selected' : ''}>${type.label}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Format</label>
+          <input type="text" value="${attr.format}" onchange="updateCustomAttribute('${attr.id}', 'format', this.value)" 
+                 placeholder="e.g., #,##0.00" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+        </div>
+        <button type="button" onclick="removeCustomAttribute('${attr.id}')" 
+                style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 10px;cursor:pointer">×</button>
+      </div>
+      
+      ${attr.dataType === 'dropdown' ? `
+        <div style="margin-bottom:8px">
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Preset Values (comma-separated)</label>
+          <input type="text" value="${attr.presetValues.join(', ')}" 
+                 onchange="updateCustomAttribute('${attr.id}', 'presetValues', this.value.split(',').map(v => v.trim()).filter(Boolean))" 
+                 placeholder="e.g., Low, Medium, High" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+        </div>
+      ` : ''}
+      
+      ${attr.dataType === 'formula' ? `
+        <div style="margin-bottom:8px">
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Formula (Excel syntax)</label>
+          <textarea onchange="updateCustomAttribute('${attr.id}', 'formula', this.value)" 
+                    placeholder="e.g., =A1*B1+10" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;height:60px">${attr.formula}</textarea>
+        </div>
+      ` : ''}
+      
+      <div>
+        <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">Value</label>
+        ${renderAttributeInput(attr)}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAttributeInput(attr) {
+  const dataType = DATA_TYPES[attr.dataType];
+  
+  switch (attr.dataType) {
+    case 'dropdown':
+      const options = attr.presetValues.length > 0 ? attr.presetValues : ['Select...'];
+      return `<select onchange="updateCustomAttribute('${attr.id}', 'value', this.value)" 
+                      style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+                ${options.map(opt => `<option value="${opt}" ${attr.value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+              </select>`;
+    
+    case 'boolean':
+      return `<input type="checkbox" ${attr.value ? 'checked' : ''} 
+                     onchange="updateCustomAttribute('${attr.id}', 'value', this.checked)" 
+                     style="margin-right:8px">${attr.value ? 'Yes' : 'No'}`;
+    
+    case 'formula':
+      return `<input type="text" value="${attr.value}" readonly 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:#f0f0f0" 
+                     placeholder="Formula result will appear here">`;
+    
+    default:
+      return `<input type="${dataType.input}" value="${attr.value}" 
+                     onchange="updateCustomAttribute('${attr.id}', 'value', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">`;
+  }
+}
+
+function evaluateFormula(formula, record) {
+  if (!formula || !formula.startsWith('=')) return '';
+  
+  try {
+    // Simple formula evaluation - can be expanded
+    let expr = formula.substring(1); // Remove '='
+    
+    // Replace field references (e.g., A1, B1 with actual values)
+    // For now, we'll use a simple mapping
+    const fieldMap = {
+      'A1': record.premium || 0,
+      'B1': record.priority === 'High' ? 3 : record.priority === 'Medium' ? 2 : 1,
+      'C1': record.stage === 'Bound' ? 1 : 0
+    };
+    
+    Object.entries(fieldMap).forEach(([ref, value]) => {
+      expr = expr.replace(new RegExp(ref, 'g'), value);
+    });
+    
+    // Evaluate the expression
+    return Function('"use strict"; return (' + expr + ')')();
+  } catch (e) {
+    return 'Error';
+  }
+}
+
+// Function to update custom attribute value directly in table
+function updateCustomAttributeValue(recordId, attrName, newValue) {
+  const record = ALL.find(r => r.id === recordId);
+  if (!record) return;
+  
+  if (!record.customAttributes) {
+    record.customAttributes = [];
+  }
+  
+  let customAttr = record.customAttributes.find(attr => attr.name === attrName);
+  if (!customAttr) {
+    // Create new attribute if it doesn't exist
+    customAttr = {
+      id: 'attr_' + Date.now(),
+      name: attrName,
+      dataType: 'text',
+      format: '',
+      presetValues: [],
+      formula: '',
+      value: ''
+    };
+    record.customAttributes.push(customAttr);
+  }
+  
+  customAttr.value = newValue;
+  
+  // If it's a formula type, evaluate it
+  if (customAttr.dataType === 'formula' && customAttr.formula) {
+    customAttr.value = evaluateFormula(customAttr.formula, record);
+  }
+  
+  // Re-render the table to show updated values
+  renderTable(currentRows());
+}
+
+// Function to delete custom attribute from a record
+function deleteCustomAttribute(recordId, attrName) {
+  if (!confirm(`Delete custom attribute "${attrName}" from this record?`)) return;
+  
+  const record = ALL.find(r => r.id === recordId);
+  if (!record || !record.customAttributes) return;
+  
+  record.customAttributes = record.customAttributes.filter(attr => attr.name !== attrName);
+  
+  // Re-render the table
+  renderTable(currentRows());
+}
+
+// Function to render existing custom attributes in edit modal
+function renderExistingCustomAttributes(record) {
+  const container = $('#existingCustomAttributes');
+  if (!record.customAttributes || record.customAttributes.length === 0) {
+    container.innerHTML = '<div class="muted" style="text-align:center;padding:10px">No custom attributes</div>';
+    return;
+  }
+  
+  container.innerHTML = record.customAttributes.map(attr => `
+    <div class="existing-attr-item" style="border:1px solid var(--border);border-radius:8px;padding:10px;background:#f8f9fa">
+      <div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;align-items:center">
+        <div>
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">${attr.name}</label>
+          <span style="font-size:11px;color:#6B757E;background:#e9ecef;padding:2px 6px;border-radius:4px">${DATA_TYPES[attr.dataType]?.label || attr.dataType}</span>
+        </div>
+        <div>
+          ${renderAttributeInputForModal(attr, record.id)}
+        </div>
+        <button type="button" onclick="deleteCustomAttributeFromModal('${record.id}', '${attr.name}')" 
+                style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 10px;cursor:pointer">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAttributeInputForModal(attr, recordId) {
+  const dataType = DATA_TYPES[attr.dataType];
+  
+  switch (attr.dataType) {
+    case 'dropdown':
+      const options = attr.presetValues.length > 0 ? attr.presetValues : ['Select...'];
+      return `<select onchange="updateCustomAttributeInModal('${recordId}', '${attr.name}', this.value)" 
+                      style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">
+                ${options.map(opt => `<option value="${opt}" ${attr.value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+              </select>`;
+    
+    case 'boolean':
+      return `<input type="checkbox" ${attr.value ? 'checked' : ''} 
+                     onchange="updateCustomAttributeInModal('${recordId}', '${attr.name}', this.checked)" 
+                     style="margin-right:8px">${attr.value ? 'Yes' : 'No'}`;
+    
+    case 'date':
+      return `<input type="date" value="${attr.value}" 
+                     onchange="updateCustomAttributeInModal('${recordId}', '${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">`;
+    
+    case 'number':
+      return `<input type="number" value="${attr.value}" 
+                     onchange="updateCustomAttributeInModal('${recordId}', '${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">`;
+    
+    case 'formula':
+      return `<input type="text" value="${attr.value}" readonly 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:#f0f0f0" 
+                     placeholder="Formula result">`;
+    
+    default:
+      return `<input type="${dataType.input}" value="${attr.value}" 
+                     onchange="updateCustomAttributeInModal('${recordId}', '${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px">`;
+  }
+}
+
+function updateCustomAttributeInModal(recordId, attrName, newValue) {
+  const record = ALL.find(r => r.id === recordId);
+  if (!record || !record.customAttributes) return;
+  
+  const customAttr = record.customAttributes.find(attr => attr.name === attrName);
+  if (customAttr) {
+    customAttr.value = newValue;
+    
+    // If it's a formula type, evaluate it
+    if (customAttr.dataType === 'formula' && customAttr.formula) {
+      customAttr.value = evaluateFormula(customAttr.formula, record);
+    }
+  }
+}
+
+function deleteCustomAttributeFromModal(recordId, attrName) {
+  if (!confirm(`Delete custom attribute "${attrName}" from this record?`)) return;
+  
+  const record = ALL.find(r => r.id === recordId);
+  if (!record || !record.customAttributes) return;
+  
+  record.customAttributes = record.customAttributes.filter(attr => attr.name !== attrName);
+  
+  // Re-render the existing attributes section
+  renderExistingCustomAttributes(record);
+}
+
+// Function to render locked attributes in edit modal
+function renderLockedAttributes() {
+  const container = $('#lockedAttributesList');
+  const section = $('#lockedAttributesSection');
+  
+  if (lockedAttributes.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  container.innerHTML = lockedAttributes.map(attr => `
+    <div class="locked-attr-item" style="border:1px solid var(--green);border-radius:8px;padding:10px;background:white">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center">
+        <div>
+          <label style="font-size:12px;color:#6B757E;display:block;margin-bottom:4px">${attr.name}</label>
+          <span style="font-size:11px;color:var(--green);background:#e8f5e8;padding:2px 6px;border-radius:4px">${DATA_TYPES[attr.dataType]?.label || attr.dataType} (Standard)</span>
+        </div>
+        <div>
+          ${renderLockedAttributeInput(attr)}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLockedAttributeInput(attr) {
+  const dataType = DATA_TYPES[attr.dataType];
+  
+  switch (attr.dataType) {
+    case 'dropdown':
+      const options = attr.presetValues.length > 0 ? attr.presetValues : ['Select...'];
+      return `<select onchange="updateLockedAttribute('${attr.name}', this.value)" 
+                      style="width:100%;padding:6px;border:1px solid var(--green);border-radius:6px">
+                ${options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+              </select>`;
+    
+    case 'boolean':
+      return `<input type="checkbox" 
+                     onchange="updateLockedAttribute('${attr.name}', this.checked)" 
+                     style="margin-right:8px">Yes/No`;
+    
+    case 'date':
+      return `<input type="date" 
+                     onchange="updateLockedAttribute('${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--green);border-radius:6px">`;
+    
+    case 'number':
+      return `<input type="number" 
+                     onchange="updateLockedAttribute('${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--green);border-radius:6px">`;
+    
+    case 'formula':
+      return `<input type="text" readonly 
+                     style="width:100%;padding:6px;border:1px solid var(--green);border-radius:6px;background:#f0f8f0" 
+                     placeholder="Formula result (calculated automatically)">`;
+    
+    default:
+      return `<input type="${dataType.input}" 
+                     onchange="updateLockedAttribute('${attr.name}', this.value)" 
+                     style="width:100%;padding:6px;border:1px solid var(--green);border-radius:6px">`;
+  }
+}
+
+function updateLockedAttribute(attrName, newValue) {
+  // This would update the locked attribute value for the current record
+  // For now, we'll just show a message
+  console.log(`Updating locked attribute ${attrName} to ${newValue}`);
+}
+
+// Function to update locked attribute value directly in table
+function updateLockedAttributeValue(recordId, attrName, newValue) {
+  const record = ALL.find(r => r.id === recordId);
+  if (!record) return;
+  
+  if (!record.lockedAttributes) {
+    record.lockedAttributes = {};
+  }
+  
+  record.lockedAttributes[attrName] = newValue;
+  
+  // Re-render the table to show updated values
+  renderTable(currentRows());
+}
+
+/* ---------- INLINE EDITING ---------- */
+let pendingChanges = new Map(); // Track pending changes
+
+function updateField(recordId, field, newValue) {
+  const record = ALL.find(r => r.id === recordId);
+  if (!record) return;
+  
+  // Only allow editing in Focus mode with Actions on
+  if (!focusOn || !selectionMode) return;
+  
+  // Get original value for comparison
+  const originalValue = record[field] || '';
+  
+  // Only store change if value actually changed
+  if (originalValue !== newValue) {
+    if (!pendingChanges.has(recordId)) {
+      pendingChanges.set(recordId, {});
+    }
+    pendingChanges.get(recordId)[field] = newValue;
+  } else {
+    // If value is same as original, remove from pending changes
+    if (pendingChanges.has(recordId)) {
+      delete pendingChanges.get(recordId)[field];
+      if (Object.keys(pendingChanges.get(recordId)).length === 0) {
+        pendingChanges.delete(recordId);
+      }
+    }
+  }
+  
+  // Update the record
+  record[field] = newValue;
+  
+  // Show/hide lock bar based on pending changes
+  updateLockBarVisibility();
+}
+
+function updateLockBarVisibility() {
+  const lockBar = $('#lockBar');
+  if (pendingChanges.size > 0) {
+    lockBar.style.display = 'flex';
+  } else {
+    lockBar.style.display = 'none';
+  }
+}
+
+function lockChanges() {
+  const comment = $('#lockComment').value.trim();
+  if (!comment) {
+    alert('Please enter a comment for the changes.');
+    return;
+  }
+  
+  // Apply all pending changes with comment
+  const changeLog = [];
+  pendingChanges.forEach((changes, recordId) => {
+    const record = ALL.find(r => r.id === recordId);
+    if (record) {
+      // Log the changes
+      changeLog.push({
+        recordId,
+        insured: record.insured,
+        changes: Object.keys(changes).map(field => `${field}: ${changes[field]}`).join(', '),
+        comment,
+        timestamp: new Date().toISOString(),
+        user: 'Marin Nikolla'
+      });
+    }
+  });
+  
+  // Clear pending changes
+  pendingChanges.clear();
+  $('#lockComment').value = '';
+  updateLockBarVisibility();
+  
+  // Turn off Actions mode and re-render table
+  selectionMode = false;
+  selected.clear();
+  renderTable(currentRows());
+  updateSelectionSummary();
+  
+  // Show success message
+  alert(`Successfully locked ${changeLog.length} record(s) with changes.`);
+  
+  // In a real app, you would send this to the server
+  console.log('Changes locked:', changeLog);
+}
+
+function cancelChanges() {
+  // Revert all pending changes
+  pendingChanges.forEach((changes, recordId) => {
+    const record = ALL.find(r => r.id === recordId);
+    if (record) {
+      Object.keys(changes).forEach(field => {
+        // Revert to original value (you'd need to store original values)
+        // For now, just clear the field
+        record[field] = '';
+      });
+    }
+  });
+  
+  // Clear pending changes
+  pendingChanges.clear();
+  $('#lockComment').value = '';
+  updateLockBarVisibility();
+  
+  // Turn off Actions mode and re-render table
+  selectionMode = false;
+  selected.clear();
+  renderTable(currentRows());
+  updateSelectionSummary();
+}
+
+// Event listeners for lock functionality
+document.getElementById('lockChangesBtn').addEventListener('click', lockChanges);
+document.getElementById('cancelLockBtn').addEventListener('click', cancelChanges);
+
+// Ensure lock bar is hidden on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateLockBarVisibility();
+});
+
+/* ---------- EDIT RECORD ---------- */
+function toggleEdit(open){ $('#editModal').style.display = open ? 'flex' : 'none'; }
+
+function openEdit(rec){
+  if(!rec) return;
+  $('#editId').value     = rec.id;
+  $('#editInsured').value= rec.insured||'';
+  $('#editBroker').value = rec.broker||'';
+  $('#editLOB').value    = rec.lob||'';
+  $('#editProduct').value= rec.product||'';
+  $('#editBiz').value    = rec.biz||'New';
+  $('#editStage').value  = rec.stage||'Submissions';
+  $('#editPremium').value= rec.premium||0;
+  $('#editEff').value    = (rec.eff||'').slice(0,10);
+
+  // Reset attachments UI
+  $('#editFiles').value = '';
+  $('#editDocList').textContent = 'No files selected.';
+  $('#editComment').value = '';
+  toggleEdit(true);
+}
+
+$('#editFiles').addEventListener('change', e=>{
+  const box = $('#editDocList');
+  if(!e.target.files.length){ box.textContent='No files selected.'; return; }
+  const rows = [...e.target.files].map((f,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px dashed #eee">
+      <div class="muted">${f.name}</div>
+      <select data-i="${i}" class="muted" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px">
+        ${CLASS_OPTIONS2.map(c=>`<option>${c}</option>`).join('')}
+      </select>
+    </div>
+  `).join('');
+  box.innerHTML = rows;
+});
+
+$('#editSaveBtn').addEventListener('click', ()=>{
+  const id = $('#editId').value;
+  const comment = ($('#editComment').value||'').trim();
+  if(!comment){ alert('Please add a comment describing the edit.'); return; }
+
+  const idx = ALL.findIndex(r=>r.id===id);
+  if(idx<0) return;
+
+  // Update fields
+  const rec = {...ALL[idx]};
+  rec.insured = $('#editInsured').value;
+  rec.broker  = $('#editBroker').value;
+  rec.lob     = $('#editLOB').value;
+  rec.product = $('#editProduct').value;
+  rec.biz     = $('#editBiz').value;
+  rec.stage   = $('#editStage').value;
+  rec.premium = +($('#editPremium').value||0);
+  rec.eff     = $('#editEff').value || rec.eff;
+
+  // Gather attachments + classes (metadata only)
+  const files = $('#editFiles').files;
+  const selects = [...document.querySelectorAll('#editDocList select')];
+  const docs = selects.map((s,idx)=>({name:files[idx]?.name||`doc-${idx+1}.pdf`, class:s.value}));
+
+  // Update last edit info
+  rec.lastEdit = {comment, ts: Date.now(), docs};
+
+  ALL[idx] = rec;
+
+  toggleEdit(false);
+  renderAll();
+});
+
+
+
+
+/* ---------- ASSIGN ---------- */
+function toggleAssign(open){ $('#assignModal').style.display = open ? 'flex' : 'none'; updateAssignPreview(); }
+function updateAssignPreview(){
+  const who = $('#assignWho').value;
+  const tags = ($('#assignTags').value||'').split(',').map(t=>t.trim()).filter(Boolean);
+  const wrap = $('#assignPreview');
+  wrap.innerHTML = '';
+  const a = document.createElement('span'); a.className='tag'; a.textContent = `→ ${who}`;
+  wrap.appendChild(a);
+  tags.forEach(t=>{ const s=document.createElement('span'); s.className='tag'; s.textContent=t; wrap.appendChild(s); });
+}
+$('#assignWho').addEventListener('change', updateAssignPreview);
+$('#assignTags').addEventListener('input', updateAssignPreview);
+
+$('#assignGo').addEventListener('click', ()=>{
+  if(selected.size===0) return;
+  const who = $('#assignWho').value;
+  const comment = ($('#assignComment').value||'').trim();
+  if(!comment){ alert('Assignment requires a comment.'); return; }
+  const tags = ($('#assignTags').value||'').split(',').map(t=>t.trim()).filter(Boolean);
+
+  ALL.forEach(r=>{
+    if(selected.has(r.id)){
+      r.assignee = who;
+      r.assignment = {comment, tags, ts: Date.now()};
+    }
+  });
+
+  toggleAssign(false);
+  selected.clear();
+  updateSelectionSummary();
+  renderAll();
+});
+
+/* ---------- COLUMNS ---------- */
+function toggleCols(open){ $('#colsModal').style.display = open ? 'flex' : 'none'; }
+function openColsModal(){
+  // Build checkboxes from current header labels
+  const labels = $$('#thead th').map(th => (th.textContent||'').trim()).filter(Boolean);
+  const list = $('#colsList');
+  list.innerHTML = labels.map(lbl=>{
+    // visibleCols stores HIDDEN columns, so checked = NOT in visibleCols
+    const checked = !visibleCols.has(lbl);
+    return `
+      <label style="display:flex;gap:8px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:8px">
+        <input type="checkbox" data-col="${lbl}" ${checked?'checked':''}>
+        <span>${lbl}</span>
+      </label>
+    `;
+  }).join('');
+  
+  // Attach event listener to Apply button
+  const applyBtn = document.getElementById('colsApply');
+  if (applyBtn) {
+    // Remove any existing listeners
+    applyBtn.removeEventListener('click', handleColumnsApply);
+    // Add new listener
+    applyBtn.addEventListener('click', handleColumnsApply);
+  }
+  
+  toggleCols(true);
+}
+
+// Function to handle columns apply
+function handleColumnsApply(){
+  // Update visibleCols based on checkboxes
+  const boxes = [...document.querySelectorAll('#colsList input[type="checkbox"]')];
+  visibleCols.clear(); // visibleCols stores HIDDEN columns
+  
+  boxes.forEach(b=>{
+    const lbl = b.getAttribute('data-col');
+    if(!b.checked) {
+      visibleCols.add(lbl); // Add to hidden columns if unchecked
+    }
+  });
+  
+  toggleCols(false);
+  applyColumnVisibility();
+}
+
+/* ---------- SAVE/LOAD/DELETE VIEWS ---------- */
+function currentStageChip(){
+  const chip = document.querySelector('.chip.active');
+  return chip ? (chip.dataset.stage||'') : '';
+}
+function captureState(){
+  return {
+    q: ($('#q').value||'').trim(),
+    stage: currentStageChip(),
+    sortKey, sortDir,
+    hiddenCols: Array.from(visibleCols),
+    ts: Date.now()
+  };
+}
+function applyState(state){
+  $('#q').value = state.q||'';
+  // set stage chip
+  $all('.chip').forEach(c=>{
+    c.classList.toggle('active', (c.dataset.stage||'') === (state.stage||''));
+  });
+  // sort
+  sortKey = state.sortKey||sortKey;
+  sortDir = state.sortDir||sortDir;
+
+  // columns
+  visibleCols.clear();
+  (state.hiddenCols||[]).forEach(c=>visibleCols.add(c));
+
+  renderAll();
+  applyColumnVisibility();
+}
+
+function toggleSaveView(open){ $('#saveViewModal').style.display = open ? 'flex' : 'none'; }
+$('#saveViewBtn').addEventListener('click', ()=>{
+  const name = ($('#viewName').value||'').trim();
+  if(!name){ alert('Please provide a name for the view.'); return; }
+  const views = loadViews();
+  const snapshot = captureState();
+  const existing = views.find(v=>v.name.toLowerCase()===name.toLowerCase());
+  if(existing){ existing.state = snapshot; existing.ts = Date.now(); }
+  else views.push({id: 'v'+Date.now(), name, state: snapshot, ts: Date.now()});
+  saveViews(views);
+  toggleSaveView(false);
+});
+
+function renderViewsMenu(){
+  const menu = $('#viewsMenu');
+  const views = loadViews().sort((a,b)=>b.ts-a.ts);
+  if(!views.length){ menu.innerHTML = '<div class="row muted">No saved views</div>'; return; }
+  menu.innerHTML = views.map(v=>`
+    <div class="row">
+      <span>${v.name}</span>
+      <span>
+        <button class="btn2 small ghost" data-act="load" data-id="${v.id}">Load</button>
+        <button class="btn2 small ghost" data-act="del" data-id="${v.id}">Delete</button>
+      </span>
+    </div>
+  `).join('');
+  menu.querySelectorAll('button').forEach(b=>{
+    b.onclick = ()=>{
+      const act = b.getAttribute('data-act');
+      const id  = b.getAttribute('data-id');
+      const views = loadViews();
+      const v = views.find(x=>x.id===id);
+      if(!v) return;
+      if(act==='load'){ applyState(v.state); $('#viewsDropdown').classList.remove('open'); }
+      else if(act==='del'){ saveViews(views.filter(x=>x.id!==id)); renderViewsMenu(); }
+    };
+  });
+}
+
+
+/* ---------- Re-apply visibility after any renderAll ---------- */
+const _renderAll = window.renderAll;
+window.renderAll = function(){ _renderAll(); applyColumnVisibility(); };
+
+
+</script>
+</body>
+</html>

@@ -6,12 +6,13 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopOnRouteChange from "./components/ScrollToTopOnRouteChange";
+import AIAssistant from "./components/AIAssistant";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Submissions from "./pages/Submissions";
-import SubmissionDetail from "./pages/SubmissionDetail";
-import Quotes from "./pages/Quotes";
-import Reports from "./pages/Reports";
+import Intake from "./pages/Intake";
+import WorkQueue from "./pages/WorkQueue";
+import Analytics from "./pages/Analytics";
+import RiskDetail from "./pages/RiskDetail";
+import Configuration from "./pages/Configuration";
 
 function App() {
   return (
@@ -25,20 +26,21 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navbar />
-                <main className="pt-20">
+                <main className="pt-40">
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/submissions" element={<Submissions />} />
-                    <Route
-                      path="/submissions/:id"
-                      element={<SubmissionDetail />}
-                    />
-                    <Route path="/quotes" element={<Quotes />} />
-                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/" element={<Intake />} />
+                    <Route path="/intake" element={<Intake />} />
+                    <Route path="/workqueue" element={<WorkQueue />} />
+                    <Route path="/dashboard" element={<Analytics />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/risk/:id" element={<RiskDetail />} />
+                    <Route path="/reports" element={<Analytics />} />
+                    <Route path="/configuration" element={<Configuration />} />
                   </Routes>
                 </main>
                 <Footer />
                 <ScrollToTop />
+                <AIAssistant />
               </ProtectedRoute>
             }
           />

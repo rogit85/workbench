@@ -8,21 +8,26 @@ export default {
     extend: {
       colors: {
         sompo: {
-          red: '#E10032',
-          'red-dark': '#750006',
-          'red-light': '#FF1744',
-          gray: {
-            50: '#F9FAFB',
-            100: '#F3F4F6',
-            200: '#E5E7EB',
-            300: '#D1D5DB',
-            400: '#9CA3AF',
-            500: '#6B7280',
-            600: '#4B5563',
-            700: '#374151',
-            800: '#1F2937',
-            900: '#111827',
-          }
+          // Primary Colors (from brand guide)
+          red: '#DF082A',
+          white: '#FFFFFF',
+          'light-platinum': '#EFF4F5',
+          'light-red': '#FFF1F1',
+          black: '#000000',
+
+          // Secondary Colors
+          'dark-red': '#9B2222',
+          'medium-red': '#EEAAAA',
+          'medium-platinum': '#C8CED2',
+          'dark-platinum': '#94989C',
+
+          // Tertiary Colors (for data visualization)
+          'dark-purple': '#874CA9',
+          'medium-purple': '#A780D1',
+          'light-purple': '#D2BDFF',
+          'dark-orange': '#AE6A19',
+          'medium-orange': '#FC9F31',
+          'light-orange': '#FFC47E',
         }
       },
       fontFamily: {
