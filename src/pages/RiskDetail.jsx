@@ -614,7 +614,7 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
             </div>
           </motion.div>
 
-          {/* Workflow Status Timeline */}
+          {/* Workflow Status Timeline - Horizontal */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -624,74 +624,80 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               <Activity className="w-5 h-5 text-sompo-red" />
               Workflow Progress
             </h3>
-            <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
 
-              {/* Status items */}
-              <div className="space-y-4">
+            {/* Horizontal Timeline */}
+            <div className="relative overflow-x-auto pb-2">
+              <div className="flex items-start gap-0 min-w-max">
                 {workflowStatuses.map((item, idx) => (
-                  <div key={idx} className="relative pl-12 pb-4">
-                    {/* Circle */}
-                    <div className={`absolute left-0 w-8 h-8 rounded-full border-4 flex items-center justify-center ${
-                      item.completed
-                        ? 'bg-green-500 border-green-200'
-                        : item.inProgress
-                        ? 'bg-purple-500 border-purple-200 animate-pulse'
-                        : 'bg-gray-100 border-gray-300'
-                    }`}>
-                      {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
-                      {item.inProgress && <Clock className="w-4 h-4 text-white" />}
-                    </div>
+                  <div key={idx} className="flex items-start flex-shrink-0">
+                    {/* Status Step */}
+                    <div className="flex flex-col items-center" style={{ width: '140px' }}>
+                      {/* Circle */}
+                      <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center z-10 ${
+                        item.completed
+                          ? 'bg-green-500 border-green-200'
+                          : item.inProgress
+                          ? 'bg-purple-500 border-purple-200 animate-pulse'
+                          : 'bg-gray-100 border-gray-300'
+                      }`}>
+                        {item.completed && <CheckCircle className="w-5 h-5 text-white" />}
+                        {item.inProgress && <Clock className="w-5 h-5 text-white" />}
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className={`font-semibold text-sm ${
-                            item.completed
-                              ? 'text-gray-900'
-                              : item.inProgress
-                              ? 'text-purple-700'
-                              : 'text-gray-400'
-                          }`}>
-                            {item.status}
-                          </span>
-                          {item.duration && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {item.duration}
-                            </span>
-                          )}
+                      {/* Status name */}
+                      <div className="mt-3 text-center">
+                        <div className={`font-semibold text-xs mb-1 ${
+                          item.completed
+                            ? 'text-gray-900'
+                            : item.inProgress
+                            ? 'text-purple-700'
+                            : 'text-gray-400'
+                        }`}>
+                          {item.status}
                         </div>
 
+                        {/* Date and duration */}
                         {item.date && (
                           <div className="text-xs text-gray-600 mb-1">
                             {item.date}
                           </div>
                         )}
+                        {item.duration && (
+                          <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {item.duration}
+                          </div>
+                        )}
 
+                        {/* Assignee info */}
                         {item.completed && item.completedBy && (
-                          <div className="text-xs text-green-700 flex items-center gap-1">
+                          <div className="text-xs text-green-700 mt-1 flex items-center justify-center gap-1">
                             <User className="w-3 h-3" />
-                            Completed by {item.completedBy}
+                            <span className="truncate max-w-[120px]">{item.completedBy}</span>
                           </div>
                         )}
-
                         {item.inProgress && item.assignee && (
-                          <div className="text-xs text-purple-700 flex items-center gap-1">
+                          <div className="text-xs text-purple-700 mt-1 flex items-center justify-center gap-1">
                             <User className="w-3 h-3" />
-                            Assigned to {item.assignee}
+                            <span className="truncate max-w-[120px]">{item.assignee}</span>
                           </div>
                         )}
-
                         {!item.completed && !item.inProgress && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-400 mt-1">
                             Pending
                           </div>
                         )}
                       </div>
                     </div>
+
+                    {/* Connecting line (except for last item) */}
+                    {idx < workflowStatuses.length - 1 && (
+                      <div className="flex items-start pt-5 flex-shrink-0" style={{ width: '60px' }}>
+                        <div className={`h-0.5 w-full ${
+                          item.completed ? 'bg-green-300' : 'bg-gray-200'
+                        }`} />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
