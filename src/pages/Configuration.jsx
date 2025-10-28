@@ -8,7 +8,29 @@ const Configuration = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   // Appetite Builder State
-  const [appetiteRules, setAppetiteRules] = useState([])
+  const aviationAirlinesTemplate = {
+    id: 'at2',
+    name: 'Aviation - Airlines',
+    description: 'Aviation Airlines Underwriting Guidelines 2025',
+    status: 'Approved',
+    rules: [
+      { field: 'LOB', operator: 'is', value: 'Aviation', outcome: 'Accept', rationale: 'Aviation appetite' },
+      { field: 'Aviation Subclass', operator: 'is', value: 'Airlines', outcome: 'Accept', rationale: 'Airlines subclass' },
+      { field: 'IATA Member', operator: 'is', value: 'Yes', outcome: 'Accept', rationale: 'Focus on IATA members with proven safety processes' },
+      { field: 'Line Size USD', operator: '<=', value: '150000000', outcome: 'Accept', rationale: 'Max line USD150m for Airlines' },
+      { field: 'Line %', operator: '<=', value: '5', outcome: 'Accept', rationale: 'Max 5% line for Airlines' },
+      { field: 'Commission %', operator: '<=', value: '25', outcome: 'Accept', rationale: 'Max commission 25% for Airlines (except fronting)' },
+      { field: 'Line Size USD', operator: '>', value: '100000000', outcome: 'Refer', rationale: 'Line exceeds USD100m - SVP referral required' },
+      { field: 'EPI USD', operator: '>', value: '1000000', outcome: 'Refer', rationale: 'EPI exceeds USD1m - SVP referral required' },
+      { field: 'Reinsurance Coverage', operator: 'is', value: 'No', outcome: 'Refer', rationale: 'Risk not covered by reinsurance programme - Head of Division referral' },
+      { field: 'Rate Reduction %', operator: '>', value: '10', outcome: 'Refer', rationale: 'Rate reduction exceeds 10% - Head of Division referral' },
+      { field: 'High Attrition', operator: 'is', value: 'Yes', outcome: 'Decline', rationale: 'Avoid high attrition/frequency accounts without adequate deductibles' }
+    ]
+  }
+
+  const [appetiteRules, setAppetiteRules] = useState([...aviationAirlinesTemplate.rules])
+  const [editingRuleIndex, setEditingRuleIndex] = useState(null)
+  const [builderCollapsed, setBuilderCollapsed] = useState(true)
   const [currentRule, setCurrentRule] = useState({
     field: 'LOB',
     operator: 'is',
@@ -188,17 +210,174 @@ const Configuration = () => {
           {/* Appetite Builder */}
           <div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column - Builder */}
+              {/* Center Column - Template Display */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Build Rules Card */}
+                {/* Current Template Card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+                  className="bg-white rounded-lg shadow-xl border-2 border-sompo-red p-6"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Build Business Rules</h3>
-                    <div className="flex gap-2">
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                          <Shield className="w-6 h-6 text-sompo-red" />
+                          {aviationAirlinesTemplate.name}
+                        </h2>
+                        <p className="text-sm text-gray-600 mt-1">{aviationAirlinesTemplate.description}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(aviationAirlinesTemplate.status)}`}>
+                        {aviationAirlinesTemplate.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Rules List */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Underwriting Rules ({appetiteRules.length})</h3>
+                    {appetiteRules.map((rule, idx) => (
+                      <div key={idx} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        {editingRuleIndex === idx ? (
+                          // Edit Mode
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <select
+                                value={rule.field}
+                                onChange={(e) => {
+                                  const updated = [...appetiteRules]
+                                  updated[idx].field = e.target.value
+                                  setAppetiteRules(updated)
+                                }}
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                              >
+                                {fieldOptions.map(f => <option key={f} value={f}>{f}</option>)}
+                              </select>
+                              <select
+                                value={rule.operator}
+                                onChange={(e) => {
+                                  const updated = [...appetiteRules]
+                                  updated[idx].operator = e.target.value
+                                  setAppetiteRules(updated)
+                                }}
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                              >
+                                {operatorOptions.map(op => <option key={op.value} value={op.value}>{op.label}</option>)}
+                              </select>
+                            </div>
+                            <input
+                              type="text"
+                              value={rule.value}
+                              onChange={(e) => {
+                                const updated = [...appetiteRules]
+                                updated[idx].value = e.target.value
+                                setAppetiteRules(updated)
+                              }}
+                              placeholder="Value"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                            />
+                            <select
+                              value={rule.outcome}
+                              onChange={(e) => {
+                                const updated = [...appetiteRules]
+                                updated[idx].outcome = e.target.value
+                                setAppetiteRules(updated)
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                            >
+                              <option value="Accept">Accept</option>
+                              <option value="Refer">Refer</option>
+                              <option value="Decline">Decline</option>
+                            </select>
+                            <textarea
+                              value={rule.rationale}
+                              onChange={(e) => {
+                                const updated = [...appetiteRules]
+                                updated[idx].rationale = e.target.value
+                                setAppetiteRules(updated)
+                              }}
+                              placeholder="Rationale"
+                              rows="2"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red resize-none"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setEditingRuleIndex(null)}
+                                className="px-4 py-2 bg-sompo-red text-white rounded-lg hover:bg-sompo-dark-red text-sm font-semibold"
+                              >
+                                <CheckCircle className="w-4 h-4 inline mr-1" />
+                                Save
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setAppetiteRules([...aviationAirlinesTemplate.rules])
+                                  setEditingRuleIndex(null)
+                                }}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-semibold"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setAppetiteRules(appetiteRules.filter((_, i) => i !== idx))
+                                  setEditingRuleIndex(null)
+                                }}
+                                className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-semibold ml-auto"
+                              >
+                                <Trash2 className="w-4 h-4 inline mr-1" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          // View Mode
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="font-semibold text-gray-900">{rule.field}</span>
+                                <span className="text-gray-500">{operatorOptions.find(op => op.value === rule.operator)?.label || rule.operator}</span>
+                                <span className="font-semibold text-sompo-red">{rule.value}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${getOutcomeColor(rule.outcome)}`}>
+                                  {rule.outcome}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">{rule.rationale}</p>
+                            </div>
+                            <button
+                              onClick={() => setEditingRuleIndex(idx)}
+                              className="ml-4 px-3 py-1 text-sm text-gray-600 hover:text-sompo-red hover:bg-gray-100 rounded transition-colors"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Build Rules Card - Collapsible */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-lg shadow-lg border border-gray-200"
+                >
+                  <button
+                    onClick={() => setBuilderCollapsed(!builderCollapsed)}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900">Build New Business Rules</h3>
+                    <motion.div
+                      animate={{ rotate: builderCollapsed ? 0 : 180 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-500 transform rotate-90" />
+                    </motion.div>
+                  </button>
+
+                  {!builderCollapsed && (
+                    <div className="px-6 pb-6">
+                      <div className="flex justify-end gap-2 mb-4">
                       <button
                         onClick={() => setCurrentRule({ field: 'LOB', operator: 'is', value: '', outcome: 'Accept', rationale: '' })}
                         className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -213,9 +392,8 @@ const Configuration = () => {
                         Add Rule
                       </button>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                     <select
                       value={currentRule.field}
                       onChange={(e) => setCurrentRule({ ...currentRule, field: e.target.value })}
@@ -306,6 +484,8 @@ const Configuration = () => {
                       </table>
                     </div>
                   </div>
+                    </div>
+                  )}
                 </motion.div>
               </div>
 
