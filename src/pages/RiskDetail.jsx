@@ -33,18 +33,23 @@ import {
   User,
   ThumbsUp,
   ThumbsDown,
-  Edit3
+  Edit3,
+  File,
+  FileCheck,
+  Sparkles
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
 const SubmissionDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('extractions')
   const [fieldFeedback, setFieldFeedback] = useState({}) // { fieldName: { positive: bool, suggestion: string } }
   const [editingSuggestion, setEditingSuggestion] = useState(null) // fieldName being edited
   const [selectedEmail, setSelectedEmail] = useState(null) // for email detail modal
   const [selectedAttachment, setSelectedAttachment] = useState(null) // for attachment modal
+  const [extractionView, setExtractionView] = useState('extract') // 'extract', 'raw', 'summary'
+  const [selectedDocument, setSelectedDocument] = useState(0) // Selected document index
   const scrollContainerRef = useRef(null)
 
   // Comprehensive submission data matching all intake fields
@@ -459,6 +464,237 @@ Josh`,
           details: 'Added note: "Blockchain sector presents elevated governance risk. Need to review entity structure carefully."',
           icon: 'Edit3'
         }
+      ],
+
+      // Document Extractions
+      documentExtractions: [
+        {
+          id: 1,
+          documentName: 'Submission_Email.eml',
+          documentType: 'Submission',
+          uploadedAt: '2025-07-22 10:35:15 UTC',
+          extractedAt: '2025-07-22 10:35:47 UTC',
+          processingTime: '32s',
+          summary: 'Email submission from Howden Insurance Brokers for D&O liability coverage for JX Research Limited, a blockchain technology company based in Cayman Islands. Requesting USD 1M limit with EUR 2M option. Policy inception date 03-Oct-2025.',
+          rawText: `From: Josh Patching <Josh.Patching@howdengroup.com>
+To: submissions@sompo.com
+Subject: New D&O Submission - JX Research Limited
+Date: July 22, 2025 10:35:15 AM UTC
+
+Dear Underwriting Team,
+
+Please find attached our D&O liability submission for JX Research Limited, a blockchain infrastructure company incorporated in the Cayman Islands.
+
+Key Details:
+- Insured: JX Research Limited
+- Industry: Blockchain Technology / Cryptocurrency Infrastructure
+- Limit Requested: USD 1,000,000 (with option for USD 2,000,000)
+- Inception Date: October 3, 2025
+- Coverage: Directors & Officers Liability
+
+The insured is a well-capitalized blockchain technology firm with USD 5.55M in assets. They are seeking comprehensive D&O coverage with entity EPL sublimit.
+
+Please let me know if you need any additional information.
+
+Best regards,
+Josh Patching
+Howden Insurance Brokers Ltd`,
+          extractedFields: [
+            { field: 'Insured Name', value: 'JX Research Limited', confidence: 99, source: 'Email Body' },
+            { field: 'Broker', value: 'Howden Insurance Brokers Ltd (UK)', confidence: 98, source: 'Email Sender' },
+            { field: 'Broker Contact', value: 'Josh Patching', confidence: 99, source: 'Email Sender' },
+            { field: 'Broker Email', value: 'Josh.Patching@howdengroup.com', confidence: 100, source: 'Email Sender' },
+            { field: 'Coverage Type', value: 'Directors & Officers Liability', confidence: 97, source: 'Email Body' },
+            { field: 'Limit Requested', value: 'USD 1,000,000', confidence: 95, source: 'Email Body' },
+            { field: 'Limit Option 2', value: 'USD 2,000,000', confidence: 93, source: 'Email Body' },
+            { field: 'Inception Date', value: '2025-10-03', confidence: 96, source: 'Email Body' },
+            { field: 'Industry', value: 'Blockchain Technology', confidence: 94, source: 'Email Body' },
+            { field: 'Total Assets', value: 'USD 5,550,000', confidence: 92, source: 'Email Body' }
+          ]
+        },
+        {
+          id: 2,
+          documentName: 'Application_Form_Signed.pdf',
+          documentType: 'Submission',
+          uploadedAt: '2025-07-22 10:36:02 UTC',
+          extractedAt: '2025-07-22 10:37:18 UTC',
+          processingTime: '1m 16s',
+          summary: 'Completed D&O application form for JX Research Limited. Contains detailed company information, financial data, governance structure, and coverage requirements. Form includes director and officer details, claim history, and risk management practices.',
+          rawText: `DIRECTORS & OFFICERS LIABILITY APPLICATION FORM
+
+SECTION 1: COMPANY INFORMATION
+Company Name: JX Research Limited
+Registered Address: SIX, 2nd Floor, Cricket Square, PO Box 2681, George Town, Grand Cayman, KY1-1111, Cayman Islands
+Country of Incorporation: Cayman Islands
+Business Description: Blockchain Technology and Cryptocurrency Infrastructure
+Years in Operation: 3 years
+DUNS Number: [Not Provided]
+
+SECTION 2: FINANCIAL INFORMATION
+Total Assets (Current): USD 5,550,000
+Total Assets (Previous): N/A
+Annual Revenue (Current): USD 0
+Annual Revenue (Previous): N/A
+Capital Raised: USD 5,550,000
+Market Capitalization: Private Company
+
+SECTION 3: COVERAGE REQUESTED
+Coverage Type: Directors & Officers Liability
+Limit Requested: USD 1,000,000
+Alternative Limit: USD 2,000,000
+Deductible Primary: USD 0
+Deductible Side A: USD 0
+Deductible Side B (USA): USD 35,000
+Deductible Side B (RoW): USD 15,044
+Entity EPL: Sublimit up to USD 2,000,000
+Policy Period: October 3, 2025 to October 3, 2026
+
+SECTION 4: GOVERNANCE
+Number of Directors: 5
+Number of Officers: 8
+Independent Directors: 2
+Audit Committee: Yes
+...`,
+          extractedFields: [
+            { field: 'Insured Name', value: 'JX Research Limited', confidence: 100, source: 'Form Field' },
+            { field: 'Registered Address', value: 'SIX, 2nd Floor, Cricket Square, PO Box 2681, George Town, Grand Cayman, KY1-1111, Cayman Islands', confidence: 99, source: 'Form Field' },
+            { field: 'Country', value: 'Cayman Islands', confidence: 100, source: 'Form Field' },
+            { field: 'Business Description', value: 'Blockchain Technology and Cryptocurrency Infrastructure', confidence: 98, source: 'Form Field' },
+            { field: 'Total Assets Current', value: 'USD 5,550,000', confidence: 100, source: 'Form Field' },
+            { field: 'Capital Raised', value: 'USD 5,550,000', confidence: 100, source: 'Form Field' },
+            { field: 'Limit', value: 'USD 1,000,000', confidence: 100, source: 'Form Field' },
+            { field: 'Limit Option 2', value: 'USD 2,000,000', confidence: 100, source: 'Form Field' },
+            { field: 'Primary Deductible', value: 'USD 0', confidence: 100, source: 'Form Field' },
+            { field: 'Side A Deductible', value: 'USD 0', confidence: 100, source: 'Form Field' },
+            { field: 'Side B Deductible (USA)', value: 'USD 35,000', confidence: 100, source: 'Form Field' },
+            { field: 'Side B Deductible (RoW)', value: 'USD 15,044', confidence: 100, source: 'Form Field' },
+            { field: 'Entity EPL', value: 'Sublimit Upto USD 2,000,000', confidence: 99, source: 'Form Field' },
+            { field: 'Inception Date', value: '2025-10-03', confidence: 100, source: 'Form Field' },
+            { field: 'Expiry Date', value: '2026-10-03', confidence: 100, source: 'Form Field' }
+          ]
+        },
+        {
+          id: 3,
+          documentName: 'Policy_Wording_DO_2024.pdf',
+          documentType: 'Wording',
+          uploadedAt: '2025-07-22 10:36:45 UTC',
+          extractedAt: '2025-07-22 10:37:52 UTC',
+          processingTime: '1m 7s',
+          summary: 'Standard D&O policy wording document version 2024. Contains policy definitions, coverage terms, exclusions, conditions, and endorsements. No specific extraction of values required - reference document for coverage terms.',
+          rawText: `DIRECTORS AND OFFICERS LIABILITY INSURANCE POLICY
+
+POLICY WORDING VERSION 2024.1
+
+DEFINITIONS
+"Claim" means:
+(a) a written demand for monetary or non-monetary relief;
+(b) a civil proceeding;
+(c) a criminal proceeding;
+(d) a formal administrative or regulatory proceeding;
+...
+
+INSURING AGREEMENTS
+Coverage A - Directors and Officers Liability
+The Insurer shall pay on behalf of the Directors and Officers Loss arising from Claims first made during the Policy Period...
+
+Coverage B - Company Reimbursement
+The Insurer shall pay on behalf of the Company Loss arising from Claims first made during the Policy Period...
+...`,
+          extractedFields: [
+            { field: 'Document Type', value: 'Policy Wording', confidence: 100, source: 'Document Header' },
+            { field: 'Version', value: '2024.1', confidence: 99, source: 'Document Header' },
+            { field: 'Coverage Types', value: 'Coverage A (D&O), Coverage B (Company Reimbursement)', confidence: 97, source: 'Document Body' }
+          ]
+        },
+        {
+          id: 4,
+          documentName: 'Exposure_Schedule.xlsx',
+          documentType: 'Exposure',
+          uploadedAt: '2025-07-22 10:37:12 UTC',
+          extractedAt: '2025-07-22 10:38:05 UTC',
+          processingTime: '53s',
+          summary: 'Detailed exposure schedule showing director and officer positions, compensation, equity holdings, and jurisdictional exposure. Includes breakdown of management structure and key person details.',
+          rawText: `EXPOSURE SCHEDULE - JX RESEARCH LIMITED
+
+DIRECTORS & OFFICERS:
+Name                    Title                     Compensation    Equity    Jurisdiction
+John Smith             CEO & Director            $250,000        15%       Cayman Islands
+Sarah Johnson          CFO & Director            $200,000        10%       Cayman Islands
+Michael Chen           CTO & Director            $200,000        12%       Cayman Islands
+Emma Williams          Independent Director      $50,000         0%        United Kingdom
+David Brown            Independent Director      $50,000         0%        United States
+
+OFFICERS (Non-Director):
+Alice Cooper           VP Operations             $150,000        3%        Cayman Islands
+Robert Davis           VP Technology             $150,000        3%        Cayman Islands
+Lisa Anderson          General Counsel           $180,000        2%        United States
+
+JURISDICTIONAL EXPOSURE:
+Cayman Islands: Primary
+United States: Secondary (US operations and employees)
+United Kingdom: Minimal (1 director)
+
+TOTAL MANAGEMENT COMPENSATION: USD 1,230,000
+TOTAL EQUITY HELD BY MANAGEMENT: 45%`,
+          extractedFields: [
+            { field: 'Number of Directors', value: '5', confidence: 100, source: 'Spreadsheet' },
+            { field: 'Number of Officers', value: '8', confidence: 98, source: 'Spreadsheet' },
+            { field: 'CEO Name', value: 'John Smith', confidence: 100, source: 'Spreadsheet' },
+            { field: 'CFO Name', value: 'Sarah Johnson', confidence: 100, source: 'Spreadsheet' },
+            { field: 'CTO Name', value: 'Michael Chen', confidence: 100, source: 'Spreadsheet' },
+            { field: 'Independent Directors', value: '2', confidence: 100, source: 'Spreadsheet' },
+            { field: 'Primary Jurisdiction', value: 'Cayman Islands', confidence: 100, source: 'Spreadsheet' },
+            { field: 'Secondary Jurisdiction', value: 'United States', confidence: 100, source: 'Spreadsheet' },
+            { field: 'Total Management Compensation', value: 'USD 1,230,000', confidence: 99, source: 'Spreadsheet' },
+            { field: 'Management Equity', value: '45%', confidence: 100, source: 'Spreadsheet' }
+          ]
+        },
+        {
+          id: 5,
+          documentName: 'Quote_Request_Notes.docx',
+          documentType: 'Other',
+          uploadedAt: '2025-07-22 11:20:33 UTC',
+          extractedAt: '2025-07-22 11:21:08 UTC',
+          processingTime: '35s',
+          summary: 'Internal broker notes on the submission including market appetite, placement strategy, and client expectations. Contains information on competing markets and pricing guidance.',
+          rawText: `INTERNAL QUOTE REQUEST NOTES
+
+Client: JX Research Limited
+Market: D&O - Technology / Blockchain Sector
+
+PLACEMENT STRATEGY:
+- Primary target: Specialist tech E&O/D&O markets
+- Secondary: Lloyd's syndicates with crypto appetite
+- Seeking competitive terms given strong capitalization
+
+CLIENT EXPECTATIONS:
+- Target pricing: 2.5% - 3.5% of limit
+- Preferred deductible structure: Zero on Side A
+- Must include entity EPL sublimit
+- Policy period: 12 months from October 3, 2025
+
+MARKET INTELLIGENCE:
+- 3 other markets approached
+- Preliminary indications: 3.2% - 4.1%
+- Client has existing relationship with Sompo through other lines
+
+UNDERWRITING CONSIDERATIONS:
+- Blockchain sector = increased governance scrutiny
+- Cayman incorporation = jurisdictional considerations
+- Strong balance sheet = positive factor
+- No prior claims = positive factor
+
+TARGET SUBMISSION DATE: July 22, 2025
+TARGET QUOTE DATE: July 29, 2025`,
+          extractedFields: [
+            { field: 'Client Name', value: 'JX Research Limited', confidence: 100, source: 'Document' },
+            { field: 'Market Sector', value: 'Technology / Blockchain', confidence: 99, source: 'Document' },
+            { field: 'Target Pricing', value: '2.5% - 3.5% of limit', confidence: 96, source: 'Document' },
+            { field: 'Competing Markets', value: '3', confidence: 98, source: 'Document' },
+            { field: 'Preliminary Indications', value: '3.2% - 4.1%', confidence: 97, source: 'Document' },
+            { field: 'Target Quote Date', value: '2025-07-29', confidence: 95, source: 'Document' }
+          ]
+        }
       ]
     }
   }, [id])
@@ -583,6 +819,7 @@ Josh`,
   }
 
   const tabs = [
+    { id: 'extractions', label: 'Extractions', icon: Sparkles },
     { id: 'overview', label: 'Overview', icon: FileText },
     { id: 'risk', label: 'Risk Information', icon: Shield },
     { id: 'financials', label: 'Financials', icon: DollarSign },
@@ -963,6 +1200,248 @@ Josh`,
           </div>
 
           {/* Tab Content */}
+          {activeTab === 'extractions' && (
+            <div className="space-y-4">
+              {/* Header with View Mode Toggle */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-sompo-red" />
+                      Document Extraction & Classification
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      AI-powered extraction from {submissionData.documentExtractions.length} documents with confidence scoring
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setExtractionView('extract')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        extractionView === 'extract'
+                          ? 'bg-sompo-red text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <FileCheck className="w-4 h-4 inline mr-1" />
+                      Extract
+                    </button>
+                    <button
+                      onClick={() => setExtractionView('raw')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        extractionView === 'raw'
+                          ? 'bg-sompo-red text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <File className="w-4 h-4 inline mr-1" />
+                      Raw
+                    </button>
+                    <button
+                      onClick={() => setExtractionView('summary')}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        extractionView === 'summary'
+                          ? 'bg-sompo-red text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Eye className="w-4 h-4 inline mr-1" />
+                      Summary
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Document List Sidebar */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="lg:col-span-1"
+                >
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Documents ({submissionData.documentExtractions.length})</h4>
+                    <div className="space-y-2">
+                      {submissionData.documentExtractions.map((doc, index) => {
+                        const getDocTypeColor = (type) => {
+                          switch (type) {
+                            case 'Submission': return 'bg-blue-100 text-blue-800 border-blue-300'
+                            case 'Quote': return 'bg-green-100 text-green-800 border-green-300'
+                            case 'Wording': return 'bg-purple-100 text-purple-800 border-purple-300'
+                            case 'Exposure': return 'bg-orange-100 text-orange-800 border-orange-300'
+                            case 'Other': return 'bg-gray-100 text-gray-800 border-gray-300'
+                            default: return 'bg-gray-100 text-gray-800 border-gray-300'
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={doc.id}
+                            onClick={() => setSelectedDocument(index)}
+                            className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                              selectedDocument === index
+                                ? 'border-sompo-red bg-red-50'
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <File className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                                selectedDocument === index ? 'text-sompo-red' : 'text-gray-400'
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-gray-900 truncate">{doc.documentName}</p>
+                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border mt-1 ${getDocTypeColor(doc.documentType)}`}>
+                                  {doc.documentType}
+                                </span>
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                  {doc.extractedFields.length} fields • {doc.processingTime}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Document Content Area */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="lg:col-span-3"
+                >
+                  {submissionData.documentExtractions[selectedDocument] && (
+                    <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+                      {/* Document Header */}
+                      <div className="border-b border-gray-200 pb-4 mb-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900">
+                              {submissionData.documentExtractions[selectedDocument].documentName}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <Upload className="w-3 h-3" />
+                                Uploaded: {submissionData.documentExtractions[selectedDocument].uploadedAt}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" />
+                                Extracted: {submissionData.documentExtractions[selectedDocument].extractedAt}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {submissionData.documentExtractions[selectedDocument].processingTime}
+                              </span>
+                            </div>
+                          </div>
+                          <button className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors">
+                            <Download className="w-4 h-4" />
+                            Download
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Extract View */}
+                      {extractionView === 'extract' && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <FileCheck className="w-4 h-4 text-sompo-red" />
+                            Extracted Fields ({submissionData.documentExtractions[selectedDocument].extractedFields.length})
+                          </h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {submissionData.documentExtractions[selectedDocument].extractedFields.map((field, idx) => {
+                              const getConfidenceColor = (conf) => {
+                                if (conf >= 95) return 'text-green-700 bg-green-50'
+                                if (conf >= 85) return 'text-blue-700 bg-blue-50'
+                                if (conf >= 75) return 'text-amber-700 bg-amber-50'
+                                return 'text-red-700 bg-red-50'
+                              }
+
+                              return (
+                                <div key={idx} className="border border-gray-200 rounded-lg p-3 hover:border-sompo-red transition-colors">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <span className="text-xs font-medium text-gray-600">{field.field}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${getConfidenceColor(field.confidence)}`}>
+                                        {field.confidence}%
+                                      </span>
+                                      <span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                        {field.source}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm font-semibold text-gray-900 break-words">{field.value}</p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Raw View */}
+                      {extractionView === 'raw' && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <File className="w-4 h-4 text-sompo-red" />
+                            Raw Document Text
+                          </h5>
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-[600px] overflow-y-auto">
+                            <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap break-words">
+                              {submissionData.documentExtractions[selectedDocument].rawText}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Summary View */}
+                      {extractionView === 'summary' && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <Eye className="w-4 h-4 text-sompo-red" />
+                            AI-Generated Summary
+                          </h5>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p className="text-sm text-gray-800 leading-relaxed">
+                              {submissionData.documentExtractions[selectedDocument].summary}
+                            </p>
+                          </div>
+                          <div className="mt-4 grid grid-cols-3 gap-3">
+                            <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                              <p className="text-xs text-gray-600">Total Fields</p>
+                              <p className="text-2xl font-bold text-sompo-red mt-1">
+                                {submissionData.documentExtractions[selectedDocument].extractedFields.length}
+                              </p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                              <p className="text-xs text-gray-600">Avg Confidence</p>
+                              <p className="text-2xl font-bold text-green-600 mt-1">
+                                {Math.round(
+                                  submissionData.documentExtractions[selectedDocument].extractedFields.reduce((sum, f) => sum + f.confidence, 0) /
+                                  submissionData.documentExtractions[selectedDocument].extractedFields.length
+                                )}%
+                              </p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                              <p className="text-xs text-gray-600">Processing Time</p>
+                              <p className="text-2xl font-bold text-blue-600 mt-1">
+                                {submissionData.documentExtractions[selectedDocument].processingTime}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               {/* Insured Information */}
