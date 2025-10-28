@@ -59,6 +59,16 @@ const SubmissionDetail = () => {
       submissionDate: '2025-07-22',
       guidewireRef: 'FLG-FLS0455998',
 
+      // Renewal Information (if applicable)
+      previousPolicyNumber: null,
+      gwpcPolicyReference: null,
+      expiringPremium: null,
+      renewalIncrease: null,
+      lossHistory: null,
+      priorCarrier: null,
+      yearsWithPriorCarrier: null,
+      reasonForChange: null,
+
       // Client & Counterparty
       insured: 'JX Research Limited',
       insuredExtracted: 'JX Research Limited',
@@ -1094,6 +1104,37 @@ Josh`,
                   <FieldDisplay label="Written Since (YYYY)" value={submissionData.writtenSince} />
                 </div>
               </motion.div>
+
+              {/* Renewal Information - Only show if this is a renewal */}
+              {submissionData.newRenewal === 'Renewal' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white rounded-lg shadow-lg border border-gray-200 p-3 lg:col-span-3"
+                >
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-sompo-red" />
+                    Renewal Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <FieldDisplay label="Previous Policy Number" value={submissionData.previousPolicyNumber} highlight />
+                      <FieldDisplay label="GWPC Policy Reference" value={submissionData.gwpcPolicyReference} highlight />
+                      <FieldDisplay label="Prior Carrier" value={submissionData.priorCarrier} />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldDisplay label="Expiring Premium" value={submissionData.expiringPremium ? currency(submissionData.expiringPremium, submissionData.limitCurrency) : 'N/A'} />
+                      <FieldDisplay label="Renewal Increase (%)" value={submissionData.renewalIncrease ? `${submissionData.renewalIncrease}%` : 'N/A'} />
+                      <FieldDisplay label="Years with Prior Carrier" value={submissionData.yearsWithPriorCarrier} />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldDisplay label="Loss History" value={submissionData.lossHistory} />
+                      <FieldDisplay label="Reason for Change" value={submissionData.reasonForChange} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
           )}
 

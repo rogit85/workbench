@@ -22,6 +22,57 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import {
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable'
+
+// Sortable Table Header Component
+const SortableTableHeader = ({ column, sortBy, sortOrder, onClick, onSort }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: column.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <th
+      ref={setNodeRef}
+      style={style}
+      className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50 border-r border-gray-200 last:border-r-0"
+    >
+      <div className="flex items-center gap-2">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing flex-shrink-0"
+          title="Drag to reorder"
+        >
+          <GripVertical className="w-4 h-4 text-gray-400 hover:text-sompo-red" />
+        </div>
+        <div
+          onClick={() => onClick(column.id)}
+          className="flex items-center gap-2 cursor-pointer hover:text-sompo-red flex-1"
+        >
+          <span>{column.label}</span>
+          {sortBy === column.id && (
+            sortOrder === 'asc'
+              ? <ChevronUp className="w-4 h-4 text-sompo-red" />
+              : <ChevronDown className="w-4 h-4 text-sompo-red" />
+          )}
+        </div>
+      </div>
+    </th>
+  )
+}
 
 // Droppable Column Component
 const DroppableColumn = ({ id, children }) => {
@@ -520,6 +571,22 @@ const WorkQueue = () => {
     }
   }
 
+  // Handle column reordering
+  const handleColumnDragEnd = (event) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    setVisibleColumns((columns) => {
+      const oldIndex = columns.findIndex((col) => col.id === active.id)
+      const newIndex = columns.findIndex((col) => col.id === over.id)
+
+      return arrayMove(columns, oldIndex, newIndex)
+    })
+  }
+
   // Get all submissions in a flat array for spreadsheet view with sorting
   const getAllSubmissions = () => {
     let submissions = Object.entries(tasks).flatMap(([status, items]) =>
@@ -949,27 +1016,30 @@ const WorkQueue = () => {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      {visibleColumns.filter(col => col.enabled).map(col => (
-                        <th
-                          key={col.id}
-                          className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                          onClick={() => handleSort(col.id)}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCorners}
+                  onDragEnd={handleColumnDragEnd}
+                >
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <SortableContext
+                          items={visibleColumns.filter(col => col.enabled).map(col => col.id)}
+                          strategy={horizontalListSortingStrategy}
                         >
-                          <div className="flex items-center gap-2">
-                            <span>{col.label}</span>
-                            {sortBy === col.id && (
-                              sortOrder === 'asc'
-                                ? <ChevronUp className="w-4 h-4 text-sompo-red" />
-                                : <ChevronDown className="w-4 h-4 text-sompo-red" />
-                            )}
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
+                          {visibleColumns.filter(col => col.enabled).map(col => (
+                            <SortableTableHeader
+                              key={col.id}
+                              column={col}
+                              sortBy={sortBy}
+                              sortOrder={sortOrder}
+                              onClick={handleSort}
+                            />
+                          ))}
+                        </SortableContext>
+                      </tr>
+                    </thead>
                   <tbody className="divide-y divide-gray-200">
                     {getAllSubmissions().map((submission) => (
                       <tr
@@ -985,6 +1055,7 @@ const WorkQueue = () => {
                     ))}
                   </tbody>
                 </table>
+                </DndContext>
               </div>
 
               {getAllSubmissions().length === 0 && (

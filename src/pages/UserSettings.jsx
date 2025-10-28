@@ -39,6 +39,7 @@ const UserSettings = () => {
 
     // System Settings
     defaultView: 'grid',
+    defaultStartingPage: '/dashboard',
     itemsPerPage: 25,
     autoRefresh: true,
     refreshInterval: 30
@@ -275,6 +276,22 @@ const UserSettings = () => {
                 >
                   <option value="grid">Grid View</option>
                   <option value="list">List View</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Default Starting Page</label>
+                <select
+                  value={settings.defaultStartingPage}
+                  onChange={(e) => setSettings({...settings, defaultStartingPage: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                >
+                  <option value="/dashboard">Dashboard</option>
+                  <option value="/work-queue">Work Queue</option>
+                  <option value="/intake">Intake</option>
+                  <option value="/analytics">Analytics</option>
+                  <option value="/ai-accuracy">AI Accuracy</option>
+                  <option value="/underwriter-performance">Underwriter Performance</option>
                 </select>
               </div>
             </div>
