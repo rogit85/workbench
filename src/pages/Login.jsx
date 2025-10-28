@@ -49,10 +49,10 @@ const Login = () => {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center justify-center w-20 h-20 bg-red-600 rounded-full mb-4"
             >
-              <span className="text-white text-2xl font-bold">S</span>
+              <LogIn className="w-10 h-10 text-white" />
             </motion.div>
             <h1 className="text-3xl font-bold gradient-text mb-2">
-              Sompo Underwriting Workbench
+              Underwriting Workbench
             </h1>
             <p className="text-gray-600">Sign in to access your account</p>
           </div>
@@ -138,22 +138,6 @@ const Login = () => {
                 )}
               </button>
             </form>
-
-            {/* Test Credentials */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 text-center mb-3">Test Credentials:</p>
-              <div className="space-y-2">
-                <div className="bg-gray-50 px-3 py-2 rounded text-sm">
-                  <span className="font-medium">Demo User:</span> demo / demo123
-                </div>
-                <div className="bg-gray-50 px-3 py-2 rounded text-sm">
-                  <span className="font-medium">Admin:</span> admin / admin123
-                </div>
-                <div className="bg-gray-50 px-3 py-2 rounded text-sm">
-                  <span className="font-medium">Underwriter:</span> underwriter / underwriter123
-                </div>
-              </div>
-            </div>
           </motion.div>
         </motion.div>
       </div>
