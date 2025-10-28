@@ -4,13 +4,13 @@ const AuthContext = createContext({});
 
 // Valid credentials
 const VALID_CREDENTIALS = {
-  username: 'S0MP0321!',
-  password: 'Welcome2024'
+  username: 'UnderwriterAdmin2025',
+  password: 'SecurePass#2025!'
 };
 
 // User data after login
 const USER_DATA = {
-  username: 'S0MP0321!',
+  username: 'UnderwriterAdmin2025',
   role: 'Senior Underwriter',
   fullName: 'Jeremy Isaacs'
 };
