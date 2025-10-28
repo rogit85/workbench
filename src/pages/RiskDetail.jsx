@@ -1042,29 +1042,53 @@ TARGET QUOTE DATE: July 29, 2025`,
                 }}
               >
                 <div className="flex items-start gap-0 min-w-max px-4">
-                  {workflowStatuses.map((item, idx) => (
+                  {workflowStatuses.map((item, idx) => {
+                    // Check if this is an AI-powered stage
+                    const isAIStage = item.status === 'Extraction Review' || item.status === 'Clearance' || item.completedBy === 'Auto-Approved' || item.completedBy === 'Auto-Intake'
+
+                    return (
                     <div key={idx} className="flex items-start flex-shrink-0">
                       {/* Status Step */}
-                      <div className="flex flex-col items-center" style={{ width: '100px' }}>
+                      <div className="flex flex-col items-center relative" style={{ width: '100px' }}>
+                        {/* AI Badge */}
+                        {isAIStage && (
+                          <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 z-20">
+                            <motion.div
+                              animate={{
+                                scale: [1, 1.1, 1],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                              className="flex items-center gap-0.5 px-1.5 py-0.5 bg-sompo-red text-white text-[8px] font-bold rounded-full shadow-sm"
+                            >
+                              <Sparkles className="w-2 h-2" />
+                              AI
+                            </motion.div>
+                          </div>
+                        )}
+
                         {/* Circle */}
                         <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center z-10 ${
                           item.completed
-                            ? 'bg-green-500 border-green-200'
+                            ? isAIStage ? 'bg-sompo-red border-red-200' : 'bg-green-500 border-green-200'
                             : item.inProgress
-                            ? 'bg-purple-500 border-purple-200 animate-pulse'
+                            ? isAIStage ? 'bg-sompo-red border-red-200 animate-pulse' : 'bg-purple-500 border-purple-200 animate-pulse'
                             : 'bg-gray-100 border-gray-300'
                         }`}>
-                          {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
-                          {item.inProgress && <Clock className="w-4 h-4 text-white" />}
+                          {item.completed && (isAIStage ? <Sparkles className="w-4 h-4 text-white" /> : <CheckCircle className="w-4 h-4 text-white" />)}
+                          {item.inProgress && (isAIStage ? <Sparkles className="w-4 h-4 text-white animate-pulse" /> : <Clock className="w-4 h-4 text-white" />)}
                         </div>
 
                         {/* Status name */}
                         <div className="mt-2 text-center">
-                          <div className={`font-semibold text-[10px] leading-tight ${
+                          <div className={`font-semibold text-[10px] leading-tight flex items-center justify-center gap-1 ${
                             item.completed
-                              ? 'text-gray-900'
+                              ? isAIStage ? 'text-sompo-red' : 'text-gray-900'
                               : item.inProgress
-                              ? 'text-purple-700'
+                              ? isAIStage ? 'text-sompo-red' : 'text-purple-700'
                               : 'text-gray-400'
                           }`}>
                             {item.status}
@@ -1100,7 +1124,8 @@ TARGET QUOTE DATE: July 29, 2025`,
                         </div>
                       )}
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
@@ -1781,14 +1806,29 @@ TARGET QUOTE DATE: July 29, 2025`,
                               const isEditing = editingExtraction === feedbackKey
 
                               return (
-                                <div key={idx} className={`border rounded-lg p-3 transition-all ${
-                                  feedback ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-sompo-red'
-                                }`}>
+                                <motion.div
+                                  key={idx}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: idx * 0.05 }}
+                                  className={`relative border rounded-lg p-3 transition-all overflow-hidden ${
+                                    feedback ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-sompo-red hover:shadow-md'
+                                  }`}
+                                >
+                                  {/* AI Indicator Corner */}
+                                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-sompo-red/10 to-transparent transform rotate-45 translate-x-4 -translate-y-4"></div>
+                                    <Sparkles className="absolute top-1 right-1 w-3 h-3 text-sompo-red animate-pulse" />
+                                  </div>
+
                                   <div className="flex items-start justify-between mb-2">
-                                    <span className="text-xs font-medium text-gray-600">{field.field}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <Sparkles className="w-3 h-3 text-sompo-red flex-shrink-0" />
+                                      <span className="text-xs font-medium text-gray-600">{field.field}</span>
+                                    </div>
                                     <div className="flex items-center gap-2">
-                                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${getConfidenceColor(field.confidence)}`}>
-                                        {field.confidence}%
+                                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getConfidenceColor(field.confidence)}`}>
+                                        {field.confidence}% AI
                                       </span>
                                       <span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
                                         {field.source}
@@ -1885,7 +1925,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                                       </button>
                                     </div>
                                   )}
-                                </div>
+                                </motion.div>
                               )
                             })}
                           </div>

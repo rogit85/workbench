@@ -181,24 +181,93 @@ const AIAssistant = () => {
   return (
     <>
       {/* Floating Chat Button */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white rounded-full shadow-2xl flex items-center justify-center hover:shadow-3xl transition-shadow"
-      >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div key="close" initial={{ rotate: -90 }} animate={{ rotate: 0 }} exit={{ rotate: 90 }}>
-              <X className="w-6 h-6" />
-            </motion.div>
-          ) : (
-            <motion.div key="open" initial={{ rotate: 90 }} animate={{ rotate: 0 }} exit={{ rotate: -90 }}>
-              <MessageCircle className="w-6 h-6" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.button>
+      <motion.div className="fixed bottom-6 right-6 z-50">
+        {/* Pulsing outer ring */}
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.1, 0.4],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute inset-0 bg-sompo-red rounded-full"
+          style={{ width: '56px', height: '56px' }}
+        />
+
+        {/* Sparkle effect */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -top-1 -right-1 w-4 h-4"
+        >
+          <Sparkles className="w-4 h-4 text-sompo-red" />
+        </motion.div>
+
+        <motion.button
+          animate={{
+            boxShadow: [
+              '0 4px 6px rgba(220, 38, 38, 0.3)',
+              '0 10px 25px rgba(220, 38, 38, 0.5)',
+              '0 4px 6px rgba(220, 38, 38, 0.3)',
+            ]
+          }}
+          transition={{
+            boxShadow: {
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative w-14 h-14 bg-gradient-to-br from-sompo-red via-red-600 to-sompo-dark-red text-white rounded-full flex items-center justify-center transition-all"
+        >
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.div
+                key="close"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+              >
+                <X className="w-6 h-6" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="open"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+              >
+                <MessageCircle className="w-6 h-6" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+
+        {/* AI Badge */}
+        {!isOpen && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-2 -left-2 px-2 py-0.5 bg-gradient-to-r from-sompo-red to-red-600 text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white flex items-center gap-1"
+          >
+            <Sparkles className="w-2.5 h-2.5 animate-pulse" />
+            AI
+          </motion.div>
+        )}
+      </motion.div>
 
       {/* Chat Window */}
       <AnimatePresence>
