@@ -1,21 +1,12 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 import {
   Mail,
   Save,
-  Plus,
   Edit,
-  Trash2,
-  Eye,
-  Bold,
-  Italic,
-  Underline,
-  List,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Link as LinkIcon,
-  Image as ImageIcon
+  Eye
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -29,7 +20,7 @@ const EmailTemplates = () => {
       lastModified: '2024-10-25',
       content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="text-align: center; padding: 20px; background-color: #CC0000;">
-    <img src="/sompo-logo-white.svg" alt="Sompo" style="height: 60px;" />
+    <img src="/sompo-logo.svg" alt="Sompo" style="height: 60px; filter: brightness(0) invert(1);" />
   </div>
   <div style="padding: 30px; background-color: #ffffff;">
     <p>Dear {{brokerName}},</p>
@@ -64,7 +55,7 @@ const EmailTemplates = () => {
       lastModified: '2024-10-24',
       content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="text-align: center; padding: 20px; background-color: #CC0000;">
-    <img src="/sompo-logo-white.svg" alt="Sompo" style="height: 60px;" />
+    <img src="/sompo-logo.svg" alt="Sompo" style="height: 60px; filter: brightness(0) invert(1);" />
   </div>
   <div style="padding: 30px; background-color: #ffffff;">
     <p>Dear {{brokerName}},</p>
@@ -100,7 +91,7 @@ const EmailTemplates = () => {
       lastModified: '2024-10-23',
       content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="text-align: center; padding: 20px; background-color: #CC0000;">
-    <img src="/sompo-logo-white.svg" alt="Sompo" style="height: 60px;" />
+    <img src="/sompo-logo.svg" alt="Sompo" style="height: 60px; filter: brightness(0) invert(1);" />
   </div>
   <div style="padding: 30px; background-color: #ffffff;">
     <p>Dear {{brokerName}},</p>
@@ -134,7 +125,7 @@ const EmailTemplates = () => {
       lastModified: '2024-10-22',
       content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="text-align: center; padding: 20px; background-color: #CC0000;">
-    <img src="/sompo-logo-white.svg" alt="Sompo" style="height: 60px;" />
+    <img src="/sompo-logo.svg" alt="Sompo" style="height: 60px; filter: brightness(0) invert(1);" />
   </div>
   <div style="padding: 30px; background-color: #ffffff;">
     <p>Dear {{brokerName}},</p>
@@ -173,7 +164,7 @@ const EmailTemplates = () => {
       lastModified: '2024-10-21',
       content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="text-align: center; padding: 20px; background-color: #CC0000;">
-    <img src="/sompo-logo-white.svg" alt="Sompo" style="height: 60px;" />
+    <img src="/sompo-logo.svg" alt="Sompo" style="height: 60px; filter: brightness(0) invert(1);" />
   </div>
   <div style="padding: 30px; background-color: #ffffff;">
     <p>Dear {{brokerName}},</p>
@@ -242,21 +233,30 @@ const EmailTemplates = () => {
     setSelectedTemplate(null)
   }
 
-  const applyFormatting = (command, value = null) => {
-    document.execCommand(command, false, value)
+  const insertVariable = (variable) => {
+    setEditedContent(editedContent + ` {{${variable}}} `)
   }
 
-  const insertVariable = (variable) => {
-    const textarea = document.getElementById('content-editor')
-    if (textarea) {
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const text = editedContent
-      const before = text.substring(0, start)
-      const after = text.substring(end, text.length)
-      setEditedContent(before + `{{${variable}}}` + after)
-    }
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link', 'image'],
+      ['clean']
+    ]
   }
+
+  const quillFormats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'align',
+    'color', 'background',
+    'link', 'image'
+  ]
 
   const availableVariables = [
     'submissionRef',
@@ -369,6 +369,11 @@ const EmailTemplates = () => {
                   </div>
 
                   <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                    <style>{`
+                      .ql-editor {
+                        min-height: 350px;
+                      }
+                    `}</style>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       {/* Editor */}
                       <div className="lg:col-span-2 space-y-4">
@@ -395,15 +400,21 @@ const EmailTemplates = () => {
                         </div>
 
                         {/* Content Editor */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Email Content (HTML)</label>
-                          <textarea
-                            id="content-editor"
-                            value={editedContent}
-                            onChange={(e) => setEditedContent(e.target.value)}
-                            rows={20}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red font-mono text-sm"
-                          />
+                        <div className="mb-6">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Email Content</label>
+                          <div className="border border-gray-300 rounded-lg overflow-hidden bg-white" style={{ minHeight: '400px' }}>
+                            <ReactQuill
+                              theme="snow"
+                              value={editedContent}
+                              onChange={setEditedContent}
+                              modules={quillModules}
+                              formats={quillFormats}
+                              style={{ height: '350px' }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Use the toolbar to format text. Click "Insert Variable" buttons on the right to add dynamic fields.
+                          </p>
                         </div>
                       </div>
 
