@@ -39,7 +39,10 @@ import {
   FileCheck,
   Sparkles,
   Home,
-  RefreshCw
+  RefreshCw,
+  X,
+  MessageSquare,
+  Plus
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -49,6 +52,9 @@ const SubmissionDetail = () => {
   const [activeTab, setActiveTab] = useState('extractions')
   const [selectedEmail, setSelectedEmail] = useState(null) // for email detail modal
   const [selectedAttachment, setSelectedAttachment] = useState(null) // for attachment modal
+  const [viewerDocument, setViewerDocument] = useState(null) // for document viewer modal
+  const [documentComments, setDocumentComments] = useState({}) // { documentName: [comments array] }
+  const [newComment, setNewComment] = useState('') // new comment being typed
   const [extractionView, setExtractionView] = useState('extract') // 'extract', 'raw', 'summary'
   const [selectedDocument, setSelectedDocument] = useState(0) // Selected document index
   const [extractionFeedback, setExtractionFeedback] = useState({}) // { docId-fieldIndex: { comment: string, correctedValue: string } }
@@ -2758,10 +2764,19 @@ TARGET QUOTE DATE: July 29, 2025`,
                         </div>
                       </div>
                     </div>
-                    <button className="px-4 py-2 text-sm font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-2 transition-colors">
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setViewerDocument(doc)}
+                        className="px-4 py-2 text-sm font-medium text-white bg-sompo-red hover:bg-sompo-dark-red rounded-lg flex items-center gap-2 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View
+                      </button>
+                      <button className="px-4 py-2 text-sm font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-2 transition-colors">
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -2876,8 +2891,8 @@ TARGET QUOTE DATE: July 29, 2025`,
                             </div>
                           </div>
                           <button
-                            onClick={() => setSelectedAttachment(doc.name)}
-                            className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
+                            onClick={() => setViewerDocument(doc)}
+                            className="px-3 py-1.5 text-xs font-medium text-white bg-sompo-red hover:bg-sompo-dark-red rounded-lg flex items-center gap-1 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             View
@@ -3059,53 +3074,198 @@ TARGET QUOTE DATE: July 29, 2025`,
             )}
           </AnimatePresence>
 
-          {/* Attachment Viewer Modal */}
+          {/* Document Viewer Modal with Comments */}
           <AnimatePresence>
-            {selectedAttachment && (
+            {(selectedAttachment || viewerDocument) && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-                onClick={() => setSelectedAttachment(null)}
+                onClick={() => {
+                  setSelectedAttachment(null)
+                  setViewerDocument(null)
+                  setNewComment('')
+                }}
               >
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+                  className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                       <FileText className="w-5 h-5 text-sompo-red" />
-                      {selectedAttachment}
+                      {selectedAttachment || viewerDocument?.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
-                        <Download className="w-3.5 h-3.5" />
+                      <button className="px-3 py-1.5 text-sm font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-2 transition-colors">
+                        <Download className="w-4 h-4" />
                         Download
                       </button>
                       <button
-                        onClick={() => setSelectedAttachment(null)}
+                        onClick={() => {
+                          setSelectedAttachment(null)
+                          setViewerDocument(null)
+                          setNewComment('')
+                        }}
                         className="text-gray-500 hover:text-gray-700"
                       >
-                        <XCircle className="w-5 h-5" />
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
-                  <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)] bg-gray-50">
-                    {/* Document viewer - In a real app, this would show the actual document */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-8 min-h-[600px] flex items-center justify-center">
-                      <div className="text-center">
-                        <FileText className="w-16 h-16 text-sompo-red mx-auto mb-4" />
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Viewer</h4>
-                        <p className="text-sm text-gray-600 mb-4">
-                          {selectedAttachment}
-                        </p>
-                        <p className="text-xs text-gray-500 max-w-md mx-auto">
-                          In a production environment, this would display the actual document content using a PDF viewer, image viewer, or document preview component.
-                        </p>
+
+                  <div className="flex-1 flex overflow-hidden">
+                    {/* Document Viewer - Left Side */}
+                    <div className="flex-1 p-6 overflow-y-auto bg-gray-50">
+                      {(() => {
+                        const docName = selectedAttachment || viewerDocument?.name || ''
+                        const isPDF = docName.toLowerCase().endsWith('.pdf')
+                        const isWord = docName.toLowerCase().endsWith('.doc') || docName.toLowerCase().endsWith('.docx')
+                        const isExcel = docName.toLowerCase().endsWith('.xls') || docName.toLowerCase().endsWith('.xlsx')
+
+                        if (isPDF) {
+                          return (
+                            <div className="bg-white rounded-lg border border-gray-200 h-full min-h-[600px] flex items-center justify-center">
+                              <div className="text-center p-8">
+                                <FileText className="w-16 h-16 text-sompo-red mx-auto mb-4" />
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">PDF Document</h4>
+                                <p className="text-sm text-gray-600 mb-4">{docName}</p>
+                                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                                  PDF viewer preview. In production, this would render the actual PDF content using a library like react-pdf or pdf.js
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        } else if (isWord) {
+                          return (
+                            <div className="bg-white rounded-lg border border-gray-200 h-full min-h-[600px] flex items-center justify-center">
+                              <div className="text-center p-8">
+                                <FileText className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Word Document</h4>
+                                <p className="text-sm text-gray-600 mb-4">{docName}</p>
+                                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                                  Word document preview. In production, this would render the document using Office Online viewer or convert to HTML/PDF for display
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        } else if (isExcel) {
+                          return (
+                            <div className="bg-white rounded-lg border border-gray-200 h-full min-h-[600px] flex items-center justify-center">
+                              <div className="text-center p-8">
+                                <FileText className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Excel Spreadsheet</h4>
+                                <p className="text-sm text-gray-600 mb-4">{docName}</p>
+                                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                                  Excel spreadsheet preview. In production, this would render using libraries like SheetJS or Office Online viewer
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        } else {
+                          return (
+                            <div className="bg-white rounded-lg border border-gray-200 h-full min-h-[600px] flex items-center justify-center">
+                              <div className="text-center p-8">
+                                <FileText className="w-16 h-16 text-sompo-red mx-auto mb-4" />
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Viewer</h4>
+                                <p className="text-sm text-gray-600 mb-4">{docName}</p>
+                                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                                  Document preview. In production, this would display the actual document content
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        }
+                      })()}
+                    </div>
+
+                    {/* Comments Section - Right Side */}
+                    <div className="w-96 border-l border-gray-200 flex flex-col bg-white">
+                      <div className="p-4 border-b border-gray-200">
+                        <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-sompo-red" />
+                          Comments
+                        </h4>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {(() => {
+                          const docName = selectedAttachment || viewerDocument?.name || ''
+                          const comments = documentComments[docName] || []
+
+                          if (comments.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-gray-500 text-sm">
+                                No comments yet. Add one below.
+                              </div>
+                            )
+                          }
+
+                          return comments.map((comment, idx) => (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <div className="flex items-start justify-between mb-1">
+                                <span className="text-xs font-semibold text-gray-900">{comment.author}</span>
+                                <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                              </div>
+                              <p className="text-sm text-gray-700">{comment.text}</p>
+                            </div>
+                          ))
+                        })()}
+                      </div>
+
+                      <div className="p-4 border-t border-gray-200">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Add a comment..."
+                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && newComment.trim()) {
+                                const docName = selectedAttachment || viewerDocument?.name || ''
+                                const timestamp = new Date().toLocaleString()
+                                const newCommentObj = {
+                                  author: 'Jeremy Isaacs',
+                                  timestamp: timestamp,
+                                  text: newComment.trim()
+                                }
+                                setDocumentComments({
+                                  ...documentComments,
+                                  [docName]: [...(documentComments[docName] || []), newCommentObj]
+                                })
+                                setNewComment('')
+                              }
+                            }}
+                          />
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              if (newComment.trim()) {
+                                const docName = selectedAttachment || viewerDocument?.name || ''
+                                const timestamp = new Date().toLocaleString()
+                                const newCommentObj = {
+                                  author: 'Jeremy Isaacs',
+                                  timestamp: timestamp,
+                                  text: newComment.trim()
+                                }
+                                setDocumentComments({
+                                  ...documentComments,
+                                  [docName]: [...(documentComments[docName] || []), newCommentObj]
+                                })
+                                setNewComment('')
+                              }
+                            }}
+                            className="px-3 py-2 bg-sompo-red text-white rounded-lg hover:bg-sompo-dark-red transition-colors flex items-center gap-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </motion.button>
+                        </div>
                       </div>
                     </div>
                   </div>
