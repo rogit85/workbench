@@ -14,6 +14,9 @@ import Dashboard from "./pages/Dashboard";
 import RiskDetail from "./pages/RiskDetail";
 import Configuration from "./pages/Configuration";
 import EmailTemplates from "./pages/EmailTemplates";
+import UserManagement from "./pages/UserManagement";
+import UserProfile from "./pages/UserProfile";
+import UserSettings from "./pages/UserSettings";
 
 function App() {
   return (
@@ -33,8 +36,11 @@ function App() {
             <Route path="/risk/:id" element={<RiskDetail />} />
             <Route path="/reports" element={<Analytics />} />
             <Route path="/configuration" element={<Configuration />} />
+            <Route path="/configuration/user-management" element={<UserManagement />} />
             <Route path="/configuration/email-templates" element={<EmailTemplates />} />
             <Route path="/configuration/appetite-builder" element={<Configuration />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/settings" element={<UserSettings />} />
           </Routes>
         </main>
         <Footer />

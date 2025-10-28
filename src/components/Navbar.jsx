@@ -37,6 +37,7 @@ const Navbar = () => {
       name: "Configuration",
       href: "/configuration",
       submenu: [
+        { name: "User Management", href: "/configuration/user-management" },
         { name: "Email Templates", href: "/configuration/email-templates" },
         { name: "Appetite Builder", href: "/configuration/appetite-builder" }
       ]
@@ -176,7 +177,7 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2"
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                     >
                       <div className="px-4 py-2 border-b border-gray-200">
                         <p className="text-sm font-medium text-gray-900">
@@ -184,6 +185,23 @@ const Navbar = () => {
                         </p>
                         <p className="text-xs text-gray-500">{user?.role}</p>
                       </div>
+                      <Link
+                        to="/profile"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        Settings
+                      </Link>
+                      <div className="border-t border-gray-200 my-2"></div>
                       <button
                         onClick={() => {
                           setIsUserMenuOpen(false);
