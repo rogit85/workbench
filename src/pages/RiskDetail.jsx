@@ -1035,7 +1035,7 @@ TARGET QUOTE DATE: July 29, 2025`,
               {/* Scrollable Timeline Container */}
               <div
                 ref={scrollContainerRef}
-                className="overflow-x-auto pb-2 scrollbar-hide"
+                className="overflow-x-auto pb-2 pt-6 scrollbar-hide"
                 style={{
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
@@ -1052,7 +1052,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                       <div className="flex flex-col items-center relative" style={{ width: '100px' }}>
                         {/* AI Badge */}
                         {isAIStage && (
-                          <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 z-20">
+                          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
                             <motion.div
                               animate={{
                                 scale: [1, 1.1, 1],
