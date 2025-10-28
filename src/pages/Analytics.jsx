@@ -523,7 +523,8 @@ const Analytics = () => {
               </div>
 
               {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 {/* Search */}
                 <div className="lg:col-span-2">
                   <label className="block text-xs font-medium text-gray-700 mb-2">Search</label>
@@ -616,6 +617,7 @@ const Analytics = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
                   />
                 </div>
+              </div>
               </div>
               )}
             </div>
