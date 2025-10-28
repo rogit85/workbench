@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [analyticsMenuOpen, setAnalyticsMenuOpen] = useState(false);
+  const [configMenuOpen, setConfigMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -31,7 +32,14 @@ const Navbar = () => {
         { name: "AI Accuracy", href: "/analytics/ai-accuracy" }
       ]
     },
-    { name: "Configuration", href: "/configuration" },
+    {
+      name: "Configuration",
+      href: "/configuration",
+      submenu: [
+        { name: "Email Templates", href: "/configuration/email-templates" },
+        { name: "Appetite Builder", href: "/configuration/appetite-builder" }
+      ]
+    },
   ];
 
   return (
@@ -79,8 +87,8 @@ const Navbar = () => {
                     <div
                       key={item.name}
                       className="relative"
-                      onMouseEnter={() => setAnalyticsMenuOpen(true)}
-                      onMouseLeave={() => setAnalyticsMenuOpen(false)}
+                      onMouseEnter={() => item.name === "Analytics" ? setAnalyticsMenuOpen(true) : setConfigMenuOpen(true)}
+                      onMouseLeave={() => item.name === "Analytics" ? setAnalyticsMenuOpen(false) : setConfigMenuOpen(false)}
                     >
                       <button
                         className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group flex items-center gap-1 ${
@@ -90,7 +98,9 @@ const Navbar = () => {
                         }`}
                       >
                         {item.name}
-                        <ChevronDown className={`w-4 h-4 transition-transform ${analyticsMenuOpen ? "rotate-180" : ""}`} />
+                        <ChevronDown className={`w-4 h-4 transition-transform ${
+                          (item.name === "Analytics" && analyticsMenuOpen) || (item.name === "Configuration" && configMenuOpen) ? "rotate-180" : ""
+                        }`} />
                         {location.pathname.startsWith(item.href) && (
                           <motion.div
                             layoutId="activeTab"
@@ -99,7 +109,7 @@ const Navbar = () => {
                         )}
                       </button>
                       <AnimatePresence>
-                        {analyticsMenuOpen && (
+                        {((item.name === "Analytics" && analyticsMenuOpen) || (item.name === "Configuration" && configMenuOpen)) && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}

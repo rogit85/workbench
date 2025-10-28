@@ -23,6 +23,7 @@ import PageTransition from '../components/PageTransition'
 
 const Analytics = () => {
   const navigate = useNavigate()
+  const [showFilters, setShowFilters] = useState(false)
 
   const lobs = [
     'Agriculture', 'Aviation', 'Casualty', 'Cyber', 'Energy', 'Environmental',
@@ -501,17 +502,28 @@ const Analytics = () => {
             {/* Comprehensive Filters */}
             <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-sompo-red" />
-                  <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                </div>
                 <button
-                  onClick={resetFilters}
-                  className="text-sm font-medium text-sompo-red hover:text-sompo-dark-red"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 text-lg font-semibold text-gray-900 hover:text-sompo-red transition-colors"
                 >
-                  Reset All
+                  <Filter className="w-5 h-5 text-sompo-red" />
+                  Filters
+                  <span className="text-sm font-normal text-gray-500">
+                    {showFilters ? '(Click to collapse)' : '(Click to expand)'}
+                  </span>
                 </button>
+                {showFilters && (
+                  <button
+                    onClick={resetFilters}
+                    className="text-sm font-medium text-sompo-red hover:text-sompo-dark-red"
+                  >
+                    Reset All
+                  </button>
+                )}
               </div>
+
+              {showFilters && (
+                <div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 {/* Search */}
@@ -607,6 +619,7 @@ const Analytics = () => {
                   />
                 </div>
               </div>
+              )}
             </div>
           </motion.div>
 

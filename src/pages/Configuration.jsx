@@ -4,7 +4,6 @@ import { Settings, Plus, Trash2, Save, Send, X, FileText, Shield, AlertTriangle,
 import PageTransition from '../components/PageTransition'
 
 const Configuration = () => {
-  const [activeTab, setActiveTab] = useState('appetite')
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
 
@@ -33,17 +32,6 @@ const Configuration = () => {
     }
   ])
 
-  // Wordings State
-  const [wordings, setWordings] = useState([
-    { id: 'w1', code: 'LMA3100', title: 'General Conditions', lob: 'Property', category: 'Condition', status: 'Approved', tags: ['core', 'base'] },
-    { id: 'w2', code: 'LMA5522', title: 'Cyber Exclusion', lob: 'Property', category: 'Exclusion', status: 'Approved', tags: ['exclusion', 'cyber'] },
-    { id: 'w3', code: 'LMA9001', title: 'Flood Endorsement', lob: 'Property', category: 'Endorsement', status: 'Pending', tags: ['flood', 'endorsement'] }
-  ])
-
-  const [wordingComposer, setWordingComposer] = useState([])
-  const [wordingTemplates, setWordingTemplates] = useState([
-    { id: 'wt1', name: 'PAR Base v1', status: 'Approved', clauses: ['w1', 'w2'] }
-  ])
 
   const fieldOptions = [
     'LOB', 'Geography', 'TIV', 'Construction', 'Sprinklered',
@@ -120,37 +108,13 @@ const Configuration = () => {
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
               <Settings className="w-8 h-8 text-sompo-red" />
-              Configuration Toolkit
-            </h1>
-            <p className="text-gray-600">Build appetite rules and manage policy wordings</p>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setActiveTab('appetite')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                activeTab === 'appetite'
-                  ? 'bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
               Appetite Builder
-            </button>
-            <button
-              onClick={() => setActiveTab('wordings')}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                activeTab === 'wordings'
-                  ? 'bg-gradient-to-r from-sompo-red to-sompo-dark-red text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Wordings Creator & Picker
-            </button>
+            </h1>
+            <p className="text-gray-600">Build and manage appetite rules for underwriting submissions</p>
           </div>
 
-          {/* Appetite Builder Tab */}
-          {activeTab === 'appetite' && (
+          {/* Appetite Builder */}
+          <div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column - Builder */}
               <div className="lg:col-span-2 space-y-6">
@@ -331,66 +295,7 @@ const Configuration = () => {
                 </motion.div>
               </div>
             </div>
-          )}
-
-          {/* Wordings Tab */}
-          {activeTab === 'wordings' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Wordings Catalog</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Code</th>
-                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Title</th>
-                        <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {wordings.map(wording => (
-                        <tr key={wording.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm font-mono">{wording.code}</td>
-                          <td className="px-4 py-3 text-sm">{wording.title}</td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(wording.status)}`}>
-                              {wording.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Wording Templates</h3>
-                <div className="space-y-3">
-                  {wordingTemplates.map(template => (
-                    <div key={template.id} className="p-4 border border-gray-200 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-semibold text-gray-900">{template.name}</div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(template.status)}`}>
-                          {template.status}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500">{template.clauses.length} clauses</div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
 

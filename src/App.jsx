@@ -12,6 +12,7 @@ import AIAccuracy from "./pages/AIAccuracy";
 import Dashboard from "./pages/Dashboard";
 import RiskDetail from "./pages/RiskDetail";
 import Configuration from "./pages/Configuration";
+import EmailTemplates from "./pages/EmailTemplates";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
             <Route path="/risk/:id" element={<RiskDetail />} />
             <Route path="/reports" element={<Analytics />} />
             <Route path="/configuration" element={<Configuration />} />
+            <Route path="/configuration/email-templates" element={<EmailTemplates />} />
+            <Route path="/configuration/appetite-builder" element={<Configuration />} />
           </Routes>
         </main>
         <Footer />
