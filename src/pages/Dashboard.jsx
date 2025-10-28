@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -20,13 +20,23 @@ import PageTransition from '../components/PageTransition'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('list') // 'grid' or 'list'
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [filters, setFilters] = useState({
     assignee: 'all',
     status: 'all',
     priority: 'all'
   })
+
+  // Refs for sections
+  const myTasksRef = useRef(null)
+  const teamTasksRef = useRef(null)
+  const dueSoonRef = useRef(null)
+
+  // Scroll to section
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   // Mock data for user activities
   const myTasks = [
@@ -104,12 +114,12 @@ const Dashboard = () => {
     }
   ]
 
-  // KPI stats
+  // KPI stats with refs
   const kpis = [
-    { label: 'My Tasks', value: myTasks.length, icon: User, color: 'blue', change: '+2' },
-    { label: 'Team Tasks', value: teamTasks.length + myTasks.length, icon: Users, color: 'green', change: '+5' },
-    { label: 'Due Today', value: 3, icon: Clock, color: 'amber', change: '+1' },
-    { label: 'Overdue', value: dueSoon.length, icon: AlertCircle, color: 'red', change: '-1' }
+    { label: 'My Tasks', value: myTasks.length, icon: User, color: 'blue', change: '+2', ref: myTasksRef },
+    { label: 'Team Tasks', value: teamTasks.length + myTasks.length, icon: Users, color: 'green', change: '+5', ref: teamTasksRef },
+    { label: 'Due Today', value: 3, icon: Clock, color: 'amber', change: '+1', ref: dueSoonRef },
+    { label: 'Overdue', value: dueSoon.length, icon: AlertCircle, color: 'red', change: '-1', ref: dueSoonRef }
   ]
 
   const currency = (n) => {
@@ -239,7 +249,8 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 whileHover={{ y: -2, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
-                className="bg-white rounded-lg shadow border border-gray-200 p-3"
+                onClick={() => scrollToSection(kpi.ref)}
+                className="bg-white rounded-lg shadow border border-gray-200 p-3 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -365,7 +376,7 @@ const Dashboard = () => {
           </motion.div>
 
           {/* My Tasks */}
-          <div className="mb-4">
+          <div ref={myTasksRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <User className="w-4 h-4 text-sompo-red" />
               My Tasks ({myTasks.length})
@@ -378,7 +389,7 @@ const Dashboard = () => {
           </div>
 
           {/* Team Tasks */}
-          <div className="mb-4">
+          <div ref={teamTasksRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <Users className="w-4 h-4 text-sompo-red" />
               Team Tasks ({teamTasks.length})
@@ -391,7 +402,7 @@ const Dashboard = () => {
           </div>
 
           {/* Due Soon / Overdue */}
-          <div className="mb-4">
+          <div ref={dueSoonRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-600" />
               Due Soon / Overdue ({dueSoon.length})

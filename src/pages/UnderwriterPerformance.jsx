@@ -22,7 +22,7 @@ import PageTransition from '../components/PageTransition'
 
 const UnderwriterPerformance = () => {
   const navigate = useNavigate()
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',

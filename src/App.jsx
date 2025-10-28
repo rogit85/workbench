@@ -17,6 +17,9 @@ import EmailTemplates from "./pages/EmailTemplates";
 import UserManagement from "./pages/UserManagement";
 import UserProfile from "./pages/UserProfile";
 import UserSettings from "./pages/UserSettings";
+import FieldVisibility from "./pages/FieldVisibility";
+import IntegrationStatus from "./pages/IntegrationStatus";
+import SanctionsConfig from "./pages/SanctionsConfig";
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
             <Route path="/configuration/user-management" element={<UserManagement />} />
             <Route path="/configuration/email-templates" element={<EmailTemplates />} />
             <Route path="/configuration/appetite-builder" element={<Configuration />} />
+            <Route path="/configuration/field-visibility" element={<FieldVisibility />} />
+            <Route path="/configuration/integration-status" element={<IntegrationStatus />} />
+            <Route path="/configuration/sanctions-config" element={<SanctionsConfig />} />
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/settings" element={<UserSettings />} />
           </Routes>

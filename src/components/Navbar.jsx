@@ -39,7 +39,10 @@ const Navbar = () => {
       submenu: [
         { name: "User Management", href: "/configuration/user-management" },
         { name: "Email Templates", href: "/configuration/email-templates" },
-        { name: "Appetite Builder", href: "/configuration/appetite-builder" }
+        { name: "Appetite Builder", href: "/configuration/appetite-builder" },
+        { name: "Field Visibility", href: "/configuration/field-visibility" },
+        { name: "Integration Status", href: "/configuration/integration-status" },
+        { name: "Sanctions Configuration", href: "/configuration/sanctions-config" }
       ]
     },
   ];

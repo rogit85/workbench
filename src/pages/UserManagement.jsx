@@ -26,6 +26,7 @@ const UserManagement = () => {
     searchQuery: '',
     role: 'all',
     team: 'all',
+    lobGroup: 'all',
     lob: 'all',
     status: 'all'
   })
@@ -39,7 +40,10 @@ const UserManagement = () => {
       email: 'jeremy.isaacs@sompo.com',
       phone: '+44 20 7123 4567',
       role: 'Senior Underwriter',
-      team: 'Property',
+      team: 'UW Assistant',
+      lobGroup: 'Property',
+      region: 'EMEA',
+      officeLocation: 'London',
       lobs: ['Property', 'Casualty'],
       status: 'Active',
       permissions: {
@@ -57,7 +61,10 @@ const UserManagement = () => {
       email: 'sarah.chen@sompo.com',
       phone: '+44 20 7123 4568',
       role: 'Underwriter',
-      team: 'Specialty',
+      team: 'UW Assistant',
+      lobGroup: 'Specialty',
+      region: 'Americas',
+      officeLocation: 'New York',
       lobs: ['Cyber', 'Life Sciences'],
       status: 'Active',
       permissions: {
@@ -75,7 +82,10 @@ const UserManagement = () => {
       email: 'michael.rodriguez@sompo.com',
       phone: '+44 20 7123 4569',
       role: 'Head of Underwriting',
-      team: 'Marine & Energy',
+      team: 'Operations',
+      lobGroup: 'Marine & Energy',
+      region: 'EMEA',
+      officeLocation: 'London',
       lobs: ['Marine', 'Energy', 'Aviation'],
       status: 'Active',
       permissions: {
@@ -93,7 +103,10 @@ const UserManagement = () => {
       email: 'emily.thompson@sompo.com',
       phone: '+44 20 7123 4570',
       role: 'Associate Underwriter',
-      team: 'Casualty',
+      team: 'Compliance',
+      lobGroup: 'Casualty',
+      region: 'Americas',
+      officeLocation: 'Boston',
       lobs: ['Casualty'],
       status: 'Active',
       permissions: {
@@ -111,7 +124,10 @@ const UserManagement = () => {
       email: 'david.park@sompo.com',
       phone: '+44 20 7123 4571',
       role: 'Underwriter',
-      team: 'Property',
+      team: 'Operations',
+      lobGroup: 'Property',
+      region: 'Asia Pacific',
+      officeLocation: 'Singapore',
       lobs: ['Property'],
       status: 'Inactive',
       permissions: {
@@ -126,7 +142,10 @@ const UserManagement = () => {
   ])
 
   const roles = ['Head of Underwriting', 'Senior Underwriter', 'Underwriter', 'Associate Underwriter', 'Administrator', 'Analyst']
-  const teams = ['Property', 'Casualty', 'Specialty', 'Marine & Energy']
+  const teams = ['Operations', 'UW Assistant', 'Compliance']
+  const lobGroups = ['Property', 'Casualty', 'Specialty', 'Marine & Energy']
+  const regions = ['Americas', 'EMEA', 'Asia Pacific', 'Global']
+  const officeLocations = ['London', 'New York', 'Boston', 'Singapore', 'Hong Kong', 'Tokyo', 'Bermuda', 'Zurich']
   const lobs = ['Property', 'Casualty', 'Marine', 'Aviation', 'Energy', 'Cyber', 'Financial Institutions', 'Healthcare Liability', 'Life Sciences']
 
   const filteredUsers = users.filter(user => {
@@ -134,6 +153,7 @@ const UserManagement = () => {
         !user.email.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false
     if (filters.role !== 'all' && user.role !== filters.role) return false
     if (filters.team !== 'all' && user.team !== filters.team) return false
+    if (filters.lobGroup !== 'all' && user.lobGroup !== filters.lobGroup) return false
     if (filters.lob !== 'all' && !user.lobs.includes(filters.lob)) return false
     if (filters.status !== 'all' && user.status !== filters.status) return false
     return true
@@ -150,7 +170,10 @@ const UserManagement = () => {
       email: '',
       phone: '',
       role: 'Underwriter',
-      team: 'Property',
+      team: 'Operations',
+      lobGroup: 'Property',
+      region: 'EMEA',
+      officeLocation: 'London',
       lobs: [],
       status: 'Active',
       permissions: {
@@ -201,6 +224,7 @@ const UserManagement = () => {
       searchQuery: '',
       role: 'all',
       team: 'all',
+      lobGroup: 'all',
       lob: 'all',
       status: 'all'
     })
@@ -242,7 +266,7 @@ const UserManagement = () => {
                 >
                   {showFilters ? <ChevronDown className="w-4 h-4 text-sompo-red" /> : <ChevronRight className="w-4 h-4 text-sompo-red" />}
                   Filters
-                  {!showFilters && (filters.role !== 'all' || filters.team !== 'all' || filters.lob !== 'all' || filters.status !== 'all') && (
+                  {!showFilters && (filters.role !== 'all' || filters.team !== 'all' || filters.lobGroup !== 'all' || filters.lob !== 'all' || filters.status !== 'all') && (
                     <span className="ml-2 px-2 py-0.5 bg-sompo-red text-white text-xs rounded-full">
                       Active
                     </span>
@@ -259,7 +283,7 @@ const UserManagement = () => {
               </div>
 
               {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 {/* Search */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-2">Search</label>
@@ -305,15 +329,30 @@ const UserManagement = () => {
                   </select>
                 </div>
 
-                {/* LOB */}
+                {/* LOB Group */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Line of Business</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">LOB</label>
+                  <select
+                    value={filters.lobGroup}
+                    onChange={(e) => setFilters({...filters, lobGroup: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
+                  >
+                    <option value="all">All LOBs</option>
+                    {lobGroups.map((lobGroup) => (
+                      <option key={lobGroup} value={lobGroup}>{lobGroup}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Individual LOB */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Individual LOB</label>
                   <select
                     value={filters.lob}
                     onChange={(e) => setFilters({...filters, lob: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
                   >
-                    <option value="all">All LOBs</option>
+                    <option value="all">All Individual LOBs</option>
                     {lobs.map((lob) => (
                       <option key={lob} value={lob}>{lob}</option>
                     ))}
@@ -354,7 +393,8 @@ const UserManagement = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LOBs</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LOB</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Individual LOBs</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max Line Size</th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Permissions</th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -375,6 +415,7 @@ const UserManagement = () => {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{user.role}</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{user.team}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{user.lobGroup}</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
                           {user.lobs.map((lob) => (
@@ -529,6 +570,45 @@ const UserManagement = () => {
                         >
                           {teams.map((team) => (
                             <option key={team} value={team}>{team}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">LOB</label>
+                        <select
+                          value={editingUser.lobGroup}
+                          onChange={(e) => setEditingUser({...editingUser, lobGroup: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                        >
+                          {lobGroups.map((lobGroup) => (
+                            <option key={lobGroup} value={lobGroup}>{lobGroup}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Region</label>
+                        <select
+                          value={editingUser.region}
+                          onChange={(e) => setEditingUser({...editingUser, region: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                        >
+                          {regions.map((region) => (
+                            <option key={region} value={region}>{region}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Office Location</label>
+                        <select
+                          value={editingUser.officeLocation}
+                          onChange={(e) => setEditingUser({...editingUser, officeLocation: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                        >
+                          {officeLocations.map((location) => (
+                            <option key={location} value={location}>{location}</option>
                           ))}
                         </select>
                       </div>

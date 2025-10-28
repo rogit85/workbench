@@ -10,12 +10,15 @@ import {
   Filter,
   Download,
   BarChart3,
-  Activity
+  Activity,
+  Brain,
+  Clock,
+  Zap
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
 const AIAccuracy = () => {
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -60,6 +63,22 @@ const AIAccuracy = () => {
     { id: 13, submissionRef: 'SOM-2024-013', insured: 'MedCare Hospitals', lob: 'Healthcare Liability', extractionType: 'Insured Name', aiValue: 'MedCare Hospitals', actualValue: 'MedCare Hospitals', status: 'correct', confidence: 99 },
     { id: 14, submissionRef: 'SOM-2024-014', insured: 'Aqua Marine Logistics', lob: 'Marine', extractionType: 'GWP', aiValue: '$1,100,000', actualValue: '$1,150,000', status: 'incorrect', confidence: 86 },
     { id: 15, submissionRef: 'SOM-2024-015', insured: 'Summit Financial Group', lob: 'Financial Institutions', extractionType: 'Expiry Date', aiValue: '2026-01-14', actualValue: '2026-01-14', status: 'correct', confidence: 98 },
+  ]
+
+  // Failed extractions data
+  const failedExtractions = [
+    { id: 1, submissionRef: 'SOM-2024-016', insured: 'Global Tech Solutions', lob: 'Cyber', extractionType: 'Limit', reason: 'Document format not recognized', timestamp: '2025-07-22 10:35:00', llm: 'GPT-4' },
+    { id: 2, submissionRef: 'SOM-2024-017', insured: 'Mountain Rail Corp', lob: 'Casualty', extractionType: 'Broker Name', reason: 'Missing field in source document', timestamp: '2025-07-22 11:42:00', llm: 'Claude 3' },
+    { id: 3, submissionRef: 'SOM-2024-018', insured: 'Pacific Marine Ltd', lob: 'Marine', extractionType: 'GWP', reason: 'Currency conversion ambiguity', timestamp: '2025-07-23 09:15:00', llm: 'GPT-4' },
+    { id: 4, submissionRef: 'SOM-2024-019', insured: 'Solar Energy Group', lob: 'Energy', extractionType: 'Inception Date', reason: 'Multiple dates found', timestamp: '2025-07-23 14:20:00', llm: 'Claude 3' },
+    { id: 5, submissionRef: 'SOM-2024-020', insured: 'Biomedical Systems', lob: 'Life Sciences', extractionType: 'Coverage Details', reason: 'Complex policy wording', timestamp: '2025-07-24 08:30:00', llm: 'GPT-4' },
+  ]
+
+  // LLM accuracy data
+  const llmAccuracy = [
+    { llm: 'GPT-4', totalExtractions: 3245, correct: 2987, incorrect: 189, partial: 69, accuracy: 92.0, avgConfidence: 91.5, avgResponseTime: 2.4 },
+    { llm: 'Claude 3', totalExtractions: 2876, correct: 2698, incorrect: 134, partial: 44, accuracy: 93.8, avgConfidence: 93.2, avgResponseTime: 1.9 },
+    { llm: 'Gemini Pro', totalExtractions: 1523, correct: 1357, incorrect: 128, partial: 38, accuracy: 89.1, avgConfidence: 88.7, avgResponseTime: 3.1 },
   ]
 
   // Filter data
@@ -439,11 +458,151 @@ const AIAccuracy = () => {
             </div>
           </motion.div>
 
-          {/* Data Table */}
+          {/* LLM Performance Comparison */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
+            className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 mb-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Brain className="w-5 h-5 text-sompo-red" />
+                LLM Performance Comparison
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {llmAccuracy.map((llm, idx) => (
+                <div key={llm.llm} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-bold text-gray-900">{llm.llm}</h4>
+                    <Brain className={`w-6 h-6 ${idx === 0 ? 'text-purple-600' : idx === 1 ? 'text-blue-600' : 'text-green-600'}`} />
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* Accuracy */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-gray-600">Accuracy</span>
+                        <span className="text-xl font-bold text-gray-900">{llm.accuracy}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full ${idx === 0 ? 'bg-gradient-to-r from-purple-500 to-purple-600' : idx === 1 ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-green-500 to-green-600'}`}
+                          style={{ width: `${llm.accuracy}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Confidence */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-600">Avg Confidence</span>
+                      <span className="text-sm font-bold text-gray-900">{llm.avgConfidence}%</span>
+                    </div>
+
+                    {/* Response Time */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Response Time
+                      </span>
+                      <span className="text-sm font-bold text-gray-900">{llm.avgResponseTime}s</span>
+                    </div>
+
+                    {/* Extraction Stats */}
+                    <div className="pt-3 border-t border-gray-200">
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                          <div className="text-xs text-gray-600">Correct</div>
+                          <div className="text-sm font-bold text-green-600">{llm.correct}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-600">Partial</div>
+                          <div className="text-sm font-bold text-yellow-600">{llm.partial}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-600">Incorrect</div>
+                          <div className="text-sm font-bold text-red-600">{llm.incorrect}</div>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-center">
+                        <span className="text-xs text-gray-500">Total: {llm.totalExtractions.toLocaleString()} extractions</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Failed Extractions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 mb-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+                Failed Extractions ({failedExtractions.length})
+              </h3>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-red-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Ref</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Insured</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">LoB</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Field</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Failure Reason</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">LLM</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {failedExtractions.map((failure) => (
+                    <tr key={failure.id} className="hover:bg-red-50 transition-colors">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-sompo-red">
+                        {failure.submissionRef}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {failure.insured}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                        {failure.lob}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {failure.extractionType}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                          {failure.reason}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                          {failure.llm}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                        {failure.timestamp}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+
+          {/* Data Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
             className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
           >
             <div className="flex items-center justify-between mb-4">

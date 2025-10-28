@@ -23,7 +23,7 @@ import PageTransition from '../components/PageTransition'
 
 const Analytics = () => {
   const navigate = useNavigate()
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
 
   const lobs = [
     'Agriculture', 'Aviation', 'Casualty', 'Cyber', 'Energy', 'Environmental',

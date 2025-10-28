@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Search, Plus, Filter, GripVertical, LayoutGrid, Table as TableIcon, Settings, Save, X } from 'lucide-react'
+import { Search, Plus, Filter, GripVertical, LayoutGrid, Table as TableIcon, Settings, Save, X, ChevronUp, ChevronDown } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
 import {
@@ -170,6 +170,8 @@ const WorkQueue = () => {
   const [currentView, setCurrentView] = useState('default')
   const [editingCell, setEditingCell] = useState(null) // { rowId, columnId }
   const [editValue, setEditValue] = useState('')
+  const [sortBy, setSortBy] = useState('priority')
+  const [sortOrder, setSortOrder] = useState('asc') // 'asc' or 'desc'
 
   // Load saved views from localStorage
   useEffect(() => {
@@ -506,11 +508,54 @@ const WorkQueue = () => {
     setEditValue('')
   }
 
-  // Get all submissions in a flat array for spreadsheet view
+  // Handle column sort
+  const handleSort = (columnId) => {
+    if (sortBy === columnId) {
+      // Toggle sort order if clicking same column
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      // Set new column and default to ascending
+      setSortBy(columnId)
+      setSortOrder('asc')
+    }
+  }
+
+  // Get all submissions in a flat array for spreadsheet view with sorting
   const getAllSubmissions = () => {
-    return Object.entries(tasks).flatMap(([status, items]) =>
+    let submissions = Object.entries(tasks).flatMap(([status, items]) =>
       items.map(item => ({ ...item, status }))
     )
+
+    // Apply sorting
+    submissions.sort((a, b) => {
+      let aVal = a[sortBy]
+      let bVal = b[sortBy]
+
+      // Handle priority sorting
+      if (sortBy === 'priority') {
+        const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 }
+        aVal = priorityOrder[aVal] || 999
+        bVal = priorityOrder[bVal] || 999
+      }
+
+      // Handle numeric fields
+      if (sortBy === 'gwp' || sortBy === 'limit' || sortBy === 'deductible' || sortBy === 'age') {
+        aVal = parseFloat(aVal) || 0
+        bVal = parseFloat(bVal) || 0
+      }
+
+      // Handle string fields
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase()
+        bVal = bVal ? bVal.toLowerCase() : ''
+      }
+
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1
+      return 0
+    })
+
+    return submissions
   }
 
   // Render cell content based on column type
@@ -624,7 +669,7 @@ const WorkQueue = () => {
       case 'lob':
         return (
           <span
-            className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm cursor-pointer hover:opacity-80 ${getLOBColor(submission.lob)}`}
+            className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm cursor-pointer hover:opacity-80 whitespace-nowrap ${getLOBColor(submission.lob)}`}
             onClick={() => column.editable && startEdit(submission.id, columnId, submission.lob)}
           >
             {submission.lob}
@@ -897,8 +942,19 @@ const WorkQueue = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       {visibleColumns.filter(col => col.enabled).map(col => (
-                        <th key={col.id} className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          {col.label}
+                        <th
+                          key={col.id}
+                          className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSort(col.id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{col.label}</span>
+                            {sortBy === col.id && (
+                              sortOrder === 'asc'
+                                ? <ChevronUp className="w-4 h-4 text-sompo-red" />
+                                : <ChevronDown className="w-4 h-4 text-sompo-red" />
+                            )}
+                          </div>
                         </th>
                       ))}
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -922,7 +978,7 @@ const WorkQueue = () => {
                             onClick={() => navigate(`/risk/${submission.id}`)}
                             className="text-sompo-red hover:text-sompo-dark-red text-sm font-medium"
                           >
-                            View
+                            Open
                           </button>
                         </td>
                       </tr>

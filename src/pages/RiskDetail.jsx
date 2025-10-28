@@ -41,9 +41,9 @@ const SubmissionDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
-  const [showEmailSource, setShowEmailSource] = useState(false)
   const [fieldFeedback, setFieldFeedback] = useState({}) // { fieldName: { positive: bool, suggestion: string } }
   const [editingSuggestion, setEditingSuggestion] = useState(null) // fieldName being edited
+  const [selectedEmail, setSelectedEmail] = useState(null) // for email detail modal
   const scrollContainerRef = useRef(null)
 
   // Comprehensive submission data matching all intake fields
@@ -278,7 +278,177 @@ Headquarters: Cayman Islands
 Website: https://stable.xyz/
 
 About: Stable is a blockchain infrastructure company that operates a dedicated Layer 1 blockchain optimized for USDT (Tether) transactions...`
-      }
+      },
+
+      // Email Chain History
+      emailChain: [
+        {
+          id: 1,
+          from: 'Josh Patching (Josh.Patching@howdengroup.com)',
+          to: 'Isaacs, Jeremy (jisaacs@sompo-intl.com)',
+          cc: 'Freddie Palmer (Freddie.Palmer@howdengroup.com), Kiryn Farrelly (Kiryn.Farrelly@howdengroup.com)',
+          subject: 'UX Research Limited - New D&O Submission [FLG-FLS0455998]',
+          date: '2025-07-22 10:35:41 UTC',
+          body: `Hi Jez,
+
+Hope you had a nice evening.
+
+Please accept this as our new submission for UX Research Limited and log to Howden. We're seeking D&O cover for this client. Below are our notes to assist in your review:
+
+Risk Details:
+Name: UX Research Limited
+Headquarters: Cayman Islands
+Website: https://stable.xyz/
+
+About: Stable is a blockchain infrastructure company that operates a dedicated Layer 1 blockchain optimized for USDT (Tether) transactions. Please see attached documents for full details.
+
+Best regards,
+Josh`,
+          attachments: ['Application Form (Signed).pdf', 'D&O Quote Request.pdf', 'Entity Structure.pdf']
+        },
+        {
+          id: 2,
+          from: 'Isaacs, Jeremy (jisaacs@sompo-intl.com)',
+          to: 'Josh Patching (Josh.Patching@howdengroup.com)',
+          cc: 'Freddie Palmer (Freddie.Palmer@howdengroup.com)',
+          subject: 'RE: UX Research Limited - New D&O Submission [FLG-FLS0455998]',
+          date: '2025-07-23 09:15:22 UTC',
+          body: `Hi Josh,
+
+Thanks for the submission. I've reviewed the initial documents and have a few questions:
+
+1. Can you provide the entity chart you mentioned?
+2. Are there any existing D&O policies we should be aware of?
+3. What's the timeline for binding?
+
+Thanks,
+Jeremy`,
+          attachments: []
+        },
+        {
+          id: 3,
+          from: 'Josh Patching (Josh.Patching@howdengroup.com)',
+          to: 'Isaacs, Jeremy (jisaacs@sompo-intl.com)',
+          cc: 'Freddie Palmer (Freddie.Palmer@howdengroup.com), Kiryn Farrelly (Kiryn.Farrelly@howdengroup.com)',
+          subject: 'RE: UX Research Limited - New D&O Submission [FLG-FLS0455998]',
+          date: '2025-07-23 14:20:15 UTC',
+          body: `Hi Jeremy,
+
+Please find answers below:
+
+1. Entity chart is being finalized - will send by EOD tomorrow
+2. No existing D&O coverage - this is a new purchase
+3. Looking to bind by end of next week if possible
+
+Let me know if you need anything else.
+
+Josh`,
+          attachments: []
+        }
+      ],
+
+      // Activity History
+      activityHistory: [
+        {
+          id: 1,
+          type: 'submission',
+          action: 'Submission Received',
+          user: 'System',
+          timestamp: '2025-07-22 10:36:00 UTC',
+          details: 'Submission received via email from Josh Patching',
+          icon: 'Mail'
+        },
+        {
+          id: 2,
+          type: 'extraction',
+          action: 'AI Extraction Completed',
+          user: 'AI Gateway',
+          timestamp: '2025-07-22 10:36:45 UTC',
+          details: 'Extracted 24 fields with 94% average confidence',
+          icon: 'Activity'
+        },
+        {
+          id: 3,
+          type: 'assignment',
+          action: 'Assigned to Underwriter',
+          user: 'System',
+          timestamp: '2025-07-22 10:37:00 UTC',
+          details: 'Automatically assigned to Jeremy Isaacs (Management Liability)',
+          icon: 'User'
+        },
+        {
+          id: 4,
+          type: 'clearance',
+          action: 'Clearance Auto-Approved',
+          user: 'System',
+          timestamp: '2025-07-22 10:38:30 UTC',
+          details: 'Clearance automatically approved based on appetite rules',
+          icon: 'CheckCircle'
+        },
+        {
+          id: 5,
+          type: 'status',
+          action: 'Status Changed',
+          user: 'System',
+          timestamp: '2025-07-22 10:38:35 UTC',
+          details: 'Status changed from Clearance to Appetite Check',
+          icon: 'Activity'
+        },
+        {
+          id: 6,
+          type: 'sanctions',
+          action: 'Sanctions Check Clear',
+          user: 'Sanctions System',
+          timestamp: '2025-07-22 11:15:00 UTC',
+          details: 'No sanctions matches found for insured or related parties',
+          icon: 'Shield'
+        },
+        {
+          id: 7,
+          type: 'document',
+          action: 'Document Uploaded',
+          user: 'System',
+          timestamp: '2025-07-22 10:36:00 UTC',
+          details: 'Application Form (Signed).pdf',
+          icon: 'Upload'
+        },
+        {
+          id: 8,
+          type: 'document',
+          action: 'Document Uploaded',
+          user: 'System',
+          timestamp: '2025-07-22 10:36:00 UTC',
+          details: 'Submission Email.eml',
+          icon: 'Upload'
+        },
+        {
+          id: 9,
+          type: 'email',
+          action: 'Email Sent',
+          user: 'Jeremy Isaacs',
+          timestamp: '2025-07-23 09:15:22 UTC',
+          details: 'Sent follow-up questions to broker',
+          icon: 'Send'
+        },
+        {
+          id: 10,
+          type: 'email',
+          action: 'Email Received',
+          user: 'Josh Patching',
+          timestamp: '2025-07-23 14:20:15 UTC',
+          details: 'Received response from broker with additional information',
+          icon: 'Mail'
+        },
+        {
+          id: 11,
+          type: 'note',
+          action: 'Note Added',
+          user: 'Jeremy Isaacs',
+          timestamp: '2025-07-24 08:30:00 UTC',
+          details: 'Added note: "Blockchain sector presents elevated governance risk. Need to review entity structure carefully."',
+          icon: 'Edit3'
+        }
+      ]
     }
   }, [id])
 
@@ -408,6 +578,8 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
     { id: 'coverage', label: 'Coverage', icon: Activity },
     { id: 'compliance', label: 'Compliance', icon: BookOpen },
     { id: 'documents', label: 'Documents', icon: Upload },
+    { id: 'source', label: 'Source', icon: Mail },
+    { id: 'activity', label: 'Activity', icon: Clock },
   ]
 
   const FieldDisplay = ({ label, value, highlight = false, confidence = null, extracted = false, fieldKey = null }) => {
@@ -536,15 +708,6 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setShowEmailSource(!showEmailSource)}
-                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                {showEmailSource ? 'Hide' : 'View'} Email Source
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
               >
                 <Send className="w-4 h-4" />
@@ -560,41 +723,6 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               </motion.button>
             </div>
           </div>
-
-          {/* Email Source Modal */}
-          <AnimatePresence>
-            {showEmailSource && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-lg shadow-xl border border-gray-200 p-6 mb-6"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-sompo-red" />
-                    Email Source
-                  </h3>
-                  <button
-                    onClick={() => setShowEmailSource(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <XCircle className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-2 text-sm">
-                  <div><span className="font-semibold">From:</span> {submissionData.emailSource.from}</div>
-                  <div><span className="font-semibold">To:</span> {submissionData.emailSource.to}</div>
-                  <div><span className="font-semibold">Cc:</span> {submissionData.emailSource.cc}</div>
-                  <div><span className="font-semibold">Subject:</span> {submissionData.emailSource.subject}</div>
-                  <div><span className="font-semibold">Date:</span> {submissionData.emailSource.date}</div>
-                  <div className="pt-3 mt-3 border-t border-gray-300">
-                    <pre className="whitespace-pre-wrap font-sans text-xs text-gray-700">{submissionData.emailSource.body}</pre>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Submission Header - Compact */}
           <motion.div
@@ -1361,6 +1489,292 @@ About: Stable is a blockchain infrastructure company that operates a dedicated L
               </div>
             </motion.div>
           )}
+
+          {activeTab === 'source' && (
+            <div className="space-y-6">
+              {/* Email Chain */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-sompo-red" />
+                  Email Chain ({submissionData.emailChain.length} messages)
+                </h3>
+                <div className="space-y-4">
+                  {submissionData.emailChain.map((email) => (
+                    <motion.div
+                      key={email.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Mail className="w-4 h-4 text-sompo-red" />
+                            <span className="font-semibold text-sm text-gray-900">{email.subject}</span>
+                          </div>
+                          <div className="space-y-1 text-xs text-gray-600">
+                            <div><span className="font-medium">From:</span> {email.from}</div>
+                            <div><span className="font-medium">To:</span> {email.to}</div>
+                            {email.cc && <div><span className="font-medium">Cc:</span> {email.cc}</div>}
+                            <div><span className="font-medium">Date:</span> {email.date}</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setSelectedEmail(email)}
+                          className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          View Full
+                        </button>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <pre className="whitespace-pre-wrap font-sans text-xs text-gray-700 line-clamp-4">
+                          {email.body}
+                        </pre>
+                      </div>
+
+                      {email.attachments && email.attachments.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
+                            <FileText className="w-3.5 h-3.5" />
+                            Attachments ({email.attachments.length})
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {email.attachments.map((attachment, idx) => (
+                              <div
+                                key={idx}
+                                className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs border border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
+                              >
+                                <FileText className="w-3 h-3" />
+                                {attachment}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* JSON Source Data */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-sompo-red" />
+                    Raw JSON Data
+                  </h3>
+                  <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
+                    <Download className="w-3.5 h-3.5" />
+                    Download JSON
+                  </button>
+                </div>
+                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto max-h-96 overflow-y-auto">
+                  <pre className="text-xs text-green-400 font-mono">
+                    {JSON.stringify(submissionData, null, 2)}
+                  </pre>
+                </div>
+              </motion.div>
+
+              {/* Documents with Email Context */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-sompo-red" />
+                  Documents with Email References
+                </h3>
+                <div className="space-y-3">
+                  {submissionData.documents.map((doc, idx) => {
+                    const relatedEmail = submissionData.emailChain.find(email =>
+                      email.attachments && email.attachments.includes(doc.name)
+                    )
+                    return (
+                      <div key={idx} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-sompo-red" />
+                            </div>
+                            <div>
+                              <div className="font-semibold text-sm text-gray-900">{doc.name}</div>
+                              <div className="text-xs text-gray-500">{doc.type} • {doc.size}</div>
+                              {relatedEmail && (
+                                <div className="flex items-center gap-1 mt-1 text-xs text-blue-600">
+                                  <Mail className="w-3 h-3" />
+                                  Attached to: {relatedEmail.subject}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {activeTab === 'activity' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-sompo-red" />
+                Activity Timeline
+              </h3>
+
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+                {/* Activity items */}
+                <div className="space-y-6">
+                  {submissionData.activityHistory.map((activity, idx) => {
+                    const IconComponent = {
+                      Mail, Send, Activity, User, CheckCircle, Shield, Upload, Edit3
+                    }[activity.icon] || Activity
+
+                    const getActivityColor = (type) => {
+                      switch(type) {
+                        case 'submission': return 'bg-purple-100 text-purple-700 border-purple-300'
+                        case 'extraction': return 'bg-blue-100 text-blue-700 border-blue-300'
+                        case 'assignment': return 'bg-indigo-100 text-indigo-700 border-indigo-300'
+                        case 'clearance': return 'bg-green-100 text-green-700 border-green-300'
+                        case 'status': return 'bg-amber-100 text-amber-700 border-amber-300'
+                        case 'sanctions': return 'bg-teal-100 text-teal-700 border-teal-300'
+                        case 'document': return 'bg-red-100 text-red-700 border-red-300'
+                        case 'email': return 'bg-purple-100 text-purple-700 border-purple-300'
+                        case 'note': return 'bg-gray-100 text-gray-700 border-gray-300'
+                        default: return 'bg-gray-100 text-gray-700 border-gray-300'
+                      }
+                    }
+
+                    return (
+                      <motion.div
+                        key={activity.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="relative flex gap-4 items-start"
+                      >
+                        {/* Icon */}
+                        <div className={`relative z-10 w-12 h-12 rounded-full border-2 flex items-center justify-center ${getActivityColor(activity.type)}`}>
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-sm text-gray-900">{activity.action}</h4>
+                              <p className="text-xs text-gray-600 mt-1">{activity.details}</p>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${getActivityColor(activity.type)}`}>
+                              {activity.type}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
+                            <span className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              {activity.user}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {activity.timestamp}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Email Detail Modal */}
+          <AnimatePresence>
+            {selectedEmail && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setSelectedEmail(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-sompo-red" />
+                      Email Details
+                    </h3>
+                    <button
+                      onClick={() => setSelectedEmail(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
+                    <div className="space-y-3 mb-4 text-sm">
+                      <div><span className="font-semibold">From:</span> {selectedEmail.from}</div>
+                      <div><span className="font-semibold">To:</span> {selectedEmail.to}</div>
+                      {selectedEmail.cc && <div><span className="font-semibold">Cc:</span> {selectedEmail.cc}</div>}
+                      <div><span className="font-semibold">Subject:</span> {selectedEmail.subject}</div>
+                      <div><span className="font-semibold">Date:</span> {selectedEmail.date}</div>
+                    </div>
+                    <div className="pt-4 border-t border-gray-200">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700">{selectedEmail.body}</pre>
+                    </div>
+                    {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">Attachments</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEmail.attachments.map((attachment, idx) => (
+                            <div
+                              key={idx}
+                              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
+                            >
+                              <FileText className="w-4 h-4" />
+                              <span className="text-sm">{attachment}</span>
+                              <Download className="w-4 h-4 ml-2" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </PageTransition>
