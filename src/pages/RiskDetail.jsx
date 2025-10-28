@@ -1310,38 +1310,71 @@ TARGET QUOTE DATE: July 29, 2025`,
               {/* Company Information Extraction Tool */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg shadow-lg border-2 border-purple-200 p-4"
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  boxShadow: [
+                    '0 4px 6px rgba(220, 38, 38, 0.1)',
+                    '0 10px 25px rgba(220, 38, 38, 0.2)',
+                    '0 4px 6px rgba(220, 38, 38, 0.1)',
+                  ]
+                }}
+                transition={{
+                  delay: 0.15,
+                  boxShadow: {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                }}
+                className="relative bg-gradient-to-br from-red-50 via-white to-red-50 rounded-xl shadow-xl border-2 border-sompo-red p-5 overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-3">
+                {/* Animated background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-sompo-red/5 to-transparent opacity-50"></div>
+
+                {/* Sparkle effect */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.3, 0.6, 0.3],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="absolute top-2 right-2 w-16 h-16 bg-sompo-red/10 rounded-full blur-2xl"
+                />
+
+                <div className="relative flex items-center justify-between mb-3">
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <Search className="w-4 h-4 text-purple-600" />
-                      Company Information Extraction Tool
+                    <h4 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-sompo-red animate-pulse" />
+                      AI Company Information Extractor
                     </h4>
                     <p className="text-xs text-gray-600 mt-1">
-                      Extract key information from websites, SIC/NAICS codes, or company registries
+                      Extract key information from websites, SIC/NAICS codes, or company registries using AI
                     </p>
                   </div>
                   <button
                     onClick={() => setShowExtractionTool(!showExtractionTool)}
-                    className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition-colors"
+                    className="px-4 py-2 bg-sompo-red text-white rounded-lg text-sm font-semibold hover:bg-sompo-dark-red transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                   >
+                    <Sparkles className="w-4 h-4" />
                     {showExtractionTool ? 'Hide Tool' : 'Show Tool'}
                   </button>
                 </div>
 
                 {showExtractionTool && (
-                  <div className="space-y-3">
+                  <div className="relative space-y-3">
                     {/* Tool Type Selection */}
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setExtractionToolType('website')}
-                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                           extractionToolType === 'website'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                            ? 'bg-sompo-red text-white shadow-md'
+                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                         }`}
                       >
                         <Globe className="w-3 h-3 inline mr-1" />
@@ -1349,10 +1382,10 @@ TARGET QUOTE DATE: July 29, 2025`,
                       </button>
                       <button
                         onClick={() => setExtractionToolType('sic')}
-                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                           extractionToolType === 'sic'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                            ? 'bg-sompo-red text-white shadow-md'
+                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                         }`}
                       >
                         <BookOpen className="w-3 h-3 inline mr-1" />
@@ -1360,10 +1393,10 @@ TARGET QUOTE DATE: July 29, 2025`,
                       </button>
                       <button
                         onClick={() => setExtractionToolType('registry')}
-                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                           extractionToolType === 'registry'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                            ? 'bg-sompo-red text-white shadow-md'
+                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                         }`}
                       >
                         <Building className="w-3 h-3 inline mr-1" />
@@ -1372,7 +1405,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                     </div>
 
                     {/* Input Area */}
-                    <div className="bg-white rounded-lg border border-purple-200 p-3">
+                    <div className="relative bg-white rounded-lg border-2 border-sompo-red/30 p-3 shadow-sm">
                       {extractionToolType === 'website' && (
                         <div className="space-y-2">
                           <label className="block text-xs font-medium text-gray-700">
@@ -1383,7 +1416,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                             value={extractionToolInput}
                             onChange={(e) => setExtractionToolInput(e.target.value)}
                             placeholder="https://example.com"
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
                           />
                           <p className="text-xs text-gray-500">
                             Extract company name, description, industry, contact info from website
@@ -1401,7 +1434,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                             value={extractionToolInput}
                             onChange={(e) => setExtractionToolInput(e.target.value)}
                             placeholder="7372 or 518210"
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
                           />
                           <p className="text-xs text-gray-500">
                             Lookup industry classification and description
@@ -1419,7 +1452,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                             value={extractionToolInput}
                             onChange={(e) => setExtractionToolInput(e.target.value)}
                             placeholder="Company name or registration #"
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
                           />
                           <div className="flex items-center gap-2 mt-2">
                             <select className="px-2 py-1.5 text-xs border border-gray-300 rounded bg-white">
@@ -1443,33 +1476,38 @@ TARGET QUOTE DATE: July 29, 2025`,
                           // Simulate API call
                           setTimeout(() => {
                             setExtractionToolResult({
-                              companyName: 'JX Research Limited',
-                              registrationNumber: 'KY1-1111-2681',
-                              address: 'SIX, 2nd Floor, Cricket Square, PO Box 2681, George Town, Grand Cayman',
-                              country: 'Cayman Islands',
-                              sicCode: '7372',
-                              sicDescription: 'Prepackaged Software',
-                              naicsCode: '518210',
-                              naicsDescription: 'Data Processing, Hosting, and Related Services',
-                              industry: 'Blockchain Technology',
-                              foundedYear: '2022',
-                              status: 'Active'
+                              fields: [
+                                { label: 'Company Name', value: 'JX Research Limited', confidence: 98, source: 'Website Homepage' },
+                                { label: 'Registration Number', value: 'KY1-1111-2681', confidence: 95, source: 'Company Registry' },
+                                { label: 'Address', value: 'SIX, 2nd Floor, Cricket Square, PO Box 2681, George Town, Grand Cayman', confidence: 96, source: 'Website Contact Page' },
+                                { label: 'Country', value: 'Cayman Islands', confidence: 99, source: 'Registry Data' },
+                                { label: 'Industry', value: 'Blockchain Technology', confidence: 92, source: 'Website About Page' },
+                                { label: 'Business Description', value: 'Cryptocurrency infrastructure and blockchain research services', confidence: 89, source: 'Website Content' },
+                                { label: 'SIC Code', value: '7372', confidence: 94, source: 'Industry Classification DB' },
+                                { label: 'SIC Description', value: 'Prepackaged Software', confidence: 94, source: 'Industry Classification DB' },
+                                { label: 'NAICS Code', value: '518210', confidence: 93, source: 'Industry Classification DB' },
+                                { label: 'NAICS Description', value: 'Data Processing, Hosting, and Related Services', confidence: 93, source: 'Industry Classification DB' },
+                                { label: 'Founded Year', value: '2022', confidence: 97, source: 'Company Registry' },
+                                { label: 'Status', value: 'Active', confidence: 99, source: 'Company Registry' },
+                                { label: 'Employee Count', value: '25-50', confidence: 78, source: 'LinkedIn Analysis' },
+                                { label: 'Annual Revenue', value: 'Not Disclosed', confidence: 85, source: 'Public Records' }
+                              ]
                             })
                             setExtractionToolLoading(false)
                           }, 2000)
                         }}
                         disabled={!extractionToolInput || extractionToolLoading}
-                        className="w-full mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full mt-3 px-4 py-2.5 bg-sompo-red text-white rounded-lg text-sm font-semibold hover:bg-sompo-dark-red transition-all disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                       >
                         {extractionToolLoading ? (
                           <>
                             <Clock className="w-4 h-4 animate-spin" />
-                            Extracting...
+                            Extracting with AI...
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-4 h-4" />
-                            Extract Information
+                            <Sparkles className="w-4 h-4 animate-pulse" />
+                            Extract Information with AI
                           </>
                         )}
                       </button>
@@ -1477,43 +1515,143 @@ TARGET QUOTE DATE: July 29, 2025`,
 
                     {/* Results */}
                     {extractionToolResult && !extractionToolLoading && (
-                      <div className="bg-white rounded-lg border border-green-300 p-3">
-                        <h5 className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          Extraction Results
-                        </h5>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-gray-50 rounded p-2">
-                            <div className="text-xs text-gray-600 mb-0.5">Company Name</div>
-                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.companyName}</div>
-                          </div>
-                          <div className="bg-gray-50 rounded p-2">
-                            <div className="text-xs text-gray-600 mb-0.5">Registration #</div>
-                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.registrationNumber}</div>
-                          </div>
-                          <div className="bg-gray-50 rounded p-2 col-span-2">
-                            <div className="text-xs text-gray-600 mb-0.5">Address</div>
-                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.address}</div>
-                          </div>
-                          <div className="bg-blue-50 rounded p-2">
-                            <div className="text-xs text-blue-600 mb-0.5">SIC Code</div>
-                            <div className="text-sm font-semibold text-blue-900">{extractionToolResult.sicCode}</div>
-                            <div className="text-xs text-blue-700 mt-0.5">{extractionToolResult.sicDescription}</div>
-                          </div>
-                          <div className="bg-green-50 rounded p-2">
-                            <div className="text-xs text-green-600 mb-0.5">NAICS Code</div>
-                            <div className="text-sm font-semibold text-green-900">{extractionToolResult.naicsCode}</div>
-                            <div className="text-xs text-green-700 mt-0.5">{extractionToolResult.naicsDescription}</div>
-                          </div>
-                          <div className="bg-gray-50 rounded p-2">
-                            <div className="text-xs text-gray-600 mb-0.5">Industry</div>
-                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.industry}</div>
-                          </div>
-                          <div className="bg-gray-50 rounded p-2">
-                            <div className="text-xs text-gray-600 mb-0.5">Status</div>
-                            <div className="text-sm font-semibold text-green-600">{extractionToolResult.status}</div>
-                          </div>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gradient-to-br from-green-50 to-white rounded-xl border-2 border-green-400 p-4 shadow-lg"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-bold text-green-900 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-green-600 animate-pulse" />
+                            AI Extraction Results
+                          </h5>
+                          <span className="px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
+                            {extractionToolResult.fields.length} Fields Extracted
+                          </span>
                         </div>
+
+                        <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                          {extractionToolResult.fields.map((field, idx) => {
+                            const feedbackKey = `tool-${idx}`
+                            const feedback = extractionFeedback[feedbackKey]
+                            const isEditing = editingExtraction === feedbackKey
+
+                            const getConfidenceColor = (confidence) => {
+                              if (confidence >= 95) return 'text-green-700 bg-green-100'
+                              if (confidence >= 85) return 'text-blue-700 bg-blue-100'
+                              if (confidence >= 75) return 'text-amber-700 bg-amber-100'
+                              return 'text-red-700 bg-red-100'
+                            }
+
+                            return (
+                              <div key={idx} className="bg-white rounded-lg border border-gray-200 p-3 hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Sparkles className="w-3 h-3 text-sompo-red flex-shrink-0" />
+                                      <span className="text-xs font-semibold text-gray-700">{field.label}</span>
+                                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${getConfidenceColor(field.confidence)}`}>
+                                        {field.confidence}% AI
+                                      </span>
+                                    </div>
+                                    <div className="text-sm font-semibold text-gray-900 mb-1">{field.value}</div>
+                                    <div className="text-xs text-gray-500">Source: {field.source}</div>
+
+                                    {/* Feedback Section */}
+                                    {!feedback && !isEditing && (
+                                      <button
+                                        onClick={() => setEditingExtraction(feedbackKey)}
+                                        className="mt-2 px-2 py-1 bg-amber-50 text-amber-700 rounded text-xs font-medium hover:bg-amber-100 transition-colors flex items-center gap-1"
+                                      >
+                                        <ThumbsDown className="w-3 h-3" />
+                                        Incorrect? Provide Feedback
+                                      </button>
+                                    )}
+
+                                    {isEditing && (
+                                      <div className="mt-2 p-2 bg-amber-50 border border-amber-300 rounded-lg space-y-2">
+                                        <div>
+                                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                                            Correct Value
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="Enter correct value"
+                                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent"
+                                            value={feedback?.correctedValue || ''}
+                                            onChange={(e) => setExtractionFeedback({
+                                              ...extractionFeedback,
+                                              [feedbackKey]: { ...feedback, correctedValue: e.target.value }
+                                            })}
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                                            Comment (Optional)
+                                          </label>
+                                          <textarea
+                                            placeholder="Add notes about the correction"
+                                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent resize-none"
+                                            rows="2"
+                                            value={feedback?.comment || ''}
+                                            onChange={(e) => setExtractionFeedback({
+                                              ...extractionFeedback,
+                                              [feedbackKey]: { ...feedback, comment: e.target.value }
+                                            })}
+                                          />
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <button
+                                            onClick={() => {
+                                              setExtractionFeedback({
+                                                ...extractionFeedback,
+                                                [feedbackKey]: feedback || { comment: '', correctedValue: '' }
+                                              })
+                                              setEditingExtraction(null)
+                                            }}
+                                            className="px-2 py-1 bg-sompo-red text-white rounded text-xs font-semibold hover:bg-sompo-dark-red transition-colors"
+                                          >
+                                            Save Feedback
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              const updated = { ...extractionFeedback }
+                                              delete updated[feedbackKey]
+                                              setExtractionFeedback(updated)
+                                              setEditingExtraction(null)
+                                            }}
+                                            className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs font-medium hover:bg-gray-300 transition-colors"
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {feedback && !isEditing && (
+                                      <div className="mt-2 p-2 bg-amber-100 border border-amber-400 rounded text-xs">
+                                        <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1">
+                                          <AlertTriangle className="w-3 h-3" />
+                                          Corrected to: {feedback.correctedValue}
+                                        </div>
+                                        {feedback.comment && (
+                                          <p className="text-amber-800 text-[10px] mb-1">Note: {feedback.comment}</p>
+                                        )}
+                                        <button
+                                          onClick={() => setEditingExtraction(feedbackKey)}
+                                          className="text-[10px] text-amber-700 hover:text-amber-900 underline"
+                                        >
+                                          Edit feedback
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+
                         <button
                           onClick={() => {
                             // Apply extracted data to submission
@@ -1521,12 +1659,12 @@ TARGET QUOTE DATE: July 29, 2025`,
                             setExtractionToolResult(null)
                             setExtractionToolInput('')
                           }}
-                          className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                          className="w-full mt-4 px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                         >
-                          <CheckCircle className="w-4 h-4" />
-                          Apply to Submission
+                          <CheckCircle className="w-5 h-5" />
+                          Apply All Fields to Submission
                         </button>
-                      </div>
+                      </motion.div>
                     )}
                   </div>
                 )}
@@ -1827,49 +1965,34 @@ TARGET QUOTE DATE: July 29, 2025`,
                 </h3>
                 <div className="space-y-2">
                   <FieldDisplay
-                    label="Insured Name (Extracted)"
+                    label="Insured Name"
                     value={submissionData.insuredExtracted}
-                    confidence={submissionData.extractionConfidence.insured}
-                    extracted={true}
-                    fieldKey="insuredName"
                   />
                   <FieldDisplay
-                    label="Insured Address (Extracted)"
+                    label="Insured Address"
                     value={submissionData.insuredAddress}
-                    extracted={true}
-                    fieldKey="insuredAddress"
                   />
                   <FieldDisplay
-                    label="Insured Country (Extracted)"
+                    label="Insured Country"
                     value={submissionData.insuredCountry}
-                    extracted={true}
-                    fieldKey="insuredCountry"
                   />
                   <FieldDisplay
-                    label="Domicile (Extracted)"
+                    label="Domicile"
                     value={submissionData.domicile}
-                    extracted={true}
-                    fieldKey="domicile"
                   />
                   <FieldDisplay label="Account Number" value={submissionData.accountNo} />
                   <FieldDisplay label="DUNS Number" value={submissionData.dunsNumber} />
                   <FieldDisplay
-                    label="Sector/Industry (Extracted)"
+                    label="Sector/Industry"
                     value={submissionData.sector}
-                    extracted={true}
-                    fieldKey="sector"
                   />
                   <FieldDisplay
-                    label="Sector Sub-Category (Extracted)"
+                    label="Sector Sub-Category"
                     value={submissionData.sectorSubCategory}
-                    extracted={true}
-                    fieldKey="sectorSubCategory"
                   />
                   <FieldDisplay
-                    label="Occupancy (Extracted)"
+                    label="Occupancy"
                     value={submissionData.occupancy}
-                    extracted={true}
-                    fieldKey="occupancy"
                   />
 
                   {/* SIC & NAICS Classification */}
@@ -1908,28 +2031,20 @@ TARGET QUOTE DATE: July 29, 2025`,
                 </h3>
                 <div className="space-y-2">
                   <FieldDisplay
-                    label="Broker Organization (Extracted)"
+                    label="Broker Organization"
                     value={submissionData.broker}
-                    extracted={true}
-                    fieldKey="broker"
                   />
                   <FieldDisplay
-                    label="Broker Office (Extracted)"
+                    label="Broker Office"
                     value={submissionData.brokerOffice}
-                    extracted={true}
-                    fieldKey="brokerOffice"
                   />
                   <FieldDisplay
-                    label="Broker Contact (Extracted)"
+                    label="Broker Contact"
                     value={submissionData.brokerContact}
-                    extracted={true}
-                    fieldKey="brokerContact"
                   />
                   <FieldDisplay
-                    label="Broker Email (Extracted)"
+                    label="Broker Email"
                     value={submissionData.brokerContactEmail}
-                    extracted={true}
-                    fieldKey="brokerEmail"
                   />
                   <FieldDisplay label="Team" value={submissionData.team} />
                   <FieldDisplay label="Office Location" value={submissionData.officeLocation} />
@@ -2020,22 +2135,16 @@ TARGET QUOTE DATE: July 29, 2025`,
                 </h3>
                 <div className="space-y-2">
                   <FieldDisplay
-                    label="Coverage Type (Extracted)"
+                    label="Coverage Type"
                     value={submissionData.coverage}
-                    extracted={true}
-                    fieldKey="coverage"
                   />
                   <FieldDisplay
-                    label="Inception Date (Extracted)"
+                    label="Inception Date"
                     value={submissionData.inceptionDate}
-                    extracted={true}
-                    fieldKey="inceptionDate"
                   />
                   <FieldDisplay
-                    label="Expiry Date (Extracted)"
+                    label="Expiry Date"
                     value={submissionData.expiryDate}
-                    extracted={true}
-                    fieldKey="expiryDate"
                   />
                   <FieldDisplay label="Submission Date" value={submissionData.submissionDate} />
                   <FieldDisplay label="Attachment Type" value={submissionData.attachmentType} />
