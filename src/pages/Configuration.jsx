@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Settings, Plus, Trash2, Save, Send, X, FileText, Shield, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Settings, Plus, Trash2, Save, Send, X, FileText, Shield, AlertTriangle, CheckCircle, ChevronRight } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
 const Configuration = () => {
