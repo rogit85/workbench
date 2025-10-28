@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Search, Plus, Filter, GripVertical, LayoutGrid, Table as TableIcon, Settings, Save, X, ChevronUp, ChevronDown } from 'lucide-react'
+import { Search, Plus, Filter, GripVertical, LayoutGrid, Table as TableIcon, Settings, Save, X, ChevronUp, ChevronDown, ExternalLink } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
 import {
@@ -647,7 +647,18 @@ const WorkQueue = () => {
     // Otherwise show normal cell content with click to edit
     switch (columnId) {
       case 'id':
-        return <span className="font-medium text-gray-900">{submission.id}</span>
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/risk/${submission.id}`)}
+              className="text-sompo-red hover:text-sompo-dark-red flex-shrink-0"
+              title="Open risk detail"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+            <span className="font-medium text-gray-900">{submission.id}</span>
+          </div>
+        )
       case 'insured':
         return (
           <span
@@ -957,9 +968,6 @@ const WorkQueue = () => {
                           </div>
                         </th>
                       ))}
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Actions
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -973,14 +981,6 @@ const WorkQueue = () => {
                             {renderCell(submission, col)}
                           </td>
                         ))}
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => navigate(`/risk/${submission.id}`)}
-                            className="text-sompo-red hover:text-sompo-dark-red text-sm font-medium"
-                          >
-                            Open
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>

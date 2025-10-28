@@ -508,9 +508,6 @@ const Analytics = () => {
                 >
                   <Filter className="w-5 h-5 text-sompo-red" />
                   Filters
-                  <span className="text-sm font-normal text-gray-500">
-                    {showFilters ? '(Click to collapse)' : '(Click to expand)'}
-                  </span>
                 </button>
                 {showFilters && (
                   <button
