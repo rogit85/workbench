@@ -29,6 +29,73 @@ const Configuration = () => {
         { field: 'Sprinklered', operator: 'is', value: 'true', outcome: 'Accept', rationale: 'HPR standard' },
         { field: 'NatCatZone', operator: '!=', value: 'A', outcome: 'Refer', rationale: 'Flood referral' }
       ]
+    },
+    {
+      id: 'at2',
+      name: 'Aviation - Airlines',
+      description: 'Aviation Airlines Underwriting Guidelines 2025',
+      status: 'Approved',
+      rules: [
+        { field: 'LOB', operator: 'is', value: 'Aviation', outcome: 'Accept', rationale: 'Aviation appetite' },
+        { field: 'Aviation Subclass', operator: 'is', value: 'Airlines', outcome: 'Accept', rationale: 'Airlines subclass' },
+        { field: 'IATA Member', operator: 'is', value: 'Yes', outcome: 'Accept', rationale: 'Focus on IATA members with proven safety processes' },
+        { field: 'Line Size USD', operator: '<=', value: '150000000', outcome: 'Accept', rationale: 'Max line USD150m for Airlines' },
+        { field: 'Line %', operator: '<=', value: '5', outcome: 'Accept', rationale: 'Max 5% line for Airlines' },
+        { field: 'Commission %', operator: '<=', value: '25', outcome: 'Accept', rationale: 'Max commission 25% for Airlines (except fronting)' },
+        { field: 'Line Size USD', operator: '>', value: '100000000', outcome: 'Refer', rationale: 'Line exceeds USD100m - SVP referral required' },
+        { field: 'EPI USD', operator: '>', value: '1000000', outcome: 'Refer', rationale: 'EPI exceeds USD1m - SVP referral required' },
+        { field: 'Reinsurance Coverage', operator: 'is', value: 'No', outcome: 'Refer', rationale: 'Risk not covered by reinsurance programme - Head of Division referral' },
+        { field: 'Rate Reduction %', operator: '>', value: '10', outcome: 'Refer', rationale: 'Rate reduction exceeds 10% - Head of Division referral' },
+        { field: 'High Attrition', operator: 'is', value: 'Yes', outcome: 'Decline', rationale: 'Avoid high attrition/frequency accounts without adequate deductibles' }
+      ]
+    },
+    {
+      id: 'at3',
+      name: 'Aviation - Aerospace',
+      description: 'Aviation Aerospace Underwriting Guidelines 2025',
+      status: 'Approved',
+      rules: [
+        { field: 'LOB', operator: 'is', value: 'Aviation', outcome: 'Accept', rationale: 'Aviation appetite' },
+        { field: 'Aviation Subclass', operator: 'is', value: 'Aerospace', outcome: 'Accept', rationale: 'Aerospace subclass' },
+        { field: 'Line Size USD', operator: '<=', value: '150000000', outcome: 'Accept', rationale: 'Max line USD150m for Aerospace' },
+        { field: 'Line %', operator: '<=', value: '10', outcome: 'Accept', rationale: 'Max 10% line for Aerospace' },
+        { field: 'Commission % - Facility', operator: '<=', value: '35', outcome: 'Accept', rationale: 'Max commission 35% for facility business' },
+        { field: 'Commission % - Direct', operator: '<=', value: '27.5', outcome: 'Accept', rationale: 'Max commission 27.5% for direct and facultative' },
+        { field: 'Airport Management', operator: 'is', value: 'Yes', outcome: 'Accept', rationale: 'Focus on Airport Management companies that sub-contract services' },
+        { field: 'Line Size USD', operator: '>', value: '100000000', outcome: 'Refer', rationale: 'Line exceeds USD100m - SVP referral required' },
+        { field: 'High Attrition', operator: 'is', value: 'Yes', outcome: 'Decline', rationale: 'Avoid high attrition/frequency accounts without adequate deductibles' }
+      ]
+    },
+    {
+      id: 'at4',
+      name: 'Aviation - General Aviation',
+      description: 'General Aviation Underwriting Guidelines 2025',
+      status: 'Approved',
+      rules: [
+        { field: 'LOB', operator: 'is', value: 'Aviation', outcome: 'Accept', rationale: 'Aviation appetite' },
+        { field: 'Aviation Subclass', operator: 'is', value: 'General Aviation', outcome: 'Accept', rationale: 'General Aviation subclass' },
+        { field: 'Line Size USD', operator: '<=', value: '50000000', outcome: 'Accept', rationale: 'Max line USD50m for General Aviation' },
+        { field: 'Line %', operator: '<=', value: '20', outcome: 'Accept', rationale: 'Max 20% line for General Aviation' },
+        { field: 'Commission % - Facility', operator: '<=', value: '35', outcome: 'Accept', rationale: 'Max commission 35% for facility business' },
+        { field: 'Commission % - Direct', operator: '<=', value: '27.5', outcome: 'Accept', rationale: 'Max commission 27.5% for direct and facultative' },
+        { field: 'High Attrition', operator: 'is', value: 'Yes', outcome: 'Decline', rationale: 'Avoid high attrition/frequency accounts without adequate deductibles' }
+      ]
+    },
+    {
+      id: 'at5',
+      name: 'Aviation - War',
+      description: 'Aviation War Underwriting Guidelines 2025',
+      status: 'Approved',
+      rules: [
+        { field: 'LOB', operator: 'is', value: 'Aviation', outcome: 'Accept', rationale: 'Aviation appetite' },
+        { field: 'Aviation Subclass', operator: 'is', value: 'War', outcome: 'Accept', rationale: 'War subclass' },
+        { field: 'Cover Type', operator: 'is', value: 'Liability', outcome: 'Accept', rationale: 'War liability coverage' },
+        { field: 'Line Size USD - Liability', operator: '<=', value: '40000000', outcome: 'Accept', rationale: 'Max line USD40m for War liabilities' },
+        { field: 'Line Size USD - Hull War', operator: '<=', value: '50000000', outcome: 'Accept', rationale: 'Max line USD50m aggregate for Hull War' },
+        { field: 'Commission % - Facility', operator: '<=', value: '35', outcome: 'Accept', rationale: 'Max commission 35% for facility business' },
+        { field: 'Route Structure', operator: 'is', value: 'Prudent', outcome: 'Accept', rationale: 'Focus on insureds with prudent route structure and dynamic risk assessment' },
+        { field: 'Route Structure', operator: 'is', value: 'High Risk', outcome: 'Decline', rationale: 'Decline insureds with imprudent route structures' }
+      ]
     }
   ])
 
@@ -36,7 +103,12 @@ const Configuration = () => {
   const fieldOptions = [
     'LOB', 'Geography', 'TIV', 'Construction', 'Sprinklered',
     'Occupancy', 'NatCatZone', 'Loss Ratio', 'Broker Tier',
-    'Distance to Coast', 'Year Built'
+    'Distance to Coast', 'Year Built',
+    'Aviation Subclass', 'IATA Member', 'Line Size USD', 'Line %',
+    'Commission %', 'Commission % - Facility', 'Commission % - Direct',
+    'EPI USD', 'Reinsurance Coverage', 'Rate Reduction %',
+    'High Attrition', 'Airport Management', 'Cover Type',
+    'Line Size USD - Liability', 'Line Size USD - Hull War', 'Route Structure'
   ]
 
   const operatorOptions = [

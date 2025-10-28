@@ -14,7 +14,9 @@ import {
   Activity,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -305,13 +307,15 @@ const UnderwriterPerformance = () => {
               <div className="flex items-center justify-between mb-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 text-lg font-semibold text-gray-900 hover:text-sompo-red transition-colors"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-sompo-red transition-colors"
                 >
-                  <Filter className="w-5 h-5 text-sompo-red" />
+                  {showFilters ? <ChevronDown className="w-4 h-4 text-sompo-red" /> : <ChevronRight className="w-4 h-4 text-sompo-red" />}
                   Filters
-                  <span className="text-sm font-normal text-gray-500">
-                    {showFilters ? '(Click to collapse)' : '(Click to expand)'}
-                  </span>
+                  {!showFilters && (filters.team !== 'all' || filters.underwriter !== 'all') && (
+                    <span className="ml-2 px-2 py-0.5 bg-sompo-red text-white text-xs rounded-full">
+                      Active
+                    </span>
+                  )}
                 </button>
                 {showFilters && (
                   <button
