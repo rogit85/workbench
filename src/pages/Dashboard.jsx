@@ -14,7 +14,8 @@ import {
   Building,
   DollarSign,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  ExternalLink
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -164,9 +165,19 @@ const Dashboard = () => {
       return (
         <motion.div
           whileHover={{ backgroundColor: '#F9FAFB' }}
-          onClick={() => navigate(`/risk/${task.id}`)}
-          className="flex items-center gap-3 p-2 cursor-pointer border-b border-gray-100 hover:border-gray-200 transition-all text-xs"
+          className="flex items-center gap-3 p-2 border-b border-gray-100 hover:border-gray-200 transition-all text-xs relative"
         >
+          <a
+            href={`/risk/${task.id}`}
+            onClick={(e) => {
+              e.preventDefault()
+              navigate(`/risk/${task.id}`)
+            }}
+            className="text-sompo-red hover:text-sompo-dark-red mr-2"
+            title="Open risk detail (right-click to open in new tab)"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
           <div className="w-16 font-mono text-gray-500">{task.id}</div>
           <div className="flex-1 font-semibold text-gray-900 truncate">{task.insured}</div>
           <div className="w-32 text-gray-600 truncate">{task.lob}</div>
@@ -192,9 +203,19 @@ const Dashboard = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.02, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
-        onClick={() => navigate(`/risk/${task.id}`)}
-        className="bg-white rounded-lg border border-gray-200 p-3 cursor-pointer transition-all"
+        className="bg-white rounded-lg border border-gray-200 p-3 transition-all relative"
       >
+        <a
+          href={`/risk/${task.id}`}
+          onClick={(e) => {
+            e.preventDefault()
+            navigate(`/risk/${task.id}`)
+          }}
+          className="absolute top-2 right-2 text-sompo-red hover:text-sompo-dark-red z-10"
+          title="Open risk detail (right-click to open in new tab)"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </a>
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
             <h4 className="font-semibold text-sm text-gray-900 truncate">{task.insured}</h4>

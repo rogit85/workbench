@@ -136,8 +136,21 @@ const SortableRiskCard = ({ task, onClick, getSourceBadgeColor, getLOBColor }) =
           <GripVertical className="w-4 h-4" />
         </div>
 
+        {/* Link Icon */}
+        <a
+          href={`/risk/${task.id}`}
+          onClick={(e) => {
+            e.preventDefault()
+            onClick()
+          }}
+          className="pt-1 text-sompo-red hover:text-sompo-dark-red"
+          title="Open risk detail (right-click to open in new tab)"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </a>
+
         {/* Card Content */}
-        <div className="flex-1 cursor-pointer min-w-0" onClick={onClick}>
+        <div className="flex-1 min-w-0">
           {/* Header with badges */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <h4 className="font-medium text-gray-900 text-sm leading-tight flex-1 truncate">
@@ -731,13 +744,17 @@ const WorkQueue = () => {
       case 'id':
         return (
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate(`/risk/${submission.id}`)}
+            <a
+              href={`/risk/${submission.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                navigate(`/risk/${submission.id}`)
+              }}
               className="text-sompo-red hover:text-sompo-dark-red flex-shrink-0"
-              title="Open risk detail"
+              title="Open risk detail (right-click to open in new tab)"
             >
               <ExternalLink className="w-4 h-4" />
-            </button>
+            </a>
             <span className="font-medium text-gray-900">{submission.id}</span>
           </div>
         )

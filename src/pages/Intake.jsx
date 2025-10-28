@@ -8,7 +8,8 @@ import {
   Edit,
   CheckCircle,
   AlertTriangle,
-  XCircle
+  XCircle,
+  ExternalLink
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
@@ -293,10 +294,20 @@ const Intake = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   whileHover={{ backgroundColor: '#F9FAFB' }}
-                  onClick={() => navigate(`/risk/${submission.id}`)}
-                  className="p-6 cursor-pointer transition-colors"
+                  className="p-6 transition-colors relative"
                 >
-                  <div className="flex items-start justify-between">
+                  <a
+                    href={`/risk/${submission.id}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      navigate(`/risk/${submission.id}`)
+                    }}
+                    className="absolute top-4 right-4 text-sompo-red hover:text-sompo-dark-red z-10"
+                    title="Open risk detail (right-click to open in new tab)"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                  <div className="flex items-start justify-between pr-8">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="font-semibold text-gray-900">{submission.insured}</h4>

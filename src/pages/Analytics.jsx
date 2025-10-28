@@ -17,7 +17,8 @@ import {
   Users,
   Target,
   Award,
-  Activity
+  Activity,
+  ExternalLink
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -949,11 +950,23 @@ const Analytics = () => {
                   {filteredData.map((record) => (
                     <tr
                       key={record.id}
-                      className="hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/risk/${record.id}`)}
+                      className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-sompo-red">
-                        {record.submissionRef}
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`/risk/${record.id}`}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              navigate(`/risk/${record.id}`)
+                            }}
+                            className="text-sompo-red hover:text-sompo-dark-red"
+                            title="Open risk detail (right-click to open in new tab)"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                          <span className="text-sompo-red">{record.submissionRef}</span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                         {new Date(record.date).toLocaleDateString()}
