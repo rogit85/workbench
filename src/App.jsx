@@ -9,6 +9,7 @@ import AIAssistant from "./components/AIAssistant";
 import WorkQueue from "./pages/WorkQueue";
 import Analytics from "./pages/Analytics";
 import AIAccuracy from "./pages/AIAccuracy";
+import UnderwriterPerformance from "./pages/UnderwriterPerformance";
 import Dashboard from "./pages/Dashboard";
 import RiskDetail from "./pages/RiskDetail";
 import Configuration from "./pages/Configuration";
@@ -27,6 +28,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/analytics/performance" element={<Analytics />} />
+            <Route path="/analytics/underwriter-performance" element={<UnderwriterPerformance />} />
             <Route path="/analytics/ai-accuracy" element={<AIAccuracy />} />
             <Route path="/risk/:id" element={<RiskDetail />} />
             <Route path="/reports" element={<Analytics />} />

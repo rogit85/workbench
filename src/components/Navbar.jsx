@@ -29,6 +29,7 @@ const Navbar = () => {
       href: "/analytics",
       submenu: [
         { name: "Performance Reporting", href: "/analytics/performance" },
+        { name: "Underwriter Performance", href: "/analytics/underwriter-performance" },
         { name: "AI Accuracy", href: "/analytics/ai-accuracy" }
       ]
     },
