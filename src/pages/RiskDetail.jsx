@@ -55,6 +55,11 @@ const SubmissionDetail = () => {
   const [editingUnderwriter, setEditingUnderwriter] = useState(false)
   const [underwriter, setUnderwriter] = useState('Jeremy Isaacs')
   const [underwriterAssistant, setUnderwriterAssistant] = useState('Frankie Dowsett')
+  const [showExtractionTool, setShowExtractionTool] = useState(false)
+  const [extractionToolType, setExtractionToolType] = useState('website') // 'website', 'sic', 'registry'
+  const [extractionToolInput, setExtractionToolInput] = useState('')
+  const [extractionToolLoading, setExtractionToolLoading] = useState(false)
+  const [extractionToolResult, setExtractionToolResult] = useState(null)
   const scrollContainerRef = useRef(null)
 
   // Comprehensive submission data matching all intake fields
@@ -95,6 +100,10 @@ const SubmissionDetail = () => {
       occupancy: 'Blockchain Technology',
       sector: 'Cryptocurrency Infrastructure',
       sectorSubCategory: 'Cryptocurrency Infrastructure',
+      sicCode: '7372',
+      sicDescription: 'Prepackaged Software',
+      naicsCode: '518210',
+      naicsDescription: 'Data Processing, Hosting, and Related Services',
 
       // Team & Location
       team: 'Management Liability',
@@ -121,9 +130,25 @@ const SubmissionDetail = () => {
       limitOption2: 2000000,
       limitBasis: null,
       exposureCurrency: 'USD',
-      excess: null,
+      excess: 10000,
+      excessCurrency: 'USD',
       attachmentType: 'Primary',
-      layer: null,
+      layer: '1st Layer',
+      layering: 'Primary: USD 1M xs USD 10K',
+      programme: 'Stand-alone D&O Policy',
+      leadCarrier: 'Sompo International',
+      leadCarrierShare: '100%',
+      subLimits: [
+        { coverage: 'Employment Practices Liability', limit: 2000000, currency: 'USD' },
+        { coverage: 'Entity Securities', limit: 1000000, currency: 'USD' },
+        { coverage: 'Investigation Costs', limit: 250000, currency: 'USD' }
+      ],
+      excesses: [
+        { coverage: 'Side A (Non-indemnifiable Loss)', amount: 0, currency: 'USD' },
+        { coverage: 'Side B (USA)', amount: 35000, currency: 'USD' },
+        { coverage: 'Side B (Rest of World)', amount: 15044, currency: 'USD' }
+      ],
+      insurerNotes: 'Blockchain startup with strong VC backing. No prior claims history. Board includes experienced tech executives. Governance framework being implemented. Standard D&O coverage with EPL sublimit.',
 
       // Deductibles
       primaryDeductible: 0,
@@ -1282,6 +1307,231 @@ TARGET QUOTE DATE: July 29, 2025`,
                 )}
               </motion.div>
 
+              {/* Company Information Extraction Tool */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg shadow-lg border-2 border-purple-200 p-4"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Search className="w-4 h-4 text-purple-600" />
+                      Company Information Extraction Tool
+                    </h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Extract key information from websites, SIC/NAICS codes, or company registries
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowExtractionTool(!showExtractionTool)}
+                    className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    {showExtractionTool ? 'Hide Tool' : 'Show Tool'}
+                  </button>
+                </div>
+
+                {showExtractionTool && (
+                  <div className="space-y-3">
+                    {/* Tool Type Selection */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setExtractionToolType('website')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                          extractionToolType === 'website'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <Globe className="w-3 h-3 inline mr-1" />
+                        Website URL
+                      </button>
+                      <button
+                        onClick={() => setExtractionToolType('sic')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                          extractionToolType === 'sic'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <BookOpen className="w-3 h-3 inline mr-1" />
+                        SIC / NAICS
+                      </button>
+                      <button
+                        onClick={() => setExtractionToolType('registry')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                          extractionToolType === 'registry'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <Building className="w-3 h-3 inline mr-1" />
+                        Company Registry
+                      </button>
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="bg-white rounded-lg border border-purple-200 p-3">
+                      {extractionToolType === 'website' && (
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-700">
+                            Company Website URL
+                          </label>
+                          <input
+                            type="url"
+                            value={extractionToolInput}
+                            onChange={(e) => setExtractionToolInput(e.target.value)}
+                            placeholder="https://example.com"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                          <p className="text-xs text-gray-500">
+                            Extract company name, description, industry, contact info from website
+                          </p>
+                        </div>
+                      )}
+
+                      {extractionToolType === 'sic' && (
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-700">
+                            SIC or NAICS Code
+                          </label>
+                          <input
+                            type="text"
+                            value={extractionToolInput}
+                            onChange={(e) => setExtractionToolInput(e.target.value)}
+                            placeholder="7372 or 518210"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                          <p className="text-xs text-gray-500">
+                            Lookup industry classification and description
+                          </p>
+                        </div>
+                      )}
+
+                      {extractionToolType === 'registry' && (
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium text-gray-700">
+                            Company Name or Registration Number
+                          </label>
+                          <input
+                            type="text"
+                            value={extractionToolInput}
+                            onChange={(e) => setExtractionToolInput(e.target.value)}
+                            placeholder="Company name or registration #"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                          <div className="flex items-center gap-2 mt-2">
+                            <select className="px-2 py-1.5 text-xs border border-gray-300 rounded bg-white">
+                              <option value="uk">UK Companies House</option>
+                              <option value="de">Delaware</option>
+                              <option value="ca">California</option>
+                              <option value="ny">New York</option>
+                              <option value="tx">Texas</option>
+                              <option value="fl">Florida</option>
+                            </select>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            Search company registries for official company information
+                          </p>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setExtractionToolLoading(true)
+                          // Simulate API call
+                          setTimeout(() => {
+                            setExtractionToolResult({
+                              companyName: 'JX Research Limited',
+                              registrationNumber: 'KY1-1111-2681',
+                              address: 'SIX, 2nd Floor, Cricket Square, PO Box 2681, George Town, Grand Cayman',
+                              country: 'Cayman Islands',
+                              sicCode: '7372',
+                              sicDescription: 'Prepackaged Software',
+                              naicsCode: '518210',
+                              naicsDescription: 'Data Processing, Hosting, and Related Services',
+                              industry: 'Blockchain Technology',
+                              foundedYear: '2022',
+                              status: 'Active'
+                            })
+                            setExtractionToolLoading(false)
+                          }, 2000)
+                        }}
+                        disabled={!extractionToolInput || extractionToolLoading}
+                        className="w-full mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {extractionToolLoading ? (
+                          <>
+                            <Clock className="w-4 h-4 animate-spin" />
+                            Extracting...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            Extract Information
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Results */}
+                    {extractionToolResult && !extractionToolLoading && (
+                      <div className="bg-white rounded-lg border border-green-300 p-3">
+                        <h5 className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Extraction Results
+                        </h5>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-gray-50 rounded p-2">
+                            <div className="text-xs text-gray-600 mb-0.5">Company Name</div>
+                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.companyName}</div>
+                          </div>
+                          <div className="bg-gray-50 rounded p-2">
+                            <div className="text-xs text-gray-600 mb-0.5">Registration #</div>
+                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.registrationNumber}</div>
+                          </div>
+                          <div className="bg-gray-50 rounded p-2 col-span-2">
+                            <div className="text-xs text-gray-600 mb-0.5">Address</div>
+                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.address}</div>
+                          </div>
+                          <div className="bg-blue-50 rounded p-2">
+                            <div className="text-xs text-blue-600 mb-0.5">SIC Code</div>
+                            <div className="text-sm font-semibold text-blue-900">{extractionToolResult.sicCode}</div>
+                            <div className="text-xs text-blue-700 mt-0.5">{extractionToolResult.sicDescription}</div>
+                          </div>
+                          <div className="bg-green-50 rounded p-2">
+                            <div className="text-xs text-green-600 mb-0.5">NAICS Code</div>
+                            <div className="text-sm font-semibold text-green-900">{extractionToolResult.naicsCode}</div>
+                            <div className="text-xs text-green-700 mt-0.5">{extractionToolResult.naicsDescription}</div>
+                          </div>
+                          <div className="bg-gray-50 rounded p-2">
+                            <div className="text-xs text-gray-600 mb-0.5">Industry</div>
+                            <div className="text-sm font-semibold text-gray-900">{extractionToolResult.industry}</div>
+                          </div>
+                          <div className="bg-gray-50 rounded p-2">
+                            <div className="text-xs text-gray-600 mb-0.5">Status</div>
+                            <div className="text-sm font-semibold text-green-600">{extractionToolResult.status}</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Apply extracted data to submission
+                            alert('Data would be applied to submission fields')
+                            setExtractionToolResult(null)
+                            setExtractionToolInput('')
+                          }}
+                          className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Apply to Submission
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Document List Sidebar */}
                 <motion.div
@@ -1621,6 +1871,27 @@ TARGET QUOTE DATE: July 29, 2025`,
                     extracted={true}
                     fieldKey="occupancy"
                   />
+
+                  {/* SIC & NAICS Classification */}
+                  <div className="pt-2 border-t border-gray-200">
+                    <div className="text-xs text-gray-600 uppercase tracking-wider mb-2 mt-2">Industry Classification</div>
+                    <div className="space-y-2">
+                      <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-blue-900">SIC Code</span>
+                          <span className="text-xs font-bold text-blue-700">{submissionData.sicCode}</span>
+                        </div>
+                        <div className="text-xs text-blue-800">{submissionData.sicDescription}</div>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded p-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-green-900">NAICS Code</span>
+                          <span className="text-xs font-bold text-green-700">{submissionData.naicsCode}</span>
+                        </div>
+                        <div className="text-xs text-green-800">{submissionData.naicsDescription}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
 
@@ -1771,6 +2042,74 @@ TARGET QUOTE DATE: July 29, 2025`,
                   <FieldDisplay label="Direct / Assumed Fac" value={submissionData.assumedFac ? 'Assumed Fac' : 'Direct'} />
                   <FieldDisplay label="Lead" value={submissionData.lead} />
                   <FieldDisplay label="Written Since (YYYY)" value={submissionData.writtenSince} />
+                </div>
+              </motion.div>
+
+              {/* Programme & Layering */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-3"
+              >
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-sompo-red" />
+                  Programme & Layering
+                </h3>
+                <div className="space-y-2">
+                  <FieldDisplay label="Programme" value={submissionData.programme} />
+                  <FieldDisplay label="Layer" value={submissionData.layer} />
+                  <FieldDisplay label="Layering Structure" value={submissionData.layering} />
+                  <FieldDisplay label="Lead Carrier" value={submissionData.leadCarrier} />
+                  <FieldDisplay label="Lead Carrier Share" value={submissionData.leadCarrierShare} />
+
+                  {/* Sub-Limits */}
+                  <div className="pt-2">
+                    <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">Sub-Limits</div>
+                    <div className="space-y-1.5 pl-3">
+                      {submissionData.subLimits?.map((sublimit, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 rounded px-2 py-1.5">
+                          <span className="text-gray-700">{sublimit.coverage}</span>
+                          <span className="font-semibold text-gray-900">
+                            {sublimit.currency} {sublimit.limit.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Excesses */}
+                  <div className="pt-2">
+                    <div className="text-xs text-gray-600 uppercase tracking-wider mb-2">Excesses / Deductibles</div>
+                    <div className="space-y-1.5 pl-3">
+                      {submissionData.excesses?.map((excess, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 rounded px-2 py-1.5">
+                          <span className="text-gray-700">{excess.coverage}</span>
+                          <span className="font-semibold text-gray-900">
+                            {excess.currency} {excess.amount.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Insurer Notes */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-3"
+              >
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-sompo-red" />
+                  Insurer Notes
+                </h3>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-sm text-gray-800 leading-relaxed">
+                    {submissionData.insurerNotes}
+                  </p>
                 </div>
               </motion.div>
 
