@@ -44,6 +44,7 @@ const SubmissionDetail = () => {
   const [fieldFeedback, setFieldFeedback] = useState({}) // { fieldName: { positive: bool, suggestion: string } }
   const [editingSuggestion, setEditingSuggestion] = useState(null) // fieldName being edited
   const [selectedEmail, setSelectedEmail] = useState(null) // for email detail modal
+  const [selectedAttachment, setSelectedAttachment] = useState(null) // for attachment modal
   const scrollContainerRef = useRef(null)
 
   // Comprehensive submission data matching all intake fields
@@ -241,10 +242,10 @@ const SubmissionDetail = () => {
 
       // Documents
       documents: [
-        { name: 'Application Form (Signed).pdf', uploadedDate: '2025-07-22', size: '2.8 MB', type: 'Application' },
-        { name: 'Submission Email.eml', uploadedDate: '2025-07-22', size: '45 KB', type: 'Email' },
-        { name: 'Entity Structure.pdf', uploadedDate: '2025-07-22', size: '1.2 MB', type: 'Corporate' },
-        { name: 'D&O Quote Request.pdf', uploadedDate: '2025-07-22', size: '890 KB', type: 'Quotation' },
+        { name: 'Application Form (Signed).pdf', uploadedDate: '2025-07-22', size: '2.8 MB', type: 'Application', category: 'Application Form' },
+        { name: 'Submission Email.eml', uploadedDate: '2025-07-22', size: '45 KB', type: 'Email', category: 'Email Correspondence' },
+        { name: 'Entity Structure.pdf', uploadedDate: '2025-07-22', size: '1.2 MB', type: 'Corporate', category: 'Corporate Documents' },
+        { name: 'D&O Quote Request.pdf', uploadedDate: '2025-07-22', size: '890 KB', type: 'Quotation', category: 'Quote Request' },
       ],
 
       // Extraction confidence (for AI extracted fields)
@@ -1476,7 +1477,7 @@ Josh`,
                       <div>
                         <div className="font-semibold text-sm text-gray-900">{doc.name}</div>
                         <div className="text-xs text-gray-500">
-                          {doc.type} • {doc.size} • Uploaded {doc.uploadedDate}
+                          {doc.category} • {doc.size} • Uploaded {doc.uploadedDate}
                         </div>
                       </div>
                     </div>
@@ -1548,6 +1549,7 @@ Josh`,
                             {email.attachments.map((attachment, idx) => (
                               <div
                                 key={idx}
+                                onClick={() => setSelectedAttachment(attachment)}
                                 className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs border border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
                               >
                                 <FileText className="w-3 h-3" />
@@ -1562,35 +1564,11 @@ Josh`,
                 </div>
               </motion.div>
 
-              {/* JSON Source Data */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-sompo-red" />
-                    Raw JSON Data
-                  </h3>
-                  <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
-                    <Download className="w-3.5 h-3.5" />
-                    Download JSON
-                  </button>
-                </div>
-                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto max-h-96 overflow-y-auto">
-                  <pre className="text-xs text-green-400 font-mono">
-                    {JSON.stringify(submissionData, null, 2)}
-                  </pre>
-                </div>
-              </motion.div>
-
               {/* Documents with Email Context */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1 }}
                 className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -1611,7 +1589,7 @@ Josh`,
                             </div>
                             <div>
                               <div className="font-semibold text-sm text-gray-900">{doc.name}</div>
-                              <div className="text-xs text-gray-500">{doc.type} • {doc.size}</div>
+                              <div className="text-xs text-gray-500">{doc.category} • {doc.size}</div>
                               {relatedEmail && (
                                 <div className="flex items-center gap-1 mt-1 text-xs text-blue-600">
                                   <Mail className="w-3 h-3" />
@@ -1620,7 +1598,10 @@ Josh`,
                               )}
                             </div>
                           </div>
-                          <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
+                          <button
+                            onClick={() => setSelectedAttachment(doc.name)}
+                            className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors"
+                          >
                             <Eye className="w-3.5 h-3.5" />
                             View
                           </button>
@@ -1628,6 +1609,30 @@ Josh`,
                       </div>
                     )
                   })}
+                </div>
+              </motion.div>
+
+              {/* JSON Source Data */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-sompo-red" />
+                    Raw JSON Data
+                  </h3>
+                  <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
+                    <Download className="w-3.5 h-3.5" />
+                    Download JSON
+                  </button>
+                </div>
+                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto max-h-96 overflow-y-auto">
+                  <pre className="text-xs text-green-400 font-mono">
+                    {JSON.stringify(submissionData, null, 2)}
+                  </pre>
                 </div>
               </motion.div>
             </div>
@@ -1760,16 +1765,72 @@ Josh`,
                           {selectedEmail.attachments.map((attachment, idx) => (
                             <div
                               key={idx}
+                              onClick={() => setSelectedAttachment(attachment)}
                               className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
                             >
                               <FileText className="w-4 h-4" />
                               <span className="text-sm">{attachment}</span>
-                              <Download className="w-4 h-4 ml-2" />
+                              <Eye className="w-4 h-4 ml-2" />
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Attachment Viewer Modal */}
+          <AnimatePresence>
+            {selectedAttachment && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setSelectedAttachment(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-sompo-red" />
+                      {selectedAttachment}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <button className="px-3 py-1.5 text-xs font-medium text-sompo-red hover:bg-red-50 rounded-lg flex items-center gap-1 transition-colors">
+                        <Download className="w-3.5 h-3.5" />
+                        Download
+                      </button>
+                      <button
+                        onClick={() => setSelectedAttachment(null)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)] bg-gray-50">
+                    {/* Document viewer - In a real app, this would show the actual document */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 min-h-[600px] flex items-center justify-center">
+                      <div className="text-center">
+                        <FileText className="w-16 h-16 text-sompo-red mx-auto mb-4" />
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Viewer</h4>
+                        <p className="text-sm text-gray-600 mb-4">
+                          {selectedAttachment}
+                        </p>
+                        <p className="text-xs text-gray-500 max-w-md mx-auto">
+                          In a production environment, this would display the actual document content using a PDF viewer, image viewer, or document preview component.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </motion.div>

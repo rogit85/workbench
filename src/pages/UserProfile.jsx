@@ -76,8 +76,8 @@ const UserProfile = () => {
 
             {/* Profile Info */}
             <div className="px-8 pb-8">
-              <div className="flex items-end -mt-16 mb-6">
-                <div className="relative">
+              <div className="flex items-start -mt-16 mb-6">
+                <div className="relative flex-shrink-0">
                   <div className="w-32 h-32 bg-gray-300 rounded-full border-4 border-white flex items-center justify-center text-4xl font-bold text-white bg-gradient-to-r from-blue-500 to-indigo-600">
                     {profile.name.split(' ').map(n => n[0]).join('')}
                   </div>
@@ -87,7 +87,7 @@ const UserProfile = () => {
                     </button>
                   )}
                 </div>
-                <div className="ml-6 mb-4">
+                <div className="ml-6 mt-20">
                   <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
                   <p className="text-gray-600">{profile.role}</p>
                   <p className="text-sm text-gray-500">{profile.team} Team • {profile.department}</p>
