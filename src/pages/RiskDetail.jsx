@@ -34,6 +34,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   Edit3,
+  Edit2,
   File,
   FileCheck,
   Sparkles
