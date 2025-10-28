@@ -37,7 +37,9 @@ import {
   Edit2,
   File,
   FileCheck,
-  Sparkles
+  Sparkles,
+  Home,
+  RefreshCw
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -62,6 +64,29 @@ const SubmissionDetail = () => {
   const [extractionToolResult, setExtractionToolResult] = useState(null)
   const scrollContainerRef = useRef(null)
 
+  // Underwriter and UWA lists
+  const underwritersList = [
+    'Jeremy Isaacs',
+    'Sarah Chen',
+    'Alex Morgan',
+    'Emma Thompson',
+    'Michael Roberts',
+    'Olivia Martinez',
+    'James Wilson',
+    'Sophie Anderson'
+  ]
+
+  const underwriterAssistantsList = [
+    'Frankie Dowsett',
+    'Lisa Kumar',
+    'Tom Bradley',
+    'Rachel Green',
+    'David Lee',
+    'Hannah White',
+    'Chris Parker',
+    'Amy Johnson'
+  ]
+
   // Comprehensive submission data matching all intake fields
   const submissionData = useMemo(() => {
     return {
@@ -72,6 +97,8 @@ const SubmissionDetail = () => {
       inceptionDate: '2025-10-03',
       expiryDate: '2037-10-03',
       submissionDate: '2025-07-22',
+      quoteDueDate: '2025-07-29',
+      brokerResponseDueDate: '2025-08-05',
       guidewireRef: 'FLG-FLS0455998',
 
       // Renewal Information (if applicable)
@@ -891,13 +918,39 @@ TARGET QUOTE DATE: July 29, 2025`,
     <PageTransition>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1680px] mx-auto">
+          {/* Breadcrumbs */}
+          <div className="mb-4">
+            <nav className="flex items-center text-sm text-gray-600">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigate('/')}
+                className="flex items-center gap-1 hover:text-sompo-red transition-colors"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </motion.button>
+              <ChevronRight className="w-4 h-4 mx-2" />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigate('/workqueue')}
+                className="hover:text-sompo-red transition-colors"
+              >
+                Work Queue
+              </motion.button>
+              <ChevronRight className="w-4 h-4 mx-2" />
+              <span className="text-gray-900 font-semibold">
+                {submissionData.submissionRef} - {submissionData.insuredExtracted}
+              </span>
+            </nav>
+          </div>
+
           {/* Header Actions */}
           <div className="flex justify-between items-center mb-6">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/workqueue')}
-              className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Work Queue
@@ -907,7 +960,17 @@ TARGET QUOTE DATE: July 29, 2025`,
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
+                title="Refresh data"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
               >
                 <Send className="w-4 h-4" />
                 Push to Guidewire
@@ -915,7 +978,7 @@ TARGET QUOTE DATE: July 29, 2025`,
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
               >
                 <ExternalLink className="w-4 h-4" />
                 Send to HX Rating
@@ -1284,12 +1347,15 @@ TARGET QUOTE DATE: July 29, 2025`,
                       Underwriter
                     </label>
                     {editingUnderwriter ? (
-                      <input
-                        type="text"
+                      <select
                         value={underwriter}
                         onChange={(e) => setUnderwriter(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
-                      />
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent bg-white"
+                      >
+                        {underwritersList.map((uw) => (
+                          <option key={uw} value={uw}>{uw}</option>
+                        ))}
+                      </select>
                     ) : (
                       <p className="text-sm text-gray-900 font-medium">{underwriter}</p>
                     )}
@@ -1299,12 +1365,15 @@ TARGET QUOTE DATE: July 29, 2025`,
                       Underwriter Assistant
                     </label>
                     {editingUnderwriter ? (
-                      <input
-                        type="text"
+                      <select
                         value={underwriterAssistant}
                         onChange={(e) => setUnderwriterAssistant(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent"
-                      />
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red focus:border-transparent bg-white"
+                      >
+                        {underwriterAssistantsList.map((uwa) => (
+                          <option key={uwa} value={uwa}>{uwa}</option>
+                        ))}
+                      </select>
                     ) : (
                       <p className="text-sm text-gray-900 font-medium">{underwriterAssistant}</p>
                     )}
@@ -2114,12 +2183,15 @@ TARGET QUOTE DATE: July 29, 2025`,
                           Underwriter
                         </label>
                         {editingUnderwriter ? (
-                          <input
-                            type="text"
+                          <select
                             value={underwriter}
                             onChange={(e) => setUnderwriter(e.target.value)}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent"
-                          />
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent bg-white"
+                          >
+                            {underwritersList.map((uw) => (
+                              <option key={uw} value={uw}>{uw}</option>
+                            ))}
+                          </select>
                         ) : (
                           <p className="text-sm text-gray-900 font-medium">{underwriter}</p>
                         )}
@@ -2129,12 +2201,15 @@ TARGET QUOTE DATE: July 29, 2025`,
                           Underwriter Assistant
                         </label>
                         {editingUnderwriter ? (
-                          <input
-                            type="text"
+                          <select
                             value={underwriterAssistant}
                             onChange={(e) => setUnderwriterAssistant(e.target.value)}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent"
-                          />
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-sompo-red focus:border-transparent bg-white"
+                          >
+                            {underwriterAssistantsList.map((uwa) => (
+                              <option key={uwa} value={uwa}>{uwa}</option>
+                            ))}
+                          </select>
                         ) : (
                           <p className="text-sm text-gray-900 font-medium">{underwriterAssistant}</p>
                         )}
@@ -2189,6 +2264,8 @@ TARGET QUOTE DATE: July 29, 2025`,
                     value={submissionData.expiryDate}
                   />
                   <FieldDisplay label="Submission Date" value={submissionData.submissionDate} />
+                  <FieldDisplay label="Quote Due Date" value={submissionData.quoteDueDate} highlight={true} />
+                  <FieldDisplay label="Broker Response Due" value={submissionData.brokerResponseDueDate} highlight={true} />
                   <FieldDisplay label="Attachment Type" value={submissionData.attachmentType} />
                   <FieldDisplay label="Direct / Assumed Fac" value={submissionData.assumedFac ? 'Assumed Fac' : 'Direct'} />
                   <FieldDisplay label="Lead" value={submissionData.lead} />
