@@ -99,10 +99,10 @@ const SortableRiskCard = ({ task, onClick, getSourceBadgeColor, getLOBColor }) =
 
           {/* Metadata badges */}
           <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${getSourceBadgeColor(task.source)}`}>
+            <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${getSourceBadgeColor(task.source)}`}>
               {task.source}
             </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm ${getLOBColor(task.lob)}`}>
+            <span className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm whitespace-nowrap ${getLOBColor(task.lob)}`}>
               {task.lob}
             </span>
           </div>
@@ -237,6 +237,7 @@ const WorkQueue = () => {
       { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email' },
       { id: 's004', insured: 'MediCare Plus', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 310000, priority: 'Medium', age: '1d', source: 'Manual' },
     ],
+    moreInfo: [],
     appetite: [
       { id: 's005', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, priority: 'High', age: '1d', source: 'Email' },
       { id: 's006', insured: 'GreenEnergy Solutions', broker: 'JLT Specialty', lob: 'Energy', gwp: 890000, priority: 'High', age: '8h', source: 'API' },
@@ -275,6 +276,7 @@ const WorkQueue = () => {
   const columns = [
     { id: 'received', title: 'Received', color: 'gray', icon: '📥' },
     { id: 'clearance', title: 'Clearance', color: 'blue', icon: '🔍' },
+    { id: 'moreInfo', title: 'More Information Required', color: 'yellow', icon: '📝' },
     { id: 'appetite', title: 'Appetite Check', color: 'purple', icon: '🎯' },
     { id: 'sanctions', title: 'Sanctions', color: 'orange', icon: '⚠️' },
     { id: 'rating', title: 'Rating', color: 'indigo', icon: '💰' },
@@ -291,6 +293,7 @@ const WorkQueue = () => {
     switch (color) {
       case 'gray': return 'border-gray-400'
       case 'blue': return 'border-blue-500'
+      case 'yellow': return 'border-yellow-500'
       case 'purple': return 'border-purple-500'
       case 'orange': return 'border-orange-500'
       case 'indigo': return 'border-indigo-500'

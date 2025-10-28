@@ -8,6 +8,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [analyticsMenuOpen, setAnalyticsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -22,7 +23,14 @@ const Navbar = () => {
   const navigation = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Work Queue", href: "/workqueue" },
-    { name: "Analytics", href: "/analytics" },
+    {
+      name: "Analytics",
+      href: "/analytics",
+      submenu: [
+        { name: "Performance Reporting", href: "/analytics/performance" },
+        { name: "AI Accuracy", href: "/analytics/ai-accuracy" }
+      ]
+    },
     { name: "Configuration", href: "/configuration" },
   ];
 
@@ -67,23 +75,73 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                      location.pathname === item.href
-                        ? "text-sompo-red bg-sompo-red/10"
-                        : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
-                    }`}
-                  >
-                    {item.name}
-                    {location.pathname === item.href && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-red rounded-full"
-                      />
-                    )}
-                  </Link>
+                  item.submenu ? (
+                    <div
+                      key={item.name}
+                      className="relative"
+                      onMouseEnter={() => setAnalyticsMenuOpen(true)}
+                      onMouseLeave={() => setAnalyticsMenuOpen(false)}
+                    >
+                      <button
+                        className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group flex items-center gap-1 ${
+                          location.pathname.startsWith(item.href)
+                            ? "text-sompo-red bg-sompo-red/10"
+                            : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
+                        }`}
+                      >
+                        {item.name}
+                        <ChevronDown className={`w-4 h-4 transition-transform ${analyticsMenuOpen ? "rotate-180" : ""}`} />
+                        {location.pathname.startsWith(item.href) && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-red rounded-full"
+                          />
+                        )}
+                      </button>
+                      <AnimatePresence>
+                        {analyticsMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                          >
+                            {item.submenu.map((subitem) => (
+                              <Link
+                                key={subitem.name}
+                                to={subitem.href}
+                                className={`block px-4 py-2 text-sm transition-colors ${
+                                  location.pathname === subitem.href
+                                    ? "text-sompo-red bg-sompo-red/10 font-medium"
+                                    : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
+                                }`}
+                              >
+                                {subitem.name}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                        location.pathname === item.href
+                          ? "text-sompo-red bg-sompo-red/10"
+                          : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
+                      }`}
+                    >
+                      {item.name}
+                      {location.pathname === item.href && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-red rounded-full"
+                        />
+                      )}
+                    </Link>
+                  )
                 ))}
               </div>
 
@@ -160,18 +218,42 @@ const Navbar = () => {
             >
               <div className="px-4 py-6 space-y-2">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                      location.pathname === item.href
-                        ? "text-sompo-red bg-sompo-red/10"
-                        : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
+                  item.submenu ? (
+                    <div key={item.name}>
+                      <div className="px-4 py-3 text-base font-medium text-gray-900">
+                        {item.name}
+                      </div>
+                      <div className="ml-4 space-y-1">
+                        {item.submenu.map((subitem) => (
+                          <Link
+                            key={subitem.name}
+                            to={subitem.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              location.pathname === subitem.href
+                                ? "text-sompo-red bg-sompo-red/10"
+                                : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
+                            }`}
+                          >
+                            {subitem.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
+                        location.pathname === item.href
+                          ? "text-sompo-red bg-sompo-red/10"
+                          : "text-gray-700 hover:text-sompo-red hover:bg-gray-100"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  )
                 ))}
 
                 {/* Mobile User Info */}
