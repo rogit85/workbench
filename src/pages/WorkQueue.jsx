@@ -1077,7 +1077,7 @@ const WorkQueue = () => {
                         className="hover:bg-gray-50 transition-colors"
                       >
                         {visibleColumns.filter(col => col.enabled).map(col => (
-                          <td key={col.id} className="px-4 py-3 text-sm">
+                          <td key={col.id} className={`px-4 py-3 text-sm ${col.id === 'newRenewal' ? 'whitespace-nowrap' : ''}`}>
                             {renderCell(submission, col)}
                           </td>
                         ))}
