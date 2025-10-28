@@ -6,15 +6,14 @@ import {
   Settings,
   Save,
   RotateCcw,
-  ChevronDown,
-  ChevronRight,
-  Filter
+  Filter,
+  Check,
+  X
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
 const FieldVisibility = () => {
   const [selectedLob, setSelectedLob] = useState('Property')
-  const [expandedCategories, setExpandedCategories] = useState(['client', 'policy', 'financial'])
 
   const lobs = [
     'Property',
@@ -78,7 +77,6 @@ const FieldVisibility = () => {
         { field: 'corporateGovernance', label: 'Corporate Governance', visible: false, required: false }
       ]
     },
-    // Add similar structures for other LOBs with different visibility defaults
     Casualty: {
       client: [
         { field: 'insured', label: 'Insured Name', visible: true, required: true },
@@ -129,14 +127,6 @@ const FieldVisibility = () => {
     }
   })
 
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    )
-  }
-
   const toggleFieldVisibility = (category, fieldIndex) => {
     setFieldSettings(prev => ({
       ...prev,
@@ -167,13 +157,8 @@ const FieldVisibility = () => {
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset to default settings?')) {
-      // Reset logic here
       alert('Settings reset to defaults')
     }
-  }
-
-  const getCategoryIcon = (category) => {
-    return Settings
   }
 
   const getCategoryLabel = (category) => {
@@ -200,46 +185,46 @@ const FieldVisibility = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-start mb-4">
               <div>
-                <h1 className="text-3xl font-bold gradient-text mb-2 flex items-center gap-3">
-                  <Eye className="w-8 h-8 text-sompo-red" />
+                <h1 className="text-2xl font-bold gradient-text mb-1 flex items-center gap-3">
+                  <Eye className="w-6 h-6 text-sompo-red" />
                   Field Visibility Configuration
                 </h1>
-                <p className="text-gray-600">Configure which fields are visible and required for each Line of Business</p>
+                <p className="text-sm text-gray-600">Configure field visibility and requirements by LOB</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                  className="px-3 py-1.5 text-sm bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5" />
                   Reset
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
+                  className="px-3 py-1.5 text-sm bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3.5 h-3.5" />
                   Save Changes
                 </button>
               </div>
             </div>
 
-            {/* LOB Selector */}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Filter className="w-5 h-5 text-sompo-red" />
-                <label className="text-sm font-semibold text-gray-900">Select Line of Business</label>
+            {/* LOB Selector - Compact */}
+            <div className="bg-white rounded-lg shadow border border-gray-200 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Filter className="w-4 h-4 text-sompo-red" />
+                <label className="text-xs font-semibold text-gray-900">Line of Business</label>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {lobs.map((lob) => (
                   <button
                     key={lob}
                     onClick={() => setSelectedLob(lob)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-3 py-1 rounded text-xs font-medium transition-all ${
                       selectedLob === lob
-                        ? 'bg-sompo-red text-white shadow-md'
+                        ? 'bg-sompo-red text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -250,10 +235,9 @@ const FieldVisibility = () => {
             </div>
           </motion.div>
 
-          {/* Field Categories */}
+          {/* Compact Table View */}
           <div className="space-y-4">
             {Object.entries(currentLobSettings).map(([category, fields]) => {
-              const isExpanded = expandedCategories.includes(category)
               const visibleCount = fields.filter(f => f.visible).length
               const requiredCount = fields.filter(f => f.required).length
 
@@ -262,97 +246,68 @@ const FieldVisibility = () => {
                   key={category}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+                  className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden"
                 >
-                  {/* Category Header */}
-                  <button
-                    onClick={() => toggleCategory(category)}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      {isExpanded ? (
-                        <ChevronDown className="w-5 h-5 text-sompo-red" />
-                      ) : (
-                        <ChevronRight className="w-5 h-5 text-sompo-red" />
-                      )}
-                      <Settings className="w-5 h-5 text-sompo-red" />
-                      <h3 className="text-lg font-semibold text-gray-900">{getCategoryLabel(category)}</h3>
+                  {/* Category Header - Compact */}
+                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-sompo-red" />
+                      <h3 className="text-sm font-semibold text-gray-900">{getCategoryLabel(category)}</h3>
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-gray-600">
-                        {visibleCount}/{fields.length} Visible
-                      </span>
-                      <span className="text-gray-600">
-                        {requiredCount}/{fields.length} Required
-                      </span>
+                    <div className="flex items-center gap-3 text-xs text-gray-600">
+                      <span>{visibleCount}/{fields.length} visible</span>
+                      <span>{requiredCount}/{fields.length} required</span>
                     </div>
-                  </button>
+                  </div>
 
-                  {/* Category Fields */}
-                  {isExpanded && (
-                    <div className="border-t border-gray-200 p-6">
-                      <div className="space-y-3">
+                  {/* Compact Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Field Name</th>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Field ID</th>
+                          <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Visible</th>
+                          <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Required</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
                         {fields.map((field, idx) => (
-                          <div
-                            key={field.field}
-                            className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="flex-1">
-                              <div className="font-medium text-gray-900">{field.label}</div>
-                              <div className="text-xs text-gray-500">Field: {field.field}</div>
-                            </div>
-
-                            <div className="flex items-center gap-6">
-                              {/* Visible Toggle */}
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <span className="text-sm text-gray-700 min-w-[60px]">Visible</span>
-                                <button
-                                  onClick={() => toggleFieldVisibility(category, idx)}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    field.visible ? 'bg-sompo-red' : 'bg-gray-300'
-                                  }`}
-                                >
-                                  <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                      field.visible ? 'translate-x-6' : 'translate-x-1'
-                                    }`}
-                                  />
-                                </button>
+                          <tr key={field.field} className="hover:bg-gray-50">
+                            <td className="px-4 py-2 text-sm text-gray-900">{field.label}</td>
+                            <td className="px-4 py-2 text-xs text-gray-500 font-mono">{field.field}</td>
+                            <td className="px-4 py-2 text-center">
+                              <button
+                                onClick={() => toggleFieldVisibility(category, idx)}
+                                className="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors"
+                              >
                                 {field.visible ? (
                                   <Eye className="w-4 h-4 text-green-600" />
                                 ) : (
                                   <EyeOff className="w-4 h-4 text-gray-400" />
                                 )}
-                              </label>
-
-                              {/* Required Toggle */}
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <span className="text-sm text-gray-700 min-w-[70px]">Required</span>
-                                <button
-                                  onClick={() => toggleFieldRequired(category, idx)}
-                                  disabled={!field.visible}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    field.required && field.visible
-                                      ? 'bg-amber-500'
-                                      : 'bg-gray-300'
-                                  } ${!field.visible ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                  <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                      field.required ? 'translate-x-6' : 'translate-x-1'
-                                    }`}
-                                  />
-                                </button>
-                                {field.required && field.visible && (
-                                  <span className="text-xs font-medium text-amber-700">*</span>
+                              </button>
+                            </td>
+                            <td className="px-4 py-2 text-center">
+                              <button
+                                onClick={() => toggleFieldRequired(category, idx)}
+                                disabled={!field.visible}
+                                className={`inline-flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors ${
+                                  !field.visible ? 'opacity-30 cursor-not-allowed' : ''
+                                }`}
+                              >
+                                {field.required && field.visible ? (
+                                  <Check className="w-4 h-4 text-amber-600" />
+                                ) : (
+                                  <X className="w-4 h-4 text-gray-300" />
                                 )}
-                              </label>
-                            </div>
-                          </div>
+                              </button>
+                            </td>
+                          </tr>
                         ))}
-                      </div>
-                    </div>
-                  )}
+                      </tbody>
+                    </table>
+                  </div>
                 </motion.div>
               )
             })}
