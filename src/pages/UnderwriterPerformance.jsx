@@ -28,7 +28,8 @@ const UnderwriterPerformance = () => {
     dateTo: '',
     lob: 'all',
     team: 'all',
-    underwriter: 'all'
+    underwriter: 'all',
+    type: 'all'
   })
 
   const lobs = [
@@ -56,7 +57,9 @@ const UnderwriterPerformance = () => {
       gwpWritten: 8500000,
       lobBreakdown: {
         'Property': { submissions: 45, quoted: 28, bound: 18, gwp: 8500000 }
-      }
+      },
+      newBusinessCount: 28,
+      renewalCount: 17
     },
     {
       id: 2,
@@ -75,7 +78,9 @@ const UnderwriterPerformance = () => {
       lobBreakdown: {
         'Cyber': { submissions: 22, quoted: 15, bound: 10, gwp: 3500000 },
         'Life Sciences': { submissions: 16, quoted: 10, bound: 6, gwp: 2700000 }
-      }
+      },
+      newBusinessCount: 20,
+      renewalCount: 18
     },
     {
       id: 3,
@@ -94,7 +99,9 @@ const UnderwriterPerformance = () => {
       lobBreakdown: {
         'Energy': { submissions: 30, quoted: 19, bound: 13, gwp: 7200000 },
         'Marine': { submissions: 22, quoted: 13, bound: 9, gwp: 5600000 }
-      }
+      },
+      newBusinessCount: 30,
+      renewalCount: 22
     },
     {
       id: 4,
@@ -112,7 +119,9 @@ const UnderwriterPerformance = () => {
       gwpWritten: 9100000,
       lobBreakdown: {
         'Casualty': { submissions: 41, quoted: 27, bound: 19, gwp: 9100000 }
-      }
+      },
+      newBusinessCount: 25,
+      renewalCount: 16
     },
     {
       id: 5,
@@ -130,7 +139,9 @@ const UnderwriterPerformance = () => {
       gwpWritten: 7400000,
       lobBreakdown: {
         'Property': { submissions: 36, quoted: 21, bound: 14, gwp: 7400000 }
-      }
+      },
+      newBusinessCount: 22,
+      renewalCount: 14
     },
     {
       id: 6,
@@ -149,7 +160,9 @@ const UnderwriterPerformance = () => {
       lobBreakdown: {
         'Financial Institutions': { submissions: 17, quoted: 11, bound: 7, gwp: 3100000 },
         'Healthcare Liability': { submissions: 12, quoted: 8, bound: 5, gwp: 2200000 }
-      }
+      },
+      newBusinessCount: 18,
+      renewalCount: 11
     }
   ]
 
@@ -357,6 +370,20 @@ const UnderwriterPerformance = () => {
                       {underwriterData.map((uw) => (
                         <option key={uw.id} value={uw.name}>{uw.name}</option>
                       ))}
+                    </select>
+                  </div>
+
+                  {/* Type (New Business/Renewal) */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-2">Type</label>
+                    <select
+                      value={filters.type}
+                      onChange={(e) => setFilters({...filters, type: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="New Business">New Business</option>
+                      <option value="Renewal">Renewal</option>
                     </select>
                   </div>
 

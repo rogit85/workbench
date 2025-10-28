@@ -23,7 +23,8 @@ const AIAccuracy = () => {
     dateFrom: '',
     dateTo: '',
     lob: 'all',
-    extractionType: 'all'
+    extractionType: 'all',
+    type: 'all'
   })
 
   const lobs = [
@@ -48,30 +49,30 @@ const AIAccuracy = () => {
 
   // Mock data for AI accuracy metrics
   const accuracyData = [
-    { id: 1, submissionRef: 'SOM-2024-001', insured: 'Atlas Foods Group', lob: 'Property', extractionType: 'Insured Name', aiValue: 'Atlas Foods Group', actualValue: 'Atlas Foods Group', status: 'correct', confidence: 98 },
-    { id: 2, submissionRef: 'SOM-2024-002', insured: 'Orion AeroSystems', lob: 'Aviation', extractionType: 'GWP', aiValue: '$980,000', actualValue: '$980,000', status: 'correct', confidence: 95 },
-    { id: 3, submissionRef: 'SOM-2024-003', insured: 'Hyperion Biotech', lob: 'Life Sciences', extractionType: 'Limit', aiValue: '$10,000,000', actualValue: '$12,000,000', status: 'incorrect', confidence: 88 },
-    { id: 4, submissionRef: 'SOM-2024-004', insured: 'Neptune Offshore Wind', lob: 'Energy', extractionType: 'Line of Business', aiValue: 'Energy', actualValue: 'Energy', status: 'correct', confidence: 99 },
-    { id: 5, submissionRef: 'SOM-2024-005', insured: 'Lumenova Data Centers', lob: 'Property', extractionType: 'Coverage Details', aiValue: 'Property All Risk', actualValue: 'Property All Risk + Terrorism', status: 'partial', confidence: 82 },
-    { id: 6, submissionRef: 'SOM-2024-006', insured: 'Phoenix Rail & Freight', lob: 'Casualty', extractionType: 'Inception Date', aiValue: '2025-01-15', actualValue: '2025-01-15', status: 'correct', confidence: 97 },
-    { id: 7, submissionRef: 'SOM-2024-007', insured: 'Vivid Motors EV', lob: 'Specialty', extractionType: 'Broker Name', aiValue: 'Aon Global', actualValue: 'Aon Global', status: 'correct', confidence: 96 },
-    { id: 8, submissionRef: 'SOM-2024-008', insured: 'Evergreen Supermarkets', lob: 'Property', extractionType: 'Deductible', aiValue: '$100,000', actualValue: '$150,000', status: 'incorrect', confidence: 75 },
-    { id: 9, submissionRef: 'SOM-2024-009', insured: 'Silverline Hospitality', lob: 'Property', extractionType: 'GWP', aiValue: '$880,000', actualValue: '$880,000', status: 'correct', confidence: 94 },
-    { id: 10, submissionRef: 'SOM-2024-010', insured: 'NorthSea Energy', lob: 'Energy', extractionType: 'Policy Terms', aiValue: '12 months', actualValue: '12 months', status: 'correct', confidence: 91 },
-    { id: 11, submissionRef: 'SOM-2024-011', insured: 'TechCore Solutions', lob: 'Cyber', extractionType: 'Limit', aiValue: '$18,000,000', actualValue: '$18,000,000', status: 'correct', confidence: 93 },
-    { id: 12, submissionRef: 'SOM-2024-012', insured: 'GreenField Agriculture', lob: 'Agriculture', extractionType: 'Coverage Details', aiValue: 'Crop Insurance', actualValue: 'Multi-Peril Crop', status: 'partial', confidence: 79 },
-    { id: 13, submissionRef: 'SOM-2024-013', insured: 'MedCare Hospitals', lob: 'Healthcare Liability', extractionType: 'Insured Name', aiValue: 'MedCare Hospitals', actualValue: 'MedCare Hospitals', status: 'correct', confidence: 99 },
-    { id: 14, submissionRef: 'SOM-2024-014', insured: 'Aqua Marine Logistics', lob: 'Marine', extractionType: 'GWP', aiValue: '$1,100,000', actualValue: '$1,150,000', status: 'incorrect', confidence: 86 },
-    { id: 15, submissionRef: 'SOM-2024-015', insured: 'Summit Financial Group', lob: 'Financial Institutions', extractionType: 'Expiry Date', aiValue: '2026-01-14', actualValue: '2026-01-14', status: 'correct', confidence: 98 },
+    { id: 1, submissionRef: 'SOM-2024-001', insured: 'Atlas Foods Group', lob: 'Property', extractionType: 'Insured Name', aiValue: 'Atlas Foods Group', actualValue: 'Atlas Foods Group', status: 'correct', confidence: 98, newRenewal: 'New Business' },
+    { id: 2, submissionRef: 'SOM-2024-002', insured: 'Orion AeroSystems', lob: 'Aviation', extractionType: 'GWP', aiValue: '$980,000', actualValue: '$980,000', status: 'correct', confidence: 95, newRenewal: 'Renewal' },
+    { id: 3, submissionRef: 'SOM-2024-003', insured: 'Hyperion Biotech', lob: 'Life Sciences', extractionType: 'Limit', aiValue: '$10,000,000', actualValue: '$12,000,000', status: 'incorrect', confidence: 88, newRenewal: 'New Business' },
+    { id: 4, submissionRef: 'SOM-2024-004', insured: 'Neptune Offshore Wind', lob: 'Energy', extractionType: 'Line of Business', aiValue: 'Energy', actualValue: 'Energy', status: 'correct', confidence: 99, newRenewal: 'Renewal' },
+    { id: 5, submissionRef: 'SOM-2024-005', insured: 'Lumenova Data Centers', lob: 'Property', extractionType: 'Coverage Details', aiValue: 'Property All Risk', actualValue: 'Property All Risk + Terrorism', status: 'partial', confidence: 82, newRenewal: 'New Business' },
+    { id: 6, submissionRef: 'SOM-2024-006', insured: 'Phoenix Rail & Freight', lob: 'Casualty', extractionType: 'Inception Date', aiValue: '2025-01-15', actualValue: '2025-01-15', status: 'correct', confidence: 97, newRenewal: 'Renewal' },
+    { id: 7, submissionRef: 'SOM-2024-007', insured: 'Vivid Motors EV', lob: 'Specialty', extractionType: 'Broker Name', aiValue: 'Aon Global', actualValue: 'Aon Global', status: 'correct', confidence: 96, newRenewal: 'New Business' },
+    { id: 8, submissionRef: 'SOM-2024-008', insured: 'Evergreen Supermarkets', lob: 'Property', extractionType: 'Deductible', aiValue: '$100,000', actualValue: '$150,000', status: 'incorrect', confidence: 75, newRenewal: 'Renewal' },
+    { id: 9, submissionRef: 'SOM-2024-009', insured: 'Silverline Hospitality', lob: 'Property', extractionType: 'GWP', aiValue: '$880,000', actualValue: '$880,000', status: 'correct', confidence: 94, newRenewal: 'New Business' },
+    { id: 10, submissionRef: 'SOM-2024-010', insured: 'NorthSea Energy', lob: 'Energy', extractionType: 'Policy Terms', aiValue: '12 months', actualValue: '12 months', status: 'correct', confidence: 91, newRenewal: 'Renewal' },
+    { id: 11, submissionRef: 'SOM-2024-011', insured: 'TechCore Solutions', lob: 'Cyber', extractionType: 'Limit', aiValue: '$18,000,000', actualValue: '$18,000,000', status: 'correct', confidence: 93, newRenewal: 'New Business' },
+    { id: 12, submissionRef: 'SOM-2024-012', insured: 'GreenField Agriculture', lob: 'Agriculture', extractionType: 'Coverage Details', aiValue: 'Crop Insurance', actualValue: 'Multi-Peril Crop', status: 'partial', confidence: 79, newRenewal: 'Renewal' },
+    { id: 13, submissionRef: 'SOM-2024-013', insured: 'MedCare Hospitals', lob: 'Healthcare Liability', extractionType: 'Insured Name', aiValue: 'MedCare Hospitals', actualValue: 'MedCare Hospitals', status: 'correct', confidence: 99, newRenewal: 'New Business' },
+    { id: 14, submissionRef: 'SOM-2024-014', insured: 'Aqua Marine Logistics', lob: 'Marine', extractionType: 'GWP', aiValue: '$1,100,000', actualValue: '$1,150,000', status: 'incorrect', confidence: 86, newRenewal: 'Renewal' },
+    { id: 15, submissionRef: 'SOM-2024-015', insured: 'Summit Financial Group', lob: 'Financial Institutions', extractionType: 'Expiry Date', aiValue: '2026-01-14', actualValue: '2026-01-14', status: 'correct', confidence: 98, newRenewal: 'New Business' },
   ]
 
   // Failed extractions data
   const failedExtractions = [
-    { id: 1, submissionRef: 'SOM-2024-016', insured: 'Global Tech Solutions', lob: 'Cyber', extractionType: 'Limit', reason: 'Document format not recognized', timestamp: '2025-07-22 10:35:00', llm: 'GPT-4' },
-    { id: 2, submissionRef: 'SOM-2024-017', insured: 'Mountain Rail Corp', lob: 'Casualty', extractionType: 'Broker Name', reason: 'Missing field in source document', timestamp: '2025-07-22 11:42:00', llm: 'Claude 3' },
-    { id: 3, submissionRef: 'SOM-2024-018', insured: 'Pacific Marine Ltd', lob: 'Marine', extractionType: 'GWP', reason: 'Currency conversion ambiguity', timestamp: '2025-07-23 09:15:00', llm: 'GPT-4' },
-    { id: 4, submissionRef: 'SOM-2024-019', insured: 'Solar Energy Group', lob: 'Energy', extractionType: 'Inception Date', reason: 'Multiple dates found', timestamp: '2025-07-23 14:20:00', llm: 'Claude 3' },
-    { id: 5, submissionRef: 'SOM-2024-020', insured: 'Biomedical Systems', lob: 'Life Sciences', extractionType: 'Coverage Details', reason: 'Complex policy wording', timestamp: '2025-07-24 08:30:00', llm: 'GPT-4' },
+    { id: 1, submissionRef: 'SOM-2024-016', insured: 'Global Tech Solutions', lob: 'Cyber', extractionType: 'Limit', reason: 'Document format not recognized', timestamp: '2025-07-22 10:35:00', llm: 'GPT-4', newRenewal: 'New Business' },
+    { id: 2, submissionRef: 'SOM-2024-017', insured: 'Mountain Rail Corp', lob: 'Casualty', extractionType: 'Broker Name', reason: 'Missing field in source document', timestamp: '2025-07-22 11:42:00', llm: 'Claude 3', newRenewal: 'Renewal' },
+    { id: 3, submissionRef: 'SOM-2024-018', insured: 'Pacific Marine Ltd', lob: 'Marine', extractionType: 'GWP', reason: 'Currency conversion ambiguity', timestamp: '2025-07-23 09:15:00', llm: 'GPT-4', newRenewal: 'New Business' },
+    { id: 4, submissionRef: 'SOM-2024-019', insured: 'Solar Energy Group', lob: 'Energy', extractionType: 'Inception Date', reason: 'Multiple dates found', timestamp: '2025-07-23 14:20:00', llm: 'Claude 3', newRenewal: 'Renewal' },
+    { id: 5, submissionRef: 'SOM-2024-020', insured: 'Biomedical Systems', lob: 'Life Sciences', extractionType: 'Coverage Details', reason: 'Complex policy wording', timestamp: '2025-07-24 08:30:00', llm: 'GPT-4', newRenewal: 'New Business' },
   ]
 
   // LLM accuracy data
@@ -86,6 +87,7 @@ const AIAccuracy = () => {
     return accuracyData.filter(record => {
       if (filters.lob !== 'all' && record.lob !== filters.lob) return false
       if (filters.extractionType !== 'all' && record.extractionType !== filters.extractionType) return false
+      if (filters.type !== 'all' && record.newRenewal !== filters.type) return false
       return true
     })
   }, [filters])
@@ -150,7 +152,8 @@ const AIAccuracy = () => {
       dateFrom: '',
       dateTo: '',
       lob: 'all',
-      extractionType: 'all'
+      extractionType: 'all',
+      type: 'all'
     })
   }
 
@@ -271,6 +274,20 @@ const AIAccuracy = () => {
                     {extractionTypes.map((type) => (
                       <option key={type} value={type}>{type}</option>
                     ))}
+                  </select>
+                </div>
+
+                {/* Type (New Business/Renewal) */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Submission Type</label>
+                  <select
+                    value={filters.type}
+                    onChange={(e) => setFilters({...filters, type: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="New Business">New Business</option>
+                    <option value="Renewal">Renewal</option>
                   </select>
                 </div>
 

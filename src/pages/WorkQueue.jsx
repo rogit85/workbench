@@ -190,7 +190,8 @@ const WorkQueue = () => {
   const [filters, setFilters] = useState({
     lob: 'All',
     source: 'All',
-    priority: 'All'
+    priority: 'All',
+    type: 'All'
   })
 
   // All available columns for spreadsheet
@@ -201,6 +202,7 @@ const WorkQueue = () => {
     { id: 'lob', label: 'LOB', enabled: true, editable: true },
     { id: 'gwp', label: 'GWP', enabled: true, editable: true },
     { id: 'priority', label: 'Priority', enabled: true, editable: true },
+    { id: 'newRenewal', label: 'Type', enabled: true, editable: true },
     { id: 'source', label: 'Source', enabled: true, editable: true },
     { id: 'age', label: 'Age', enabled: true, editable: false },
     { id: 'status', label: 'Status', enabled: true, editable: true },
@@ -211,7 +213,6 @@ const WorkQueue = () => {
     { id: 'deductible', label: 'Deductible', enabled: false, editable: true },
     { id: 'coverage', label: 'Coverage', enabled: false, editable: true },
     { id: 'placementType', label: 'Placement Type', enabled: false, editable: true },
-    { id: 'newRenewal', label: 'New/Renewal', enabled: true, editable: true },
   ]
 
   const [visibleColumns, setVisibleColumns] = useState(allColumns)
@@ -287,42 +288,42 @@ const WorkQueue = () => {
       { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API', underwriter: 'Sarah Chen', team: 'Specialty', inceptionDate: '2025-02-01', limit: 2000000, newRenewal: 'Renewal' },
     ],
     clearance: [
-      { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email' },
-      { id: 's004', insured: 'MediCare Plus', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 310000, priority: 'Medium', age: '1d', source: 'Manual' },
+      { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email', newRenewal: 'New Business' },
+      { id: 's004', insured: 'MediCare Plus', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 310000, priority: 'Medium', age: '1d', source: 'Manual', newRenewal: 'Renewal' },
     ],
     moreInfo: [],
     appetite: [
-      { id: 's005', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, priority: 'High', age: '1d', source: 'Email' },
-      { id: 's006', insured: 'GreenEnergy Solutions', broker: 'JLT Specialty', lob: 'Energy', gwp: 890000, priority: 'High', age: '8h', source: 'API' },
+      { id: 's005', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'New Business' },
+      { id: 's006', insured: 'GreenEnergy Solutions', broker: 'JLT Specialty', lob: 'Energy', gwp: 890000, priority: 'High', age: '8h', source: 'API', newRenewal: 'Renewal' },
     ],
     sanctions: [
-      { id: 's007', insured: 'Continental Airlines', broker: 'Gallagher', lob: 'Aviation', gwp: 1250000, priority: 'High', age: '12h', source: 'Email' },
+      { id: 's007', insured: 'Continental Airlines', broker: 'Gallagher', lob: 'Aviation', gwp: 1250000, priority: 'High', age: '12h', source: 'Email', newRenewal: 'New Business' },
     ],
     rating: [
-      { id: 's008', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, priority: 'High', age: '2d', source: 'Email' },
-      { id: 's009', insured: 'Financial Trust Bank', broker: 'Lockton', lob: 'Financial Institutions', gwp: 720000, priority: 'Medium', age: '1d', source: 'API' },
+      { id: 's008', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, priority: 'High', age: '2d', source: 'Email', newRenewal: 'Renewal' },
+      { id: 's009', insured: 'Financial Trust Bank', broker: 'Lockton', lob: 'Financial Institutions', gwp: 720000, priority: 'Medium', age: '1d', source: 'API', newRenewal: 'New Business' },
     ],
     peerReview: [
-      { id: 's010', insured: 'Cyber Shield Corp', broker: 'Howden', lob: 'Cyber', gwp: 340000, priority: 'Medium', age: '3d', source: 'Email' },
+      { id: 's010', insured: 'Cyber Shield Corp', broker: 'Howden', lob: 'Cyber', gwp: 340000, priority: 'Medium', age: '3d', source: 'Email', newRenewal: 'Renewal' },
     ],
     quoted: [
-      { id: 's011', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, priority: 'High', age: '4d', source: 'Email' },
-      { id: 's012', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Marine', gwp: 720000, priority: 'Medium', age: '5d', source: 'API' },
+      { id: 's011', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, priority: 'High', age: '4d', source: 'Email', newRenewal: 'New Business' },
+      { id: 's012', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Marine', gwp: 720000, priority: 'Medium', age: '5d', source: 'API', newRenewal: 'Renewal' },
     ],
     firmOrder: [
-      { id: 's013', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, priority: 'High', age: '2d', source: 'Email' },
+      { id: 's013', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, priority: 'High', age: '2d', source: 'Email', newRenewal: 'New Business' },
     ],
     bound: [
-      { id: 's014', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, priority: 'High', age: '1d', source: 'Email' },
+      { id: 's014', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'Renewal' },
     ],
     issued: [
-      { id: 's016', insured: 'Global Trade Solutions', broker: 'Marsh', lob: 'Marine', gwp: 950000, priority: 'High', age: '3h', source: 'API' },
+      { id: 's016', insured: 'Global Trade Solutions', broker: 'Marsh', lob: 'Marine', gwp: 950000, priority: 'High', age: '3h', source: 'API', newRenewal: 'New Business' },
     ],
     registered: [
-      { id: 's017', insured: 'EcoEnergy Partners', broker: 'Willis', lob: 'Energy', gwp: 2100000, priority: 'High', age: '1d', source: 'Email' },
+      { id: 's017', insured: 'EcoEnergy Partners', broker: 'Willis', lob: 'Energy', gwp: 2100000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'Renewal' },
     ],
     declined: [
-      { id: 's015', insured: 'High Risk Ventures', broker: 'Local Broker', lob: 'Casualty', gwp: 150000, priority: 'Low', age: '7d', source: 'Manual' },
+      { id: 's015', insured: 'High Risk Ventures', broker: 'Local Broker', lob: 'Casualty', gwp: 150000, priority: 'Low', age: '7d', source: 'Manual', newRenewal: 'New Business' },
     ]
   })
 
@@ -592,6 +593,20 @@ const WorkQueue = () => {
     let submissions = Object.entries(tasks).flatMap(([status, items]) =>
       items.map(item => ({ ...item, status }))
     )
+
+    // Apply filters
+    if (filters.lob !== 'All') {
+      submissions = submissions.filter(s => s.lob === filters.lob)
+    }
+    if (filters.source !== 'All') {
+      submissions = submissions.filter(s => s.source === filters.source)
+    }
+    if (filters.priority !== 'All') {
+      submissions = submissions.filter(s => s.priority === filters.priority)
+    }
+    if (filters.type !== 'All') {
+      submissions = submissions.filter(s => s.newRenewal === filters.type)
+    }
 
     // Apply sorting
     submissions.sort((a, b) => {
@@ -971,6 +986,17 @@ const WorkQueue = () => {
                   <option value="High">High</option>
                   <option value="Medium">Medium</option>
                   <option value="Low">Low</option>
+                </select>
+
+                {/* Type Filter */}
+                <select
+                  value={filters.type}
+                  onChange={(e) => setFilters({...filters, type: e.target.value})}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                >
+                  <option value="All">All Types</option>
+                  <option value="New Business">New Business</option>
+                  <option value="Renewal">Renewal</option>
                 </select>
 
                 <button
