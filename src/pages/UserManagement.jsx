@@ -40,7 +40,7 @@ const UserManagement = () => {
       email: 'jeremy.isaacs@sompo.com',
       phone: '+44 20 7123 4567',
       role: 'Senior Underwriter',
-      team: 'UW Assistant',
+      team: 'Underwriting',
       lobGroup: 'Property',
       region: 'EMEA',
       officeLocation: 'London',
@@ -61,7 +61,7 @@ const UserManagement = () => {
       email: 'sarah.chen@sompo.com',
       phone: '+44 20 7123 4568',
       role: 'Underwriter',
-      team: 'UW Assistant',
+      team: 'Underwriting',
       lobGroup: 'Specialty',
       region: 'Americas',
       officeLocation: 'New York',
@@ -142,7 +142,7 @@ const UserManagement = () => {
   ])
 
   const roles = ['Head of Underwriting', 'Senior Underwriter', 'Underwriter', 'Associate Underwriter', 'Administrator', 'Analyst']
-  const teams = ['Operations', 'UW Assistant', 'Compliance']
+  const teams = ['Underwriting', 'Operations', 'Compliance', 'Legal', 'Finance', 'Risk Management']
   const lobGroups = ['Property', 'Casualty', 'Specialty', 'Marine & Energy']
   const regions = ['Americas', 'EMEA', 'Asia Pacific', 'Global']
   const officeLocations = ['London', 'New York', 'Boston', 'Singapore', 'Hong Kong', 'Tokyo', 'Bermuda', 'Zurich']
@@ -170,7 +170,7 @@ const UserManagement = () => {
       email: '',
       phone: '',
       role: 'Underwriter',
-      team: 'Operations',
+      team: 'Underwriting',
       lobGroup: 'Property',
       region: 'EMEA',
       officeLocation: 'London',

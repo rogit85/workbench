@@ -283,7 +283,7 @@ const WorkQueue = () => {
 
   const [tasks, setTasks] = useState({
     received: [
-      { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', inceptionDate: '2025-01-15', limit: 5000000, newRenewal: 'New' },
+      { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', inceptionDate: '2025-01-15', limit: 5000000, newRenewal: 'New Business' },
       { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API', underwriter: 'Sarah Chen', team: 'Specialty', inceptionDate: '2025-02-01', limit: 2000000, newRenewal: 'Renewal' },
     ],
     clearance: [
@@ -689,7 +689,7 @@ const WorkQueue = () => {
             autoFocus
             className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
           >
-            <option value="New">New</option>
+            <option value="New Business">New Business</option>
             <option value="Renewal">Renewal</option>
           </select>
         )
@@ -864,7 +864,11 @@ const WorkQueue = () => {
       case 'newRenewal':
         return (
           <span
-            className="text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded block"
+            className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 ${
+              submission.newRenewal === 'New Business'
+                ? 'bg-green-100 text-green-800 border border-green-300'
+                : 'bg-blue-100 text-blue-800 border border-blue-300'
+            }`}
             onClick={() => column.editable && startEdit(submission.id, columnId, submission.newRenewal)}
           >
             {submission.newRenewal || '-'}

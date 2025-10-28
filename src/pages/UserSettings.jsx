@@ -11,7 +11,8 @@ import {
   Globe,
   Calendar,
   DollarSign,
-  Save
+  Save,
+  X
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 
@@ -45,8 +46,24 @@ const UserSettings = () => {
     refreshInterval: 30
   })
 
+  const [originalSettings, setOriginalSettings] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
+
+  const handleEdit = () => {
+    setOriginalSettings({...settings})
+    setIsEditing(true)
+  }
+
   const handleSave = () => {
+    setIsEditing(false)
+    setOriginalSettings(null)
     alert('Settings saved successfully!')
+  }
+
+  const handleCancel = () => {
+    setSettings(originalSettings)
+    setIsEditing(false)
+    setOriginalSettings(null)
   }
 
   return (
@@ -67,14 +84,34 @@ const UserSettings = () => {
                 </h1>
                 <p className="text-gray-600">Manage your preferences and account settings</p>
               </div>
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                Save Changes
-              </button>
+              {!isEditing && (
+                <button
+                  onClick={handleEdit}
+                  className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Edit Settings
+                </button>
+              )}
             </div>
+            {isEditing && (
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </button>
+              </div>
+            )}
           </motion.div>
 
           {/* Notification Settings */}

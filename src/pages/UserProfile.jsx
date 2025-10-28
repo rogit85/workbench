@@ -10,7 +10,8 @@ import {
   Camera,
   MapPin,
   Calendar,
-  Briefcase
+  Briefcase,
+  X
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import PageTransition from '../components/PageTransition'
@@ -36,11 +37,24 @@ const UserProfile = () => {
   })
 
   const [isEditing, setIsEditing] = useState(false)
+  const [originalProfile, setOriginalProfile] = useState(null)
+
+  const handleEdit = () => {
+    setOriginalProfile({...profile})
+    setIsEditing(true)
+  }
 
   const handleSave = () => {
     // Save logic here
     setIsEditing(false)
+    setOriginalProfile(null)
     alert('Profile updated successfully!')
+  }
+
+  const handleCancel = () => {
+    setProfile(originalProfile)
+    setIsEditing(false)
+    setOriginalProfile(null)
   }
 
   return (
@@ -55,13 +69,34 @@ const UserProfile = () => {
           >
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold gradient-text">My Profile</h1>
-              <button
-                onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                {isEditing ? 'Save Changes' : 'Edit Profile'}
-              </button>
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={handleCancel}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-gray-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleEdit}
+                    className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red transition-colors"
+                  >
+                    <Save className="w-4 h-4" />
+                    Edit Profile
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
 

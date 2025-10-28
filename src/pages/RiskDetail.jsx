@@ -53,7 +53,7 @@ const SubmissionDetail = () => {
       // Policy & Lifecycle
       submissionRef: 'SOM-2024-002',
       status: 'Appetite Check',
-      newRenewal: 'New',
+      newRenewal: 'New Business',
       inceptionDate: '2025-10-03',
       expiryDate: '2037-10-03',
       submissionDate: '2025-07-22',

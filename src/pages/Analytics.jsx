@@ -73,20 +73,20 @@ const Analytics = () => {
   // Mock data for analytics
   const allData = [
     { id: '1', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-15', submissionRef: 'SOM-2024-001', limit: 5000000 },
-    { id: '2', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, status: 'Quoted', newRenewal: 'New', source: 'Email', date: '2024-10-16', submissionRef: 'SOM-2024-002', limit: 25000000 },
-    { id: '3', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, status: 'Rating', newRenewal: 'New', source: 'Marsh Broker Platform', date: '2024-10-18', submissionRef: 'SOM-2024-003', limit: 10000000 },
+    { id: '2', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, status: 'Quoted', newRenewal: 'New Business', source: 'Email', date: '2024-10-16', submissionRef: 'SOM-2024-002', limit: 25000000 },
+    { id: '3', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, status: 'Rating', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-18', submissionRef: 'SOM-2024-003', limit: 10000000 },
     { id: '4', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-20', submissionRef: 'SOM-2024-004', limit: 50000000 },
     { id: '5', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, status: 'Issued', newRenewal: 'Renewal', source: 'Marsh Broker Platform', date: '2024-10-21', submissionRef: 'SOM-2024-005', limit: 35000000 },
-    { id: '6', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Casualty', gwp: 720000, status: 'Quoted', newRenewal: 'New', source: 'Manual', date: '2024-10-22', submissionRef: 'SOM-2024-006', limit: 15000000 },
-    { id: '7', insured: 'Vivid Motors EV', broker: 'Aon Global', lob: 'Specialty', gwp: 540000, status: 'Appetite Check', newRenewal: 'New', source: 'Email', date: '2024-10-22', submissionRef: 'SOM-2024-007', limit: 12000000 },
+    { id: '6', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Casualty', gwp: 720000, status: 'Quoted', newRenewal: 'New Business', source: 'Manual', date: '2024-10-22', submissionRef: 'SOM-2024-006', limit: 15000000 },
+    { id: '7', insured: 'Vivid Motors EV', broker: 'Aon Global', lob: 'Specialty', gwp: 540000, status: 'Appetite Check', newRenewal: 'New Business', source: 'Email', date: '2024-10-22', submissionRef: 'SOM-2024-007', limit: 12000000 },
     { id: '8', insured: 'Evergreen Supermarkets', broker: 'Lockton City', lob: 'Property', gwp: 310000, status: 'Clearance', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-008', limit: 8000000 },
-    { id: '9', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, status: 'Firm Order', newRenewal: 'New', source: 'Marsh Broker Platform', date: '2024-10-23', submissionRef: 'SOM-2024-009', limit: 20000000 },
+    { id: '9', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, status: 'Firm Order', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-23', submissionRef: 'SOM-2024-009', limit: 20000000 },
     { id: '10', insured: 'NorthSea Energy', broker: 'Aon Offshore', lob: 'Energy', gwp: 1750000, status: 'Registered', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-010', limit: 45000000 },
-    { id: '11', insured: 'TechCore Solutions', broker: 'Willis Towers', lob: 'Cyber', gwp: 650000, status: 'Peer Review', newRenewal: 'New', source: 'Marsh Broker Platform', date: '2024-10-19', submissionRef: 'SOM-2024-011', limit: 18000000 },
+    { id: '11', insured: 'TechCore Solutions', broker: 'Willis Towers', lob: 'Cyber', gwp: 650000, status: 'Peer Review', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-19', submissionRef: 'SOM-2024-011', limit: 18000000 },
     { id: '12', insured: 'GreenField Agriculture', broker: 'JLT Specialty', lob: 'Agriculture', gwp: 420000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-17', submissionRef: 'SOM-2024-012', limit: 9000000 },
     { id: '13', insured: 'MedCare Hospitals', broker: 'Gallagher', lob: 'Healthcare Liability', gwp: 890000, status: 'Issued', newRenewal: 'Renewal', source: 'Manual', date: '2024-10-14', submissionRef: 'SOM-2024-013', limit: 22000000 },
-    { id: '14', insured: 'Aqua Marine Logistics', broker: 'Marsh JLT', lob: 'Marine', gwp: 1100000, status: 'Sanctions', newRenewal: 'New', source: 'Email', date: '2024-10-21', submissionRef: 'SOM-2024-014', limit: 28000000 },
-    { id: '15', insured: 'Summit Financial Group', broker: 'Arthur J Gallagher', lob: 'Financial Institutions', gwp: 775000, status: 'Declined', newRenewal: 'New', source: 'Marsh Broker Platform', date: '2024-10-20', submissionRef: 'SOM-2024-015', limit: 16000000 },
+    { id: '14', insured: 'Aqua Marine Logistics', broker: 'Marsh JLT', lob: 'Marine', gwp: 1100000, status: 'Sanctions', newRenewal: 'New Business', source: 'Email', date: '2024-10-21', submissionRef: 'SOM-2024-014', limit: 28000000 },
+    { id: '15', insured: 'Summit Financial Group', broker: 'Arthur J Gallagher', lob: 'Financial Institutions', gwp: 775000, status: 'Declined', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-20', submissionRef: 'SOM-2024-015', limit: 16000000 },
   ]
 
   // Filter data
@@ -211,7 +211,7 @@ const Analytics = () => {
   }
 
   const exportToCSV = () => {
-    const headers = ['Submission Ref', 'Date', 'Insured', 'Broker', 'LoB', 'Status', 'New/Renewal', 'Source', 'GWP', 'Limit']
+    const headers = ['Submission Ref', 'Date', 'Insured', 'Broker', 'LoB', 'Status', 'Type', 'Source', 'GWP', 'Limit']
     const rows = filteredData.map(r => [
       r.submissionRef,
       r.date,
@@ -581,14 +581,14 @@ const Analytics = () => {
 
                 {/* New/Renewal */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">New/Renewal</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Type</label>
                   <select
                     value={filters.newRenewal}
                     onChange={(e) => setFilters({...filters, newRenewal: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
                   >
                     <option value="all">All Types</option>
-                    <option value="New">New Business</option>
+                    <option value="New Business">New Business</option>
                     <option value="Renewal">Renewal</option>
                   </select>
                 </div>
