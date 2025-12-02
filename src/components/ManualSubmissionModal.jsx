@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Save, Upload, AlertCircle, FileText, Table } from 'lucide-react'
+import { NEW_RENEWAL_OPTIONS } from '../utils/newRenewal'
 
 const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
   const [submissionMode, setSubmissionMode] = useState('manual') // 'manual', 'upload', 'batch'
@@ -42,9 +43,10 @@ const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
 
     // Placement
     placementType: 'Direct',
-    newRenewal: 'New',
+    newRenewal: 'New Business',
     offeredLine: '',
     expectedOrder: '',
+    gwpcPolicyReference: '',
 
     // Additional
     occupancy: '',
@@ -125,6 +127,8 @@ const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
         offeredLine: formData.offeredLine ? parseFloat(formData.offeredLine) : null,
         appetiteScore: 'Pending',
         sanctionsStatus: 'Pending',
+        guidewireRef: formData.newRenewal === 'Renewal' ? (formData.gwpcPolicyReference || null) : null,
+        gwpcPolicyReference: formData.newRenewal === 'Renewal' ? (formData.gwpcPolicyReference || null) : null,
         extractionConfidence: {
           insured: 100,
           broker: 100,
@@ -164,9 +168,10 @@ const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
       gwp: '',
       deductible: '',
       placementType: 'Direct',
-      newRenewal: 'New',
+      newRenewal: 'New Business',
       offeredLine: '',
       expectedOrder: '',
+      gwpcPolicyReference: '',
       occupancy: '',
       sector: '',
       description: '',
@@ -217,7 +222,9 @@ const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
         broker: 85,
         lob: 85,
         coverage: 85
-      }
+      },
+      guidewireRef: formData.newRenewal === 'Renewal' ? (formData.gwpcPolicyReference || null) : null,
+      gwpcPolicyReference: formData.newRenewal === 'Renewal' ? (formData.gwpcPolicyReference || null) : null,
     }))
 
     submissions.forEach(submission => onSubmit(submission))
@@ -508,7 +515,12 @@ const ManualSubmissionModal = ({ isOpen, onClose, onSubmit }) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <InputField label="Placement Type" name="placementType" options={['Direct', 'Assumed Fac', 'Open Market']} />
-                      <InputField label="New/Renewal" name="newRenewal" options={['New', 'Renewal']} />
+                      <InputField label="New/Renewal" name="newRenewal" options={NEW_RENEWAL_OPTIONS} />
+                      {formData.newRenewal === 'Renewal' && (
+                        <div className="md:col-span-2">
+                          <InputField label="GWPC Policy Reference" name="gwpcPolicyReference" placeholder="e.g. FLG-FLS0455998" />
+                        </div>
+                      )}
                       <InputField label="Offered Line (%)" name="offeredLine" type="number" placeholder="e.g. 25" />
                       <InputField label="Expected Order" name="expectedOrder" placeholder="e.g. Lead, Follow" />
                     </div>

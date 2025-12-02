@@ -13,10 +13,13 @@ import {
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
+import { getWorkflowStatusPillClass } from '../data/workflowConfig'
+import { getNewRenewalBadgeClasses, getNewRenewalLabel, NEW_RENEWAL_OPTIONS } from '../utils/newRenewal'
 
 const Intake = () => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [typeFilter, setTypeFilter] = useState('All')
 
   // All submissions
   const allSubmissions = [
@@ -28,9 +31,10 @@ const Intake = () => {
       gwp: 275000,
       source: 'Email',
       time: '2 min ago',
-      status: 'Received',
+      status: 'Pending Checks',
       confidence: 94,
-      flags: []
+      flags: [],
+      newRenewal: 'New Business'
     },
     {
       id: 's019',
@@ -40,9 +44,10 @@ const Intake = () => {
       gwp: 1850000,
       source: 'API',
       time: '8 min ago',
-      status: 'Clearance',
+      status: 'Checks In Progress',
       confidence: 98,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's020',
@@ -52,9 +57,10 @@ const Intake = () => {
       gwp: 420000,
       source: 'Email',
       time: '15 min ago',
-      status: 'Appetite Check',
+      status: 'Manual Review',
       confidence: 76,
-      flags: ['Low Confidence', 'Missing Documents']
+      flags: ['Low Confidence', 'Missing Documents'],
+      newRenewal: 'New Business'
     },
     {
       id: 's021',
@@ -64,9 +70,10 @@ const Intake = () => {
       gwp: 560000,
       source: 'Manual',
       time: '23 min ago',
-      status: 'Sanctions',
+      status: 'Sanctions Triggered',
       confidence: 100,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's022',
@@ -76,9 +83,10 @@ const Intake = () => {
       gwp: 2100000,
       source: 'API',
       time: '31 min ago',
-      status: 'Rating',
+      status: 'Pending Risk Assessment',
       confidence: 91,
-      flags: []
+      flags: [],
+      newRenewal: 'New Business'
     },
     {
       id: 's023',
@@ -90,7 +98,8 @@ const Intake = () => {
       time: '42 min ago',
       status: 'Peer Review',
       confidence: 88,
-      flags: []
+      flags: [],
+      newRenewal: 'New Business'
     },
     {
       id: 's024',
@@ -100,9 +109,10 @@ const Intake = () => {
       gwp: 3200000,
       source: 'Email',
       time: '1 hour ago',
-      status: 'Quoted',
+      status: 'Pending Manual Clearance',
       confidence: 96,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's025',
@@ -112,9 +122,10 @@ const Intake = () => {
       gwp: 890000,
       source: 'API',
       time: '1 hour ago',
-      status: 'Firm Order',
+      status: 'Clearance Completed',
       confidence: 95,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's026',
@@ -124,9 +135,10 @@ const Intake = () => {
       gwp: 1250000,
       source: 'Email',
       time: '2 hours ago',
-      status: 'Bound',
+      status: 'Risk Assessment Completed',
       confidence: 97,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's027',
@@ -136,9 +148,10 @@ const Intake = () => {
       gwp: 680000,
       source: 'API',
       time: '3 hours ago',
-      status: 'Issued',
+      status: 'Risk Assessment Completed',
       confidence: 99,
-      flags: []
+      flags: [],
+      newRenewal: 'New Business'
     },
     {
       id: 's028',
@@ -148,9 +161,10 @@ const Intake = () => {
       gwp: 1450000,
       source: 'Email',
       time: '4 hours ago',
-      status: 'Registered',
+      status: 'Sent to Guidewire',
       confidence: 98,
-      flags: []
+      flags: [],
+      newRenewal: 'Renewal'
     },
     {
       id: 's029',
@@ -160,12 +174,17 @@ const Intake = () => {
       gwp: 150000,
       source: 'Manual',
       time: '5 hours ago',
-      status: 'Declined',
+      status: 'Manual Declined',
       confidence: 72,
-      flags: ['Outside Appetite']
+      flags: ['Outside Appetite'],
+      newRenewal: 'New Business'
     },
   ]
 
+
+  const filteredSubmissions = allSubmissions.filter(submission =>
+    typeFilter === 'All' || getNewRenewalLabel(submission.newRenewal) === typeFilter
+  )
 
   const handleManualSubmission = (submission) => {
     console.log('New manual submission:', submission)
@@ -200,23 +219,7 @@ const Intake = () => {
     }
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Received': return 'bg-gray-100 text-gray-800 border-gray-300'
-      case 'Clearance': return 'bg-blue-100 text-blue-800 border-blue-300'
-      case 'Appetite Check': return 'bg-purple-100 text-purple-800 border-purple-300'
-      case 'Sanctions': return 'bg-orange-100 text-orange-800 border-orange-300'
-      case 'Rating': return 'bg-indigo-100 text-indigo-800 border-indigo-300'
-      case 'Peer Review': return 'bg-teal-100 text-teal-800 border-teal-300'
-      case 'Quoted': return 'bg-amber-100 text-amber-800 border-amber-300'
-      case 'Firm Order': return 'bg-green-100 text-green-800 border-green-300'
-      case 'Bound': return 'bg-emerald-100 text-emerald-800 border-emerald-300'
-      case 'Issued': return 'bg-sky-100 text-sky-800 border-sky-300'
-      case 'Registered': return 'bg-cyan-100 text-cyan-800 border-cyan-300'
-      case 'Declined': return 'bg-red-100 text-red-800 border-red-300'
-      default: return 'bg-gray-100 text-gray-800 border-gray-300'
-    }
-  }
+  const getStatusColor = (status) => getWorkflowStatusPillClass(status)
 
   const getConfidenceColor = (confidence) => {
     if (confidence >= 90) return 'text-green-700'
@@ -260,14 +263,29 @@ const Intake = () => {
                 <h1 className="text-3xl font-bold gradient-text mb-2">Intake Dashboard</h1>
                 <p className="text-gray-600">Real-time submission ingestion from all sources</p>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red"
-              >
-                Add Submission
-              </motion.button>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Type Filter</label>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                  >
+                    <option value="All">All</option>
+                    {NEW_RENEWAL_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 bg-sompo-red text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-sompo-dark-red"
+                >
+                  Add Submission
+                </motion.button>
+              </div>
             </div>
           </motion.div>
 
@@ -282,12 +300,12 @@ const Intake = () => {
             </div>
 
             <div className="divide-y divide-gray-200">
-              {allSubmissions.length === 0 ? (
+              {filteredSubmissions.length === 0 ? (
                 <div className="p-12 text-center">
                   <p className="text-gray-500 text-lg">No submissions found</p>
                 </div>
               ) : (
-                allSubmissions.map((submission, idx) => (
+                filteredSubmissions.map((submission, idx) => (
                 <motion.div
                   key={submission.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -317,6 +335,9 @@ const Intake = () => {
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold border-2 ${getStatusColor(submission.status)}`}>
                           {submission.status}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getNewRenewalBadgeClasses(submission.newRenewal)}`}>
+                          {getNewRenewalLabel(submission.newRenewal)}
                         </span>
                       </div>
 

@@ -14,7 +14,7 @@ export const mockSubmissions = [
     gwp: 190000,
     limit: 10000000,
     priority: 'Medium',
-    status: 'Received',
+    status: 'Pending Checks',
     age: '2h',
     source: 'Email',
     date: '2024-01-15',
@@ -28,7 +28,7 @@ export const mockSubmissions = [
     team: 'Property',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's002',
@@ -40,7 +40,7 @@ export const mockSubmissions = [
     gwp: 880000,
     limit: 25000000,
     priority: 'High',
-    status: 'Firm Order',
+    status: 'Clearance Completed',
     age: '2d',
     source: 'Email',
     date: '2024-01-13',
@@ -66,7 +66,7 @@ export const mockSubmissions = [
     gwp: 1320000,
     limit: 50000000,
     priority: 'High',
-    status: 'Bound',
+    status: 'Risk Assessment Completed',
     age: '1d',
     source: 'Email',
     date: '2024-01-14',
@@ -80,7 +80,7 @@ export const mockSubmissions = [
     team: 'Property',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
 
   // Cyber
@@ -94,7 +94,7 @@ export const mockSubmissions = [
     gwp: 85000,
     limit: 5000000,
     priority: 'Low',
-    status: 'Received',
+    status: 'Pending Checks',
     age: '4h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',
@@ -108,7 +108,7 @@ export const mockSubmissions = [
     team: 'Cyber',
     officeLocation: 'New York',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's005',
@@ -148,7 +148,7 @@ export const mockSubmissions = [
     gwp: 420000,
     limit: 20000000,
     priority: 'High',
-    status: 'Clearance',
+    status: 'Checks In Progress',
     age: '6h',
     source: 'Email',
     date: '2024-01-15',
@@ -162,7 +162,7 @@ export const mockSubmissions = [
     team: 'Marine',
     officeLocation: 'Singapore',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's007',
@@ -174,7 +174,7 @@ export const mockSubmissions = [
     gwp: 950000,
     limit: 35000000,
     priority: 'High',
-    status: 'Issued',
+    status: 'Clearance Completed',
     age: '3h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',
@@ -200,7 +200,7 @@ export const mockSubmissions = [
     gwp: 720000,
     limit: 30000000,
     priority: 'Medium',
-    status: 'Quoted',
+    status: 'Pending Manual Clearance',
     age: '5d',
     source: 'Marsh Broker Platform',
     date: '2024-01-10',
@@ -228,7 +228,7 @@ export const mockSubmissions = [
     gwp: 1250000,
     limit: 100000000,
     priority: 'High',
-    status: 'Sanctions',
+    status: 'Sanctions Triggered',
     age: '12h',
     source: 'Email',
     date: '2024-01-14',
@@ -254,7 +254,7 @@ export const mockSubmissions = [
     gwp: 980000,
     limit: 75000000,
     priority: 'High',
-    status: 'Quoted',
+    status: 'Pending Manual Clearance',
     age: '4d',
     source: 'Email',
     date: '2024-01-11',
@@ -268,7 +268,7 @@ export const mockSubmissions = [
     team: 'Aviation',
     officeLocation: 'Bermuda',
     placementType: 'Open Market',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
 
   // Energy
@@ -282,7 +282,7 @@ export const mockSubmissions = [
     gwp: 890000,
     limit: 40000000,
     priority: 'High',
-    status: 'Appetite Check',
+    status: 'Manual Review',
     age: '8h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',
@@ -296,7 +296,7 @@ export const mockSubmissions = [
     team: 'Energy',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's012',
@@ -308,7 +308,7 @@ export const mockSubmissions = [
     gwp: 1875000,
     limit: 150000000,
     priority: 'High',
-    status: 'Rating',
+    status: 'Risk Assessment In Progress',
     age: '2d',
     source: 'Email',
     date: '2024-01-13',
@@ -322,7 +322,7 @@ export const mockSubmissions = [
     team: 'Energy',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's013',
@@ -334,7 +334,7 @@ export const mockSubmissions = [
     gwp: 2100000,
     limit: 120000000,
     priority: 'High',
-    status: 'Registered',
+    status: 'Sent to Guidewire',
     age: '1d',
     source: 'Email',
     date: '2024-01-14',
@@ -362,7 +362,7 @@ export const mockSubmissions = [
     gwp: 310000,
     limit: 12000000,
     priority: 'Medium',
-    status: 'Clearance',
+    status: 'Checks In Progress',
     age: '1d',
     source: 'Manual',
     date: '2024-01-14',
@@ -390,7 +390,7 @@ export const mockSubmissions = [
     gwp: 460000,
     limit: 25000000,
     priority: 'High',
-    status: 'Appetite Check',
+    status: 'Manual Review',
     age: '1d',
     source: 'Email',
     date: '2024-01-14',
@@ -404,7 +404,7 @@ export const mockSubmissions = [
     team: 'Life Sciences',
     officeLocation: 'New York',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
 
   // Financial Institutions
@@ -418,7 +418,7 @@ export const mockSubmissions = [
     gwp: 720000,
     limit: 30000000,
     priority: 'Medium',
-    status: 'Rating',
+    status: 'Risk Assessment In Progress',
     age: '1d',
     source: 'Marsh Broker Platform',
     date: '2024-01-14',
@@ -446,7 +446,7 @@ export const mockSubmissions = [
     gwp: 150000,
     limit: 8000000,
     priority: 'Low',
-    status: 'Declined',
+    status: 'Manual Declined',
     age: '7d',
     source: 'Manual',
     date: '2024-01-08',
@@ -460,7 +460,7 @@ export const mockSubmissions = [
     team: 'Casualty',
     officeLocation: 'New York',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
 
   // Additional submissions to reach 30+
@@ -474,7 +474,7 @@ export const mockSubmissions = [
     gwp: 1540000,
     limit: 85000000,
     priority: 'High',
-    status: 'Rating',
+    status: 'Risk Assessment In Progress',
     age: '18h',
     source: 'Email',
     date: '2024-01-14',
@@ -500,7 +500,7 @@ export const mockSubmissions = [
     gwp: 625000,
     limit: 28000000,
     priority: 'Medium',
-    status: 'Quoted',
+    status: 'Pending Manual Clearance',
     age: '2d',
     source: 'Marsh Broker Platform',
     date: '2024-01-13',
@@ -514,7 +514,7 @@ export const mockSubmissions = [
     team: 'Property',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's020',
@@ -526,7 +526,7 @@ export const mockSubmissions = [
     gwp: 290000,
     limit: 12000000,
     priority: 'Medium',
-    status: 'Clearance',
+    status: 'Checks In Progress',
     age: '5h',
     source: 'Email',
     date: '2024-01-15',
@@ -540,7 +540,7 @@ export const mockSubmissions = [
     team: 'Cyber',
     officeLocation: 'New York',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's021',
@@ -578,7 +578,7 @@ export const mockSubmissions = [
     gwp: 3250000,
     limit: 200000000,
     priority: 'High',
-    status: 'Rating',
+    status: 'Risk Assessment In Progress',
     age: '1d',
     source: 'Email',
     date: '2024-01-14',
@@ -604,7 +604,7 @@ export const mockSubmissions = [
     gwp: 875000,
     limit: 45000000,
     priority: 'High',
-    status: 'Bound',
+    status: 'Risk Assessment Completed',
     age: '2h',
     source: 'Email',
     date: '2024-01-15',
@@ -630,7 +630,7 @@ export const mockSubmissions = [
     gwp: 680000,
     limit: 35000000,
     priority: 'Medium',
-    status: 'Quoted',
+    status: 'Pending Manual Clearance',
     age: '4d',
     source: 'Marsh Broker Platform',
     date: '2024-01-11',
@@ -644,7 +644,7 @@ export const mockSubmissions = [
     team: 'Life Sciences',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's025',
@@ -656,7 +656,7 @@ export const mockSubmissions = [
     gwp: 1240000,
     limit: 60000000,
     priority: 'High',
-    status: 'Firm Order',
+    status: 'Clearance Completed',
     age: '1d',
     source: 'Email',
     date: '2024-01-14',
@@ -682,7 +682,7 @@ export const mockSubmissions = [
     gwp: 445000,
     limit: 18000000,
     priority: 'Medium',
-    status: 'Appetite Check',
+    status: 'Manual Review',
     age: '9h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',
@@ -696,7 +696,7 @@ export const mockSubmissions = [
     team: 'Casualty',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's027',
@@ -708,7 +708,7 @@ export const mockSubmissions = [
     gwp: 520000,
     limit: 22000000,
     priority: 'Medium',
-    status: 'Sanctions',
+    status: 'Sanctions Triggered',
     age: '14h',
     source: 'Email',
     date: '2024-01-14',
@@ -734,7 +734,7 @@ export const mockSubmissions = [
     gwp: 195000,
     limit: 8000000,
     priority: 'Low',
-    status: 'Received',
+    status: 'Pending Checks',
     age: '3h',
     source: 'Email',
     date: '2024-01-15',
@@ -748,7 +748,7 @@ export const mockSubmissions = [
     team: 'Cyber',
     officeLocation: 'New York',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's029',
@@ -760,7 +760,7 @@ export const mockSubmissions = [
     gwp: 780000,
     limit: 55000000,
     priority: 'High',
-    status: 'Issued',
+    status: 'Clearance Completed',
     age: '6h',
     source: 'Email',
     date: '2024-01-15',
@@ -800,7 +800,7 @@ export const mockSubmissions = [
     team: 'Energy',
     officeLocation: 'Bermuda',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's031',
@@ -812,7 +812,7 @@ export const mockSubmissions = [
     gwp: 565000,
     limit: 25000000,
     priority: 'Medium',
-    status: 'Rating',
+    status: 'Risk Assessment In Progress',
     age: '1d',
     source: 'Manual',
     date: '2024-01-14',
@@ -838,7 +838,7 @@ export const mockSubmissions = [
     gwp: 920000,
     limit: 48000000,
     priority: 'High',
-    status: 'Clearance',
+    status: 'Checks In Progress',
     age: '7h',
     source: 'Email',
     date: '2024-01-15',
@@ -852,7 +852,7 @@ export const mockSubmissions = [
     team: 'Life Sciences',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's033',
@@ -864,7 +864,7 @@ export const mockSubmissions = [
     gwp: 385000,
     limit: 22000000,
     priority: 'Medium',
-    status: 'Received',
+    status: 'Pending Checks',
     age: '4h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',
@@ -890,7 +890,7 @@ export const mockSubmissions = [
     gwp: 795000,
     limit: 35000000,
     priority: 'High',
-    status: 'Quoted',
+    status: 'Pending Manual Clearance',
     age: '3d',
     source: 'Email',
     date: '2024-01-12',
@@ -904,7 +904,7 @@ export const mockSubmissions = [
     team: 'Casualty',
     officeLocation: 'London',
     placementType: 'Direct',
-    newRenewal: 'New'
+    newRenewal: 'New Business'
   },
   {
     id: 's035',
@@ -916,7 +916,7 @@ export const mockSubmissions = [
     gwp: 1180000,
     limit: 65000000,
     priority: 'High',
-    status: 'Registered',
+    status: 'Sent to Guidewire',
     age: '10h',
     source: 'Marsh Broker Platform',
     date: '2024-01-15',

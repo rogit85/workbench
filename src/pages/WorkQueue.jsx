@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { Search, Plus, Filter, GripVertical, LayoutGrid, Table as TableIcon, Settings, Save, X, ChevronUp, ChevronDown, ExternalLink } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ManualSubmissionModal from '../components/ManualSubmissionModal'
+import { getNewRenewalBadgeClasses, getNewRenewalLabel, NEW_RENEWAL_OPTIONS } from '../utils/newRenewal'
+import { workflowBoardColumns } from '../data/workflowConfig'
 import {
   DndContext,
   closestCorners,
@@ -169,6 +171,9 @@ const SortableRiskCard = ({ task, onClick, getSourceBadgeColor, getLOBColor }) =
             <span className={`px-2 py-1 rounded-full text-xs font-bold border-2 shadow-sm whitespace-nowrap ${getLOBColor(task.lob)}`}>
               {task.lob}
             </span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${getNewRenewalBadgeClasses(task.newRenewal)}`}>
+              {getNewRenewalLabel(task.newRenewal)}
+            </span>
           </div>
 
           {/* Details */}
@@ -295,85 +300,131 @@ const WorkQueue = () => {
     })
   )
 
-  const [tasks, setTasks] = useState({
-    received: [
-      { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', inceptionDate: '2025-01-15', limit: 5000000, newRenewal: 'New Business' },
-      { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API', underwriter: 'Sarah Chen', team: 'Specialty', inceptionDate: '2025-02-01', limit: 2000000, newRenewal: 'Renewal' },
-    ],
-    clearance: [
-      { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email', newRenewal: 'New Business' },
-      { id: 's004', insured: 'MediCare Plus', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 310000, priority: 'Medium', age: '1d', source: 'Manual', newRenewal: 'Renewal' },
-    ],
-    moreInfo: [],
-    appetite: [
-      { id: 's005', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'New Business' },
-      { id: 's006', insured: 'GreenEnergy Solutions', broker: 'JLT Specialty', lob: 'Energy', gwp: 890000, priority: 'High', age: '8h', source: 'API', newRenewal: 'Renewal' },
-    ],
-    sanctions: [
-      { id: 's007', insured: 'Continental Airlines', broker: 'Gallagher', lob: 'Aviation', gwp: 1250000, priority: 'High', age: '12h', source: 'Email', newRenewal: 'New Business' },
-    ],
-    rating: [
-      { id: 's008', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, priority: 'High', age: '2d', source: 'Email', newRenewal: 'Renewal' },
-      { id: 's009', insured: 'Financial Trust Bank', broker: 'Lockton', lob: 'Financial Institutions', gwp: 720000, priority: 'Medium', age: '1d', source: 'API', newRenewal: 'New Business' },
-    ],
-    peerReview: [
-      { id: 's010', insured: 'Cyber Shield Corp', broker: 'Howden', lob: 'Cyber', gwp: 340000, priority: 'Medium', age: '3d', source: 'Email', newRenewal: 'Renewal' },
-    ],
-    quoted: [
-      { id: 's011', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, priority: 'High', age: '4d', source: 'Email', newRenewal: 'New Business' },
-      { id: 's012', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Marine', gwp: 720000, priority: 'Medium', age: '5d', source: 'API', newRenewal: 'Renewal' },
-    ],
-    firmOrder: [
-      { id: 's013', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, priority: 'High', age: '2d', source: 'Email', newRenewal: 'New Business' },
-    ],
-    bound: [
-      { id: 's014', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'Renewal' },
-    ],
-    issued: [
-      { id: 's016', insured: 'Global Trade Solutions', broker: 'Marsh', lob: 'Marine', gwp: 950000, priority: 'High', age: '3h', source: 'API', newRenewal: 'New Business' },
-    ],
-    registered: [
-      { id: 's017', insured: 'EcoEnergy Partners', broker: 'Willis', lob: 'Energy', gwp: 2100000, priority: 'High', age: '1d', source: 'Email', newRenewal: 'Renewal' },
-    ],
-    declined: [
-      { id: 's015', insured: 'High Risk Ventures', broker: 'Local Broker', lob: 'Casualty', gwp: 150000, priority: 'Low', age: '7d', source: 'Manual', newRenewal: 'New Business' },
+  const columns = workflowBoardColumns
+
+  const createInitialTasks = () => {
+    const base = columns.reduce((acc, column) => {
+      acc[column.id] = []
+      return acc
+    }, {})
+
+    const seedTasks = [
+      {
+        status: 'manualCreation',
+        item: { id: 'sMC-001', insured: 'Northwind Analytics', broker: 'Direct', lob: 'Cyber', gwp: 180000, priority: 'Medium', age: '5m', source: 'Manual', underwriter: 'Draft Queue', team: 'Specialty', inceptionDate: '2025-02-01', limit: 5000000, newRenewal: 'New Business' }
+      },
+      {
+        status: 'submissionFailed',
+        item: { id: 'sERR-002', insured: 'Evergreen Retail Group', broker: 'Howden', lob: 'Property', gwp: 620000, priority: 'High', age: '12m', source: 'Email', underwriter: 'System', team: 'Property', newRenewal: 'New Business' }
+      },
+      {
+        status: 'pendingChecks',
+        item: { id: 's001', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', inceptionDate: '2025-01-15', limit: 5000000, newRenewal: 'New Business' }
+      },
+      {
+        status: 'checksInProgress',
+        item: { id: 's002', insured: 'TechStart Innovations', broker: 'Marsh', lob: 'Cyber', gwp: 85000, priority: 'Low', age: '4h', source: 'API', underwriter: 'Sarah Chen', team: 'Specialty', inceptionDate: '2025-02-01', limit: 2000000, newRenewal: 'Renewal' }
+      },
+      {
+        status: 'checksCompleted',
+        item: { id: 's003', insured: 'Global Freight Ltd', broker: 'Aon', lob: 'Marine', gwp: 420000, priority: 'High', age: '6h', source: 'Email', underwriter: 'Jamie Ward', team: 'Marine', newRenewal: 'New Business' }
+      },
+      {
+        status: 'brokerSetupRequired',
+        item: { id: 's004', insured: 'MediCare Plus', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 310000, priority: 'Medium', age: '1d', source: 'Manual', underwriter: 'Priya Patel', team: 'Healthcare Liability', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'manualReview',
+        item: { id: 's005', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, priority: 'High', age: '1d', source: 'Email', underwriter: 'Alex Morgan', team: 'Life Sciences', newRenewal: 'New Business' }
+      },
+      {
+        status: 'sanctionsTriggered',
+        item: { id: 's006', insured: 'Continental Airlines', broker: 'Gallagher', lob: 'Aviation', gwp: 1250000, priority: 'High', age: '12h', source: 'Email', underwriter: 'Mike Johnson', team: 'Aviation', newRenewal: 'New Business' }
+      },
+      {
+        status: 'restrictionsTriggered',
+        item: { id: 's007', insured: 'Frontier Mining Ltd', broker: 'Lockton', lob: 'Energy', gwp: 980000, priority: 'High', age: '9h', source: 'Email', underwriter: 'David Park', team: 'Energy', newRenewal: 'New Business' }
+      },
+      {
+        status: 'pendingManualClearance',
+        item: { id: 's008', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, priority: 'High', age: '2d', source: 'Email', underwriter: 'Sarah Chen', team: 'Energy', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'additionalInformationRequested',
+        item: { id: 's009', insured: 'Financial Trust Bank', broker: 'Lockton', lob: 'Financial Institutions', gwp: 720000, priority: 'Medium', age: '1d', source: 'API', underwriter: 'Ethan Ross', team: 'Financial Institutions', newRenewal: 'New Business' }
+      },
+      {
+        status: 'followUpReceived',
+        item: { id: 's010', insured: 'Cyber Shield Corp', broker: 'Howden', lob: 'Cyber', gwp: 340000, priority: 'Medium', age: '3d', source: 'Email', underwriter: 'Lena Hart', team: 'Cyber', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'clearanceCompleted',
+        item: { id: 's011', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, priority: 'High', age: '4d', source: 'Email', underwriter: 'Anthony Rivera', team: 'Aviation', newRenewal: 'New Business' }
+      },
+      {
+        status: 'autoDeclined',
+        item: { id: 's012', insured: 'High Risk Ventures', broker: 'Local Broker', lob: 'Casualty', gwp: 150000, priority: 'Low', age: '7d', source: 'Manual', underwriter: 'System', team: 'Casualty', newRenewal: 'New Business' }
+      },
+      {
+        status: 'expired',
+        item: { id: 's013', insured: 'Summit Retail Group', broker: 'Marsh', lob: 'Property', gwp: 540000, priority: 'Medium', age: '9d', source: 'Email', underwriter: 'Emma Blake', team: 'Property', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'manualDeclined',
+        item: { id: 's014', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, priority: 'High', age: '2d', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Property', newRenewal: 'New Business' }
+      },
+      {
+        status: 'pendingReview',
+        item: { id: 's015', insured: 'Meridian Logistics', broker: 'Aon', lob: 'Marine', gwp: 410000, priority: 'Medium', age: '3d', source: 'Email', underwriter: 'Hannah Cole', team: 'Marine', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'underReview',
+        item: { id: 's016', insured: 'DataHarbor Labs', broker: 'Howden', lob: 'Technology E&O', gwp: 260000, priority: 'High', age: '1d', source: 'API', underwriter: 'Noah Clarke', team: 'Specialty', newRenewal: 'New Business' }
+      },
+      {
+        status: 'pendingRiskAssessment',
+        item: { id: 's017', insured: 'TechVault Security Systems', broker: 'Aon', lob: 'Cyber', gwp: 275000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'Jeremy Isaacs', team: 'Cyber', newRenewal: 'New Business' }
+      },
+      {
+        status: 'riskAssessmentInProgress',
+        item: { id: 's018', insured: 'MediCare Clinics Group', broker: 'Willis Towers Watson', lob: 'Healthcare Liability', gwp: 420000, priority: 'High', age: '15h', source: 'Email', underwriter: 'Priya Patel', team: 'Healthcare Liability', newRenewal: 'New Business' }
+      },
+      {
+        status: 'riskAssessmentCompleted',
+        item: { id: 's019', insured: 'Green Energy Solutions UK', broker: 'JLT Specialty', lob: 'Energy', gwp: 3200000, priority: 'High', age: '1d', source: 'Email', underwriter: 'Alex Morgan', team: 'Energy', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'peerReview',
+        item: { id: 's020', insured: 'DataSecure Inc', broker: 'Willis', lob: 'Cyber', gwp: 315000, priority: 'High', age: '2d', source: 'API', underwriter: 'Sarah Chen', team: 'Cyber', newRenewal: 'New Business' }
+      },
+      {
+        status: 'renewalReceived',
+        item: { id: 's021', insured: 'Coastal Properties Ltd', broker: 'Aon', lob: 'Property', gwp: 1250000, priority: 'Medium', age: '2h', source: 'Email', underwriter: 'David Park', team: 'Property', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'renewalManualReview',
+        item: { id: 's022', insured: 'Pacific Cargo Services', broker: 'Marsh', lob: 'Marine', gwp: 1450000, priority: 'High', age: '4h', source: 'Email', underwriter: 'Hannah Cole', team: 'Marine', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'sentToGuidewire',
+        item: { id: 's023', insured: 'SkyHigh Aviation Services', broker: 'Gallagher', lob: 'Aviation', gwp: 2100000, priority: 'High', age: '1d', source: 'API', underwriter: 'Mike Johnson', team: 'Aviation', newRenewal: 'Renewal' }
+      },
+      {
+        status: 'renewalManualDeclined',
+        item: { id: 's024', insured: 'Oldtown Retail Co-Op', broker: 'Local Broker', lob: 'Property', gwp: 380000, priority: 'Low', age: '5d', source: 'Email', underwriter: 'Emma Blake', team: 'Property', newRenewal: 'Renewal' }
+      }
     ]
-  })
 
-  const columns = [
-    { id: 'received', title: 'Received', color: 'gray', icon: '📥' },
-    { id: 'clearance', title: 'Clearance', color: 'blue', icon: '🔍' },
-    { id: 'moreInfo', title: 'More Information Required', color: 'yellow', icon: '📝' },
-    { id: 'appetite', title: 'Appetite Check', color: 'purple', icon: '🎯' },
-    { id: 'sanctions', title: 'Sanctions', color: 'orange', icon: '⚠️' },
-    { id: 'rating', title: 'Rating', color: 'indigo', icon: '💰' },
-    { id: 'peerReview', title: 'Peer Review', color: 'teal', icon: '👥' },
-    { id: 'quoted', title: 'Quoted', color: 'amber', icon: '📄' },
-    { id: 'firmOrder', title: 'Firm Order', color: 'green', icon: '✓' },
-    { id: 'bound', title: 'Bound', color: 'emerald', icon: '✅' },
-    { id: 'issued', title: 'Issued', color: 'sky', icon: '📋' },
-    { id: 'registered', title: 'Registered', color: 'cyan', icon: '🔖' },
-    { id: 'declined', title: 'Declined', color: 'red', icon: '❌' },
-  ]
+    seedTasks.forEach(({ status, item }) => {
+      if (base[status]) {
+        base[status].push(item)
+      }
+    })
 
-  const getColumnColor = (color) => {
-    switch (color) {
-      case 'gray': return 'border-gray-400'
-      case 'blue': return 'border-blue-500'
-      case 'yellow': return 'border-yellow-500'
-      case 'purple': return 'border-purple-500'
-      case 'orange': return 'border-orange-500'
-      case 'indigo': return 'border-indigo-500'
-      case 'teal': return 'border-teal-500'
-      case 'amber': return 'border-amber-500'
-      case 'green': return 'border-green-600'
-      case 'emerald': return 'border-emerald-600'
-      case 'sky': return 'border-sky-500'
-      case 'cyan': return 'border-cyan-500'
-      case 'red': return 'border-red-500'
-      default: return 'border-gray-300'
-    }
+    return base
   }
+
+  const [tasks, setTasks] = useState(() => createInitialTasks())
 
   const getSourceBadgeColor = (source) => {
     switch (source) {
@@ -492,13 +543,11 @@ const WorkQueue = () => {
   }
 
   const handleManualSubmission = (submission) => {
-    console.log('New manual submission:', submission)
-    // Add the new submission to the received column
+    const manualColumnId = 'manualCreation'
     setTasks(prev => ({
       ...prev,
-      received: [submission, ...prev.received]
+      [manualColumnId]: [submission, ...(prev[manualColumnId] || [])]
     }))
-    // Navigate to the risk detail page
     navigate(`/risk/${submission.id}`)
   }
 
@@ -717,8 +766,9 @@ const WorkQueue = () => {
             autoFocus
             className="w-full px-2 py-1 text-sm border border-sompo-red rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
           >
-            <option value="New Business">New Business</option>
-            <option value="Renewal">Renewal</option>
+            {NEW_RENEWAL_OPTIONS.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
           </select>
         )
       } else {
@@ -895,15 +945,10 @@ const WorkQueue = () => {
         )
       case 'newRenewal':
         return (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 ${
-              submission.newRenewal === 'New Business'
-                ? 'bg-green-100 text-green-800 border border-green-300'
-                : 'bg-blue-100 text-blue-800 border border-blue-300'
-            }`}
-            onClick={() => column.editable && startEdit(submission.id, columnId, submission.newRenewal)}
-          >
-            {submission.newRenewal || '-'}
+          <span className="cursor-pointer" onClick={() => column.editable && startEdit(submission.id, columnId, getNewRenewalLabel(submission.newRenewal))}>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${getNewRenewalBadgeClasses(submission.newRenewal)}`}>
+              {getNewRenewalLabel(submission.newRenewal)}
+            </span>
           </span>
         )
       default:
@@ -1130,44 +1175,60 @@ const WorkQueue = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: colIdx * 0.05 }}
-                  className={`bg-white rounded-lg shadow-lg border-t-4 ${getColumnColor(column.color)} overflow-hidden min-h-[500px] flex flex-col w-64 flex-shrink-0`}
+                  className={`bg-white rounded-lg shadow-lg border-t-4 ${column.borderClass || 'border-gray-300'} overflow-hidden min-h-[520px] flex flex-col w-64 flex-shrink-0`}
                 >
                   {/* Column Header */}
                   <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{column.icon}</span>
-                        <h3 className="font-semibold text-gray-900 text-sm">{column.title}</h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{column.icon}</span>
+                          <h3 className="font-semibold text-gray-900 text-sm truncate">{column.title}</h3>
+                        </div>
+                        <div className="mt-1 text-[10px] uppercase tracking-wide text-gray-500">
+                          {column.phase}
+                        </div>
+                        <div className="text-[11px] text-gray-600 truncate">
+                          {column.stage}
+                          {column.automated && (
+                            <span className="ml-1 text-[10px] font-semibold text-sompo-red">AI</span>
+                          )}
+                        </div>
                       </div>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
-                        {tasks[column.id].length}
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700 flex-shrink-0">
+                        {tasks[column.id]?.length || 0}
                       </span>
                     </div>
                   </div>
 
                   {/* Sortable Column Body */}
-                  <SortableContext
-                    items={tasks[column.id].map(task => task.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <DroppableColumn id={column.id}>
-                      {tasks[column.id].map((task) => (
-                        <SortableRiskCard
-                          key={task.id}
-                          task={task}
-                          onClick={() => navigate(`/risk/${task.id}`)}
-                          getSourceBadgeColor={getSourceBadgeColor}
-                          getLOBColor={getLOBColor}
-                        />
-                      ))}
+                  {(() => {
+                    const columnTasks = tasks[column.id] || []
+                    return (
+                      <SortableContext
+                        items={columnTasks.map(task => task.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <DroppableColumn id={column.id}>
+                          {columnTasks.map((task) => (
+                            <SortableRiskCard
+                              key={task.id}
+                              task={task}
+                              onClick={() => navigate(`/risk/${task.id}`)}
+                              getSourceBadgeColor={getSourceBadgeColor}
+                              getLOBColor={getLOBColor}
+                            />
+                          ))}
 
-                      {tasks[column.id].length === 0 && (
-                        <div className="text-center py-12 text-gray-400 text-sm italic">
-                          Drop submissions here
-                        </div>
-                      )}
-                    </DroppableColumn>
-                  </SortableContext>
+                          {columnTasks.length === 0 && (
+                            <div className="text-center py-12 text-gray-400 text-sm italic">
+                              Drop submissions here
+                            </div>
+                          )}
+                        </DroppableColumn>
+                      </SortableContext>
+                    )
+                  })()}
                 </motion.div>
               ))}
               </div>

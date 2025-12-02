@@ -21,6 +21,8 @@ import {
   ExternalLink
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import { workflowStatusOrder, workflowStatusChartColors } from '../data/workflowConfig'
+import { getNewRenewalBadgeClasses, getNewRenewalLabel, NEW_RENEWAL_OPTIONS } from '../utils/newRenewal'
 
 const Analytics = () => {
   const navigate = useNavigate()
@@ -44,26 +46,10 @@ const Analytics = () => {
   })
 
   // Ordered statuses matching workflow
-  const orderedStatuses = [
-    'Received', 'Clearance', 'Appetite Check', 'Sanctions', 'Rating',
-    'Peer Review', 'Quoted', 'Firm Order', 'Bound', 'Issued', 'Registered', 'Declined'
-  ]
+  const orderedStatuses = workflowStatusOrder
 
   // Expanded color palette for charts
-  const statusColors = {
-    'Received': '#6B7280',
-    'Clearance': '#3B82F6',
-    'Appetite Check': '#8B5CF6',
-    'Sanctions': '#F97316',
-    'Rating': '#6366F1',
-    'Peer Review': '#14B8A6',
-    'Quoted': '#F59E0B',
-    'Firm Order': '#10B981',
-    'Bound': '#059669',
-    'Issued': '#0EA5E9',
-    'Registered': '#06B6D4',
-    'Declined': '#EF4444'
-  }
+  const statusColors = workflowStatusChartColors
 
   const lobColors = [
     '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
@@ -71,23 +57,27 @@ const Analytics = () => {
     '#06B6D4', '#F43F5E', '#0EA5E9', '#A855F7', '#22C55E'
   ]
 
+  const completedStatuses = ['Clearance Completed', 'Risk Assessment Completed', 'Sent to Guidewire']
+  const quotedStatuses = ['Pending Manual Clearance']
+  const declinedStatuses = ['Manual Declined', 'Auto Declined', 'Renewal Manual Declined']
+
   // Mock data for analytics
   const allData = [
-    { id: '1', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-15', submissionRef: 'SOM-2024-001', limit: 5000000 },
-    { id: '2', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, status: 'Quoted', newRenewal: 'New Business', source: 'Email', date: '2024-10-16', submissionRef: 'SOM-2024-002', limit: 25000000 },
-    { id: '3', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, status: 'Rating', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-18', submissionRef: 'SOM-2024-003', limit: 10000000 },
-    { id: '4', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-20', submissionRef: 'SOM-2024-004', limit: 50000000 },
-    { id: '5', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, status: 'Issued', newRenewal: 'Renewal', source: 'Marsh Broker Platform', date: '2024-10-21', submissionRef: 'SOM-2024-005', limit: 35000000 },
-    { id: '6', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Casualty', gwp: 720000, status: 'Quoted', newRenewal: 'New Business', source: 'Manual', date: '2024-10-22', submissionRef: 'SOM-2024-006', limit: 15000000 },
-    { id: '7', insured: 'Vivid Motors EV', broker: 'Aon Global', lob: 'Specialty', gwp: 540000, status: 'Appetite Check', newRenewal: 'New Business', source: 'Email', date: '2024-10-22', submissionRef: 'SOM-2024-007', limit: 12000000 },
-    { id: '8', insured: 'Evergreen Supermarkets', broker: 'Lockton City', lob: 'Property', gwp: 310000, status: 'Clearance', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-008', limit: 8000000 },
-    { id: '9', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, status: 'Firm Order', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-23', submissionRef: 'SOM-2024-009', limit: 20000000 },
-    { id: '10', insured: 'NorthSea Energy', broker: 'Aon Offshore', lob: 'Energy', gwp: 1750000, status: 'Registered', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-010', limit: 45000000 },
+    { id: '1', insured: 'Atlas Foods Group', broker: 'Howden', lob: 'Property', gwp: 190000, status: 'Risk Assessment Completed', newRenewal: 'Renewal', source: 'Email', date: '2024-10-15', submissionRef: 'SOM-2024-001', limit: 5000000 },
+    { id: '2', insured: 'Orion AeroSystems', broker: 'Crestline Broking', lob: 'Aviation', gwp: 980000, status: 'Pending Manual Clearance', newRenewal: 'New Business', source: 'Email', date: '2024-10-16', submissionRef: 'SOM-2024-002', limit: 25000000 },
+    { id: '3', insured: 'Hyperion Biotech', broker: 'Apex Risk Partners', lob: 'Life Sciences', gwp: 460000, status: 'Risk Assessment In Progress', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-18', submissionRef: 'SOM-2024-003', limit: 10000000 },
+    { id: '4', insured: 'Neptune Offshore Wind', broker: 'Westshore Willis', lob: 'Energy', gwp: 1875000, status: 'Risk Assessment Completed', newRenewal: 'Renewal', source: 'Email', date: '2024-10-20', submissionRef: 'SOM-2024-004', limit: 50000000 },
+    { id: '5', insured: 'Lumenova Data Centers', broker: 'Cairnstone', lob: 'Property', gwp: 1320000, status: 'Clearance Completed', newRenewal: 'Renewal', source: 'Marsh Broker Platform', date: '2024-10-21', submissionRef: 'SOM-2024-005', limit: 35000000 },
+    { id: '6', insured: 'Phoenix Rail & Freight', broker: 'Gullwing Re', lob: 'Casualty', gwp: 720000, status: 'Pending Manual Clearance', newRenewal: 'New Business', source: 'Manual', date: '2024-10-22', submissionRef: 'SOM-2024-006', limit: 15000000 },
+    { id: '7', insured: 'Vivid Motors EV', broker: 'Aon Global', lob: 'Specialty', gwp: 540000, status: 'Manual Review', newRenewal: 'New Business', source: 'Email', date: '2024-10-22', submissionRef: 'SOM-2024-007', limit: 12000000 },
+    { id: '8', insured: 'Evergreen Supermarkets', broker: 'Lockton City', lob: 'Property', gwp: 310000, status: 'Checks In Progress', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-008', limit: 8000000 },
+    { id: '9', insured: 'Silverline Hospitality', broker: 'Marsh Europe', lob: 'Property', gwp: 880000, status: 'Clearance Completed', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-23', submissionRef: 'SOM-2024-009', limit: 20000000 },
+    { id: '10', insured: 'NorthSea Energy', broker: 'Aon Offshore', lob: 'Energy', gwp: 1750000, status: 'Sent to Guidewire', newRenewal: 'Renewal', source: 'Email', date: '2024-10-23', submissionRef: 'SOM-2024-010', limit: 45000000 },
     { id: '11', insured: 'TechCore Solutions', broker: 'Willis Towers', lob: 'Cyber', gwp: 650000, status: 'Peer Review', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-19', submissionRef: 'SOM-2024-011', limit: 18000000 },
-    { id: '12', insured: 'GreenField Agriculture', broker: 'JLT Specialty', lob: 'Agriculture', gwp: 420000, status: 'Bound', newRenewal: 'Renewal', source: 'Email', date: '2024-10-17', submissionRef: 'SOM-2024-012', limit: 9000000 },
-    { id: '13', insured: 'MedCare Hospitals', broker: 'Gallagher', lob: 'Healthcare Liability', gwp: 890000, status: 'Issued', newRenewal: 'Renewal', source: 'Manual', date: '2024-10-14', submissionRef: 'SOM-2024-013', limit: 22000000 },
-    { id: '14', insured: 'Aqua Marine Logistics', broker: 'Marsh JLT', lob: 'Marine', gwp: 1100000, status: 'Sanctions', newRenewal: 'New Business', source: 'Email', date: '2024-10-21', submissionRef: 'SOM-2024-014', limit: 28000000 },
-    { id: '15', insured: 'Summit Financial Group', broker: 'Arthur J Gallagher', lob: 'Financial Institutions', gwp: 775000, status: 'Declined', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-20', submissionRef: 'SOM-2024-015', limit: 16000000 },
+    { id: '12', insured: 'GreenField Agriculture', broker: 'JLT Specialty', lob: 'Agriculture', gwp: 420000, status: 'Risk Assessment Completed', newRenewal: 'Renewal', source: 'Email', date: '2024-10-17', submissionRef: 'SOM-2024-012', limit: 9000000 },
+    { id: '13', insured: 'MedCare Hospitals', broker: 'Gallagher', lob: 'Healthcare Liability', gwp: 890000, status: 'Clearance Completed', newRenewal: 'Renewal', source: 'Manual', date: '2024-10-14', submissionRef: 'SOM-2024-013', limit: 22000000 },
+    { id: '14', insured: 'Aqua Marine Logistics', broker: 'Marsh JLT', lob: 'Marine', gwp: 1100000, status: 'Sanctions Triggered', newRenewal: 'New Business', source: 'Email', date: '2024-10-21', submissionRef: 'SOM-2024-014', limit: 28000000 },
+    { id: '15', insured: 'Summit Financial Group', broker: 'Arthur J Gallagher', lob: 'Financial Institutions', gwp: 775000, status: 'Manual Declined', newRenewal: 'New Business', source: 'Marsh Broker Platform', date: '2024-10-20', submissionRef: 'SOM-2024-015', limit: 16000000 },
   ]
 
   // Filter data
@@ -96,7 +86,7 @@ const Analytics = () => {
       if (filters.status !== 'all' && record.status !== filters.status) return false
       if (filters.lob !== 'all' && record.lob !== filters.lob) return false
       if (filters.source !== 'all' && record.source !== filters.source) return false
-      if (filters.newRenewal !== 'all' && record.newRenewal !== filters.newRenewal) return false
+      if (filters.newRenewal !== 'all' && getNewRenewalLabel(record.newRenewal) !== filters.newRenewal) return false
 
       if (filters.dateFrom && record.date < filters.dateFrom) return false
       if (filters.dateTo && record.date > filters.dateTo) return false
@@ -115,18 +105,18 @@ const Analytics = () => {
   const kpis = useMemo(() => {
     const totalGWP = filteredData.reduce((sum, r) => sum + r.gwp, 0)
     const totalLimit = filteredData.reduce((sum, r) => sum + r.limit, 0)
-    const boundCount = filteredData.filter(r => ['Bound', 'Issued', 'Registered'].includes(r.status)).length
-    const quotedCount = filteredData.filter(r => r.status === 'Quoted').length
-    const declinedCount = filteredData.filter(r => r.status === 'Declined').length
-    const inProgressCount = filteredData.filter(r => !['Bound', 'Issued', 'Registered', 'Quoted', 'Declined'].includes(r.status)).length
+    const boundCount = filteredData.filter(r => completedStatuses.includes(r.status)).length
+    const quotedCount = filteredData.filter(r => quotedStatuses.includes(r.status)).length
+    const declinedCount = filteredData.filter(r => declinedStatuses.includes(r.status)).length
+    const inProgressCount = filteredData.filter(r => !completedStatuses.includes(r.status) && !declinedStatuses.includes(r.status)).length
 
     const hitRate = filteredData.length > 0 ? ((boundCount / filteredData.length) * 100).toFixed(1) : 0
     const quoteToBindRate = quotedCount > 0 ? ((boundCount / quotedCount) * 100).toFixed(1) : 0
     const avgGWP = filteredData.length > 0 ? (totalGWP / filteredData.length) : 0
-    const newBusiness = filteredData.filter(r => r.newRenewal === 'New').reduce((sum, r) => sum + r.gwp, 0)
-    const renewals = filteredData.filter(r => r.newRenewal === 'Renewal').reduce((sum, r) => sum + r.gwp, 0)
-    const newCount = filteredData.filter(r => r.newRenewal === 'New').length
-    const renewalCount = filteredData.filter(r => r.newRenewal === 'Renewal').length
+    const newBusiness = filteredData.filter(r => getNewRenewalLabel(r.newRenewal) === 'New Business').reduce((sum, r) => sum + r.gwp, 0)
+    const renewals = filteredData.filter(r => getNewRenewalLabel(r.newRenewal) === 'Renewal').reduce((sum, r) => sum + r.gwp, 0)
+    const newCount = filteredData.filter(r => getNewRenewalLabel(r.newRenewal) === 'New Business').length
+    const renewalCount = filteredData.filter(r => getNewRenewalLabel(r.newRenewal) === 'Renewal').length
 
     return {
       totalGWP,
@@ -145,6 +135,14 @@ const Analytics = () => {
       totalSubmissions: filteredData.length
     }
   }, [filteredData])
+
+  const conversionRatePercent = kpis.quotedCount > 0
+    ? Math.min((kpis.boundCount / kpis.quotedCount) * 100, 100)
+    : 0
+  const declineBase = kpis.quotedCount + kpis.declinedCount
+  const declinePercent = declineBase > 0
+    ? Math.round((kpis.declinedCount / declineBase) * 100)
+    : 0
 
   // Calculate charts data with proper ordering
   const chartData = useMemo(() => {
@@ -183,7 +181,7 @@ const Analytics = () => {
     lobs.forEach(lob => {
       const lobRecords = filteredData.filter(r => r.lob === lob)
       if (lobRecords.length > 0) {
-        const lobBound = lobRecords.filter(r => ['Bound', 'Issued', 'Registered'].includes(r.status)).length
+        const lobBound = lobRecords.filter(r => completedStatuses.includes(r.status)).length
         hitRateByLob[lob] = ((lobBound / lobRecords.length) * 100).toFixed(1)
       }
     })
@@ -589,8 +587,9 @@ const Analytics = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sompo-red text-sm"
                   >
                     <option value="all">All Types</option>
-                    <option value="New Business">New Business</option>
-                    <option value="Renewal">Renewal</option>
+                    {NEW_RENEWAL_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -753,7 +752,7 @@ const Analytics = () => {
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full"
-                  style={{ width: `${Math.min((kpis.boundCount / kpis.quotedCount) * 100, 100)}%` }}
+                  style={{ width: `${conversionRatePercent}%` }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">Bound vs Quoted</p>
@@ -764,24 +763,24 @@ const Analytics = () => {
               <h3 className="text-sm font-medium text-gray-600 mb-2">Decline Rate</h3>
               <div className="flex items-end justify-between mb-3">
                 <div className="text-4xl font-bold text-gray-900">
-                  {Math.round((kpis.declinedCount / (kpis.quotedCount + kpis.declinedCount)) * 100)}%
+                  {declinePercent}%
                 </div>
                 <div className="text-xs text-gray-500">
-                  {kpis.declinedCount} / {kpis.quotedCount + kpis.declinedCount}
+                  {kpis.declinedCount} / {declineBase}
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full"
-                  style={{ width: `${Math.min((kpis.declinedCount / (kpis.quotedCount + kpis.declinedCount)) * 100, 100)}%` }}
+                  style={{ width: `${declineBase > 0 ? Math.min((kpis.declinedCount / declineBase) * 100, 100) : 0}%` }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">Declined vs Total Decisions</p>
             </div>
 
-            {/* Clearance Rate */}
+            {/* Checks Pass Rate */}
             <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <h3 className="text-sm font-medium text-gray-600 mb-2">Clearance Rate</h3>
+              <h3 className="text-sm font-medium text-gray-600 mb-2">Checks Pass Rate</h3>
               <div className="flex items-end justify-between mb-3">
                 <div className="text-4xl font-bold text-gray-900">
                   92%
@@ -796,7 +795,7 @@ const Analytics = () => {
                   style={{ width: '92%' }}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-2">Passed Clearance Checks</p>
+              <p className="text-xs text-gray-500 mt-2">Submissions passing automated checks</p>
             </div>
 
             {/* New Business Rate */}
@@ -989,12 +988,8 @@ const Analytics = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          record.newRenewal === 'New'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-emerald-100 text-emerald-800'
-                        }`}>
-                          {record.newRenewal}
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getNewRenewalBadgeClasses(record.newRenewal)}`}>
+                          {getNewRenewalLabel(record.newRenewal)}
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">

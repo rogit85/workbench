@@ -39,13 +39,13 @@ const AIAssistant = () => {
     if (lowerMessage.includes('find') || lowerMessage.includes('search') || lowerMessage.includes('show me')) {
       if (lowerMessage.includes('property') || lowerMessage.includes('properties')) {
         return {
-          content: '🔍 I found 8 Property submissions:\n\n**High Priority:**\n• SOM-2024-001 - TechCorp Data Center ($5M) - Status: Rating\n• SOM-2024-005 - Hyperion Biotech ($460K) - Status: Appetite Check\n\n**Medium Priority:**\n• SOM-2024-002 - JX Research Limited ($1M) - Status: Appetite Check\n• SOM-2024-008 - Retail Plaza UK ($850K) - Status: Clearance\n\n**Recent Activity:**\n• 3 new submissions today\n• 2 pending peer review\n• Average processing time: 4.2 days\n\nWould you like to see detailed information on any of these?',
+          content: '🔍 I found 8 Property submissions:\n\n**High Priority:**\n• SOM-2024-001 - TechCorp Data Center ($5M) - Status: Risk Assessment In Progress\n• SOM-2024-005 - Hyperion Biotech ($460K) - Status: Manual Review\n\n**Medium Priority:**\n• SOM-2024-002 - JX Research Limited ($1M) - Status: Manual Review\n• SOM-2024-008 - Retail Plaza UK ($850K) - Status: Checks In Progress\n\n**Recent Activity:**\n• 3 new submissions today\n• 2 pending peer review\n• Average processing time: 4.2 days\n\nWould you like to see detailed information on any of these?',
           type: 'search'
         }
       }
       if (lowerMessage.includes('high priority') || lowerMessage.includes('urgent')) {
         return {
-          content: '⚡ High Priority Submissions (6 total):\n\n**Urgent - Expiring Soon:**\n1. SOM-2024-001 - TechCorp Data Center\n   • GWP: $5M | LOB: Property\n   • Status: Rating | Age: 2d\n   • ⏰ Quote needed by tomorrow\n\n2. SOM-2024-003 - Global Freight Ltd\n   • GWP: $420K | LOB: Marine\n   • Status: Clearance | Age: 6h\n   • 🔥 Broker requesting update\n\n3. SOM-2024-005 - Hyperion Biotech\n   • GWP: $460K | LOB: Life Sciences\n   • Status: Appetite Check | Age: 1d\n   • ⚠️ Complex risk profile\n\nShall I prioritize any of these for you?',
+          content: '⚡ High Priority Submissions (6 total):\n\n**Urgent - Expiring Soon:**\n1. SOM-2024-001 - TechCorp Data Center\n   • GWP: $5M | LOB: Property\n   • Status: Risk Assessment In Progress | Age: 2d\n   • ⏰ Manual clearance review due tomorrow\n\n2. SOM-2024-003 - Global Freight Ltd\n   • GWP: $420K | LOB: Marine\n   • Status: Checks In Progress | Age: 6h\n   • 🔥 Broker requesting update\n\n3. SOM-2024-005 - Hyperion Biotech\n   • GWP: $460K | LOB: Life Sciences\n   • Status: Manual Review | Age: 1d\n   • ⚠️ Complex risk profile\n\nShall I prioritize any of these for you?',
           type: 'search'
         }
       }
@@ -66,7 +66,7 @@ const AIAssistant = () => {
     // Portfolio questions
     if (lowerMessage.includes('how many') || lowerMessage.includes('total')) {
       return {
-        content: '📈 **Current Portfolio Overview:**\n\n**Active Submissions:** 45 total\n• Received: 12\n• Clearance: 8\n• Appetite Check: 6\n• Sanctions: 3\n• Rating: 7\n• Peer Review: 4\n• Quoted: 5\n\n**By Line of Business:**\n• Property: 18 (40%)\n• Casualty: 12 (27%)\n• Marine: 7 (16%)\n• Specialty: 8 (17%)\n\n**Total GWP Pipeline:** $23.8M\n\n**Status Health:**\n✅ On Track: 32 (71%)\n⚠️ At Risk: 9 (20%)\n🔴 Delayed: 4 (9%)\n\nNeed more details on any category?',
+        content: '📈 **Current Portfolio Overview:**\n\n**Active Submissions:** 45 total\n• Pending Checks: 12\n• Checks In Progress: 8\n• Manual Review: 6\n• Sanctions Triggered: 3\n• Risk Assessment In Progress: 7\n• Peer Review: 4\n• Pending Manual Clearance: 5\n\n**By Line of Business:**\n• Property: 18 (40%)\n• Casualty: 12 (27%)\n• Marine: 7 (16%)\n• Specialty: 8 (17%)\n\n**Total GWP Pipeline:** $23.8M\n\n**Status Health:**\n✅ On Track: 32 (71%)\n⚠️ At Risk: 9 (20%)\n🔴 Delayed: 4 (9%)\n\nNeed more details on any category?',
         type: 'analytics'
       }
     }
@@ -82,7 +82,7 @@ const AIAssistant = () => {
     // Specific submission lookup
     if (lowerMessage.includes('som-') || lowerMessage.includes('jx research') || lowerMessage.includes('techcorp')) {
       return {
-        content: '📄 **Submission Details: JX Research Limited**\n\n**Reference:** SOM-2024-002\n**Status:** Appetite Check (3 days in stage)\n**Priority:** Medium\n\n**Key Information:**\n• **Insured:** JX Research Limited\n• **Broker:** Howden Insurance Brokers Ltd\n• **LOB:** Management Liability\n• **Coverage:** D&O Liability\n• **Limit:** $1,000,000 USD\n• **Inception:** 2025-10-03\n\n**Risk Profile:**\n• Blockchain technology sector\n• Cayman Islands domicile\n• $5.55M capital raised\n• Private entity, no revenue yet\n\n**Assessment:**\n🟡 **Moderate Risk**\n• Appetite Score: Medium\n• Sanctions: Clear ✓\n• Regulatory: Cayman Islands classification\n\n**Next Steps:**\n1. Complete appetite review\n2. HX rating required\n3. Peer review recommended\n\n**Assigned to:** Jeremy Isaacs\n\nWould you like to see the full submission or update the status?',
+        content: '📄 **Submission Details: JX Research Limited**\n\n**Reference:** SOM-2024-002\n**Status:** Manual Review (3 days in stage)\n**Priority:** Medium\n\n**Key Information:**\n• **Insured:** JX Research Limited\n• **Broker:** Howden Insurance Brokers Ltd\n• **LOB:** Management Liability\n• **Coverage:** D&O Liability\n• **Limit:** $1,000,000 USD\n• **Inception:** 2025-10-03\n\n**Risk Profile:**\n• Blockchain technology sector\n• Cayman Islands domicile\n• $5.55M capital raised\n• Private entity, no revenue yet\n\n**Assessment:**\n🟡 **Moderate Risk**\n• Appetite Score: Medium\n• Sanctions: Clear ✓\n• Regulatory: Cayman Islands classification\n\n**Next Steps:**\n1. Complete manual review\n2. HX rating required\n3. Peer review recommended\n\n**Assigned to:** Jeremy Isaacs\n\nWould you like to see the full submission or update the status?',
         type: 'submission'
       }
     }
@@ -106,7 +106,7 @@ const AIAssistant = () => {
     // Performance metrics
     if (lowerMessage.includes('performance') || lowerMessage.includes('metrics') || lowerMessage.includes('kpi')) {
       return {
-        content: '🎯 **Team Performance Metrics:**\n\n**Processing Speed:**\n• Clearance: 0.8 days avg (Target: 1 day) ✓\n• Appetite Check: 2.4 days avg (Target: 2 days) ⚠️\n• Rating: 3.2 days avg (Target: 3 days) ✓\n• Quote to Bind: 5.1 days avg (Target: 5 days) ✓\n\n**Conversion Metrics:**\n• Quote Rate: 78% (↑ 3%)\n• Bind Rate: 64% (↑ 5%)\n• Renewal Retention: 89% (↑ 2%)\n\n**Quality Metrics:**\n• Submission Completeness: 92%\n• Referral Rate: 15% (Target: <20%) ✓\n• Declined Rate: 7%\n\n**Top Performers:**\n🥇 Jeremy Isaacs - 142% of target\n🥈 Sarah Chen - 128% of target\n🥉 Alex Morgan - 119% of target\n\n**Areas for Improvement:**\n• Appetite check turnaround time\n• First-time submission quality from new brokers\n\nNeed department-specific metrics?',
+        content: '🎯 **Team Performance Metrics:**\n\n**Processing Speed:**\n• Checks In Progress: 0.8 days avg (Target: 1 day) ✓\n• Manual Review: 2.4 days avg (Target: 2 days) ⚠️\n• Risk Assessment In Progress: 3.2 days avg (Target: 3 days) ✓\n• Manual Clearance → Completion: 5.1 days avg (Target: 5 days) ✓\n\n**Conversion Metrics:**\n• Manual Clearance Rate: 78% (↑ 3%)\n• Completion Rate: 64% (↑ 5%)\n• Renewal Retention: 89% (↑ 2%)\n\n**Quality Metrics:**\n• Submission Completeness: 92%\n• Referral Rate: 15% (Target: <20%) ✓\n• Manual Decline Rate: 7%\n\n**Top Performers:**\n🥇 Jeremy Isaacs - 142% of target\n🥈 Sarah Chen - 128% of target\n🥉 Alex Morgan - 119% of target\n\n**Areas for Improvement:**\n• Manual review turnaround time\n• First-time submission quality from new brokers\n\nNeed department-specific metrics?',
         type: 'analytics'
       }
     }

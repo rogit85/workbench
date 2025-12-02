@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react'
+import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -42,9 +42,219 @@ import {
   RefreshCw,
   X,
   MessageSquare,
-  Plus
+  Plus,
+  ClipboardCheck,
+  Info
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import {
+  workflowStatusMap,
+  getWorkflowStatusPillClass,
+  getWorkflowStatusBadgeClass
+} from '../data/workflowConfig'
+import {
+  NEW_RENEWAL_OPTIONS,
+  getNewRenewalBadgeStrongClasses,
+  getNewRenewalLabel,
+  isRenewal
+} from '../utils/newRenewal'
+
+const DEFAULT_OPS_TASKS = [
+  {
+    id: 'task-review-checks',
+    title: 'Review Failed Checks',
+    statusId: 'manualReview',
+    stage: 'Submission Received',
+    description: 'Validate the failed automated checks, capture the reason, and advise if re-ingestion is required.',
+    owner: 'Ops - Anya Patel',
+    dueDate: '2025-07-22',
+    category: 'Ops',
+    autoCreated: true,
+    state: 'In Progress',
+    initialState: 'In Progress',
+    tags: ['Checks', 'Ops'],
+    done: false
+  },
+  {
+    id: 'task-data-enrichment',
+    title: 'Perform Data Enrichment',
+    statusId: 'checksInProgress',
+    stage: 'Submission Received',
+    description: 'Fill missing financials and metadata before the hand-off to underwriting.',
+    owner: 'Ops - Liam Boyd',
+    dueDate: '2025-07-22',
+    category: 'Ops',
+    autoCreated: true,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['Data'],
+    done: false
+  },
+  {
+    id: 'task-broker-setup',
+    title: 'Initiate Broker Set-up',
+    statusId: 'brokerSetupRequired',
+    stage: 'Submission Received',
+    description: 'Confirm broker codes and permissions in policy admin systems.',
+    owner: 'Ops - Priya Nair',
+    dueDate: '2025-07-23',
+    category: 'Ops',
+    autoCreated: false,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['Broker'],
+    done: false
+  },
+  {
+    id: 'task-sanctions',
+    title: 'Investigate Sanctions Hit',
+    statusId: 'sanctionsTriggered',
+    stage: 'Submission Received',
+    description: 'Review the potential sanctions match and document the screening result.',
+    owner: 'Compliance - Sara Uddin',
+    dueDate: '2025-07-22',
+    category: 'Compliance',
+    autoCreated: true,
+    state: 'In Progress',
+    initialState: 'In Progress',
+    tags: ['Compliance'],
+    done: false
+  },
+  {
+    id: 'task-restrictions',
+    title: 'Investigate Restrictions',
+    statusId: 'restrictionsTriggered',
+    stage: 'Submission Received',
+    description: 'Assess jurisdiction/product restrictions flagged during intake.',
+    owner: 'Compliance - Victor Hale',
+    dueDate: '2025-07-23',
+    category: 'Compliance',
+    autoCreated: true,
+    state: 'Blocked',
+    initialState: 'Blocked',
+    tags: ['Compliance'],
+    done: false
+  },
+  {
+    id: 'task-follow-up',
+    title: 'Process Broker Follow-up',
+    statusId: 'followUpReceived',
+    stage: 'Submission Validation',
+    description: 'Apply broker clarifications and decide if automated checks should re-run.',
+    owner: 'Ops - Nina Walker',
+    dueDate: '2025-07-24',
+    category: 'Ops',
+    autoCreated: true,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['Broker'],
+    done: false
+  },
+  {
+    id: 'task-request-survey',
+    title: 'Request Survey Pack',
+    statusId: 'pendingRiskAssessment',
+    stage: 'Risk Assessment',
+    description: 'Send survey template to the broker with the requested data points.',
+    owner: 'Underwriting Assistant',
+    dueDate: '2025-07-25',
+    category: 'Underwriting',
+    autoCreated: false,
+    state: 'In Progress',
+    initialState: 'In Progress',
+    tags: ['Survey'],
+    done: false
+  },
+  {
+    id: 'task-cat-modelling',
+    title: 'Request CAT Modelling',
+    statusId: 'riskAssessmentInProgress',
+    stage: 'Risk Assessment',
+    description: 'Trigger CAT modelling workflow (Property exposure) and attach the outputs.',
+    owner: 'Actuarial - Leo Park',
+    dueDate: '2025-07-26',
+    category: 'Actuarial',
+    autoCreated: false,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['CAT'],
+    done: false
+  },
+  {
+    id: 'task-document-rationale',
+    title: 'Document UW Rationale',
+    statusId: 'riskAssessmentCompleted',
+    stage: 'Risk Assessment',
+    description: 'Summarise underwriting rationale, appetite, and outstanding tasks.',
+    owner: 'Underwriter - Jeremy Isaacs',
+    dueDate: '2025-07-27',
+    category: 'Underwriting',
+    autoCreated: false,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['Documentation'],
+    done: false
+  },
+  {
+    id: 'task-renewal-hand-off',
+    title: 'Renewal Manual Review',
+    statusId: 'renewalManualReview',
+    stage: 'Renewal',
+    description: 'If the risk converts, prepare the expiring schedule and change summary for renewal teams.',
+    owner: 'Renewals Ops',
+    dueDate: '2025-08-01',
+    category: 'Renewal',
+    autoCreated: false,
+    state: 'Not Started',
+    initialState: 'Not Started',
+    tags: ['Renewal'],
+    done: false
+  }
+]
+
+const NUMERIC_FIELD_KEYS = new Set([
+  'gwp',
+  'limit',
+  'limitOption1',
+  'limitOption2',
+  'excess',
+  'primaryDeductible',
+  'sideADeductible',
+  'sideBUSADeductible',
+  'sideBRoWDeductible',
+  'expiringPremium',
+  'renewalIncrease',
+  'yearsWithPriorCarrier',
+  'totalAssetsCurrent',
+  'annualRevenueCurrent',
+  'totalAssetsPrevious',
+  'annualRevenuePrevious',
+  'capitalRaised',
+  'bermudaExposureAUD',
+  'intlExposure',
+  'totalExposure',
+  'technicalPremium',
+  'brokerage',
+  'noClaimsBonus',
+  'reinstatements',
+  'combLimitDisc',
+  'otherAdjustments',
+  'totalAdjustments',
+  'expectedOrder',
+  'expectedLine',
+  'offeredLine',
+  'signedLine'
+])
+
+const BOOLEAN_FIELD_PARSERS = {
+  assumedFac: (value) => {
+    const normalized = (value || '').toString().trim().toLowerCase()
+    if (!normalized) return false
+    if (['direct', 'no', 'false'].includes(normalized)) return false
+    if (['assumed', 'assumed fac', 'yes', 'true'].includes(normalized)) return true
+    return normalized.includes('assumed')
+  }
+}
 
 const SubmissionDetail = () => {
   const { id } = useParams()
@@ -68,6 +278,18 @@ const SubmissionDetail = () => {
   const [extractionToolInput, setExtractionToolInput] = useState('')
   const [extractionToolLoading, setExtractionToolLoading] = useState(false)
   const [extractionToolResult, setExtractionToolResult] = useState(null)
+  const [opsTasks, setOpsTasks] = useState(DEFAULT_OPS_TASKS)
+  const [imageRightConnected, setImageRightConnected] = useState(false)
+  const [sharepointUploads, setSharepointUploads] = useState([])
+  const [sharepointNotes, setSharepointNotes] = useState('')
+  const [sharepointFileName, setSharepointFileName] = useState('')
+  const [brokerReplies, setBrokerReplies] = useState([])
+  const [replyForm, setReplyForm] = useState({
+    to: submissionData.brokerContactEmail,
+    cc: '',
+    subject: `RE: ${submissionData.submissionRef} - Additional Information`,
+    body: ''
+  })
   const scrollContainerRef = useRef(null)
 
   // Underwriter and UWA lists
@@ -94,11 +316,11 @@ const SubmissionDetail = () => {
   ]
 
   // Comprehensive submission data matching all intake fields
-  const submissionData = useMemo(() => {
+  const baseSubmissionData = useMemo(() => {
     return {
       // Policy & Lifecycle
       submissionRef: 'SOM-2024-002',
-      status: 'Appetite Check',
+      status: 'Manual Review',
       newRenewal: 'New Business',
       inceptionDate: '2025-10-03',
       expiryDate: '2037-10-03',
@@ -458,10 +680,10 @@ Josh`,
         {
           id: 4,
           type: 'clearance',
-          action: 'Clearance Auto-Approved',
+          action: 'Checks Completed',
           user: 'System',
           timestamp: '2025-07-22 10:38:30 UTC',
-          details: 'Clearance automatically approved based on appetite rules',
+          details: 'Automated checks passed based on appetite rules',
           icon: 'CheckCircle'
         },
         {
@@ -470,7 +692,7 @@ Josh`,
           action: 'Status Changed',
           user: 'System',
           timestamp: '2025-07-22 10:38:35 UTC',
-          details: 'Status changed from Clearance to Appetite Check',
+          details: 'Status changed from Checks Completed to Manual Review',
           icon: 'Activity'
         },
         {
@@ -761,99 +983,124 @@ TARGET QUOTE DATE: July 29, 2025`,
       ]
     }
   }, [id])
+  const [submissionData, setSubmissionData] = useState(baseSubmissionData)
+  const [fieldOverrides, setFieldOverrides] = useState({})
 
-  // Workflow status timeline data
-  const workflowStatuses = [
-    {
-      status: 'Received',
+  useEffect(() => {
+    setSubmissionData(baseSubmissionData)
+    setFieldOverrides({})
+  }, [baseSubmissionData])
+
+  useEffect(() => {
+    if (submissionData.underwriter && submissionData.underwriter !== underwriter) {
+      setUnderwriter(submissionData.underwriter)
+    }
+  }, [submissionData.underwriter])
+
+  useEffect(() => {
+    if (submissionData.underwriterAssistant && submissionData.underwriterAssistant !== underwriterAssistant) {
+      setUnderwriterAssistant(submissionData.underwriterAssistant)
+    }
+  }, [submissionData.underwriterAssistant])
+
+  // Workflow status timeline data aligned with the new workflow
+  const timelineStatusOrder = [
+    'pendingChecks',
+    'checksInProgress',
+    'checksCompleted',
+    'manualReview',
+    'pendingManualClearance',
+    'additionalInformationRequested',
+    'followUpReceived',
+    'clearanceCompleted',
+    'pendingRiskAssessment',
+    'riskAssessmentInProgress',
+    'riskAssessmentCompleted',
+    'peerReview'
+  ]
+
+  const timelineMeta = {
+    pendingChecks: {
       date: '2025-07-22',
       assignee: 'System',
       duration: '< 1 min',
       completed: true,
       completedBy: 'Auto-Intake'
     },
-    {
-      status: 'Extraction Review',
+    checksInProgress: {
       date: '2025-07-22',
-      assignee: underwriter,
-      duration: '15 mins',
-      completed: extractionsConfirmed,
-      completedBy: extractionsConfirmed ? underwriter : null,
-      inProgress: !extractionsConfirmed
-    },
-    {
-      status: 'Clearance',
-      date: '2025-07-22',
-      assignee: 'System',
+      assignee: 'Workflow Automation',
       duration: '2 mins',
-      completed: extractionsConfirmed,
-      completedBy: extractionsConfirmed ? 'Auto-Approved' : null
+      completed: true,
+      completedBy: 'Auto Orchestration'
     },
-    {
-      status: 'Appetite Check',
+    checksCompleted: {
+      date: '2025-07-22',
+      assignee: 'Workflow Automation',
+      duration: '35 mins',
+      completed: true
+    },
+    manualReview: {
       date: '2025-07-22',
       assignee: underwriter,
-      duration: '3 days',
-      completed: false,
+      duration: 'In progress',
       inProgress: true
     },
-    {
-      status: 'Sanctions',
-      date: null,
-      assignee: null,
+    pendingManualClearance: {
+      assignee: 'Ops Queue',
+      duration: 'Awaiting manual clearance',
+      completed: false
+    },
+    additionalInformationRequested: {
+      assignee: underwriterAssistant,
+      duration: 'Draft request ready',
+      completed: false
+    },
+    followUpReceived: {
+      assignee: 'System',
+      duration: 'Watching mailbox',
+      completed: false
+    },
+    clearanceCompleted: {
+      assignee: 'Ops Queue',
       duration: null,
       completed: false
     },
-    {
-      status: 'Rating',
-      date: null,
-      assignee: null,
+    pendingRiskAssessment: {
+      assignee: underwriter,
       duration: null,
       completed: false
     },
-    {
-      status: 'Peer Review',
-      date: null,
-      assignee: null,
+    riskAssessmentInProgress: {
+      assignee: underwriter,
       duration: null,
       completed: false
     },
-    {
-      status: 'Quoted',
-      date: null,
-      assignee: null,
+    riskAssessmentCompleted: {
+      assignee: underwriter,
       duration: null,
       completed: false
     },
-    {
-      status: 'Firm Order',
-      date: null,
-      assignee: null,
-      duration: null,
-      completed: false
-    },
-    {
-      status: 'Bound',
-      date: null,
-      assignee: null,
-      duration: null,
-      completed: false
-    },
-    {
-      status: 'Issued',
-      date: null,
-      assignee: null,
-      duration: null,
-      completed: false
-    },
-    {
-      status: 'Registered',
-      date: null,
-      assignee: null,
+    peerReview: {
+      assignee: 'Peer Review Board',
       duration: null,
       completed: false
     }
-  ]
+  }
+
+  const workflowStatuses = timelineStatusOrder.map((statusId) => {
+    const definition = workflowStatusMap[statusId] || {}
+    const overrides = timelineMeta[statusId] || {}
+    return {
+      id: statusId,
+      status: definition.label || statusId,
+      phase: definition.phase,
+      stage: definition.stage,
+      automated: definition.automated,
+      description: definition.description,
+      ...overrides
+    }
+  })
 
   const currency = (n, curr = 'USD') => {
     return new Intl.NumberFormat('en-US', {
@@ -863,23 +1110,7 @@ TARGET QUOTE DATE: July 29, 2025`,
     }).format(n)
   }
 
-  const getStatusColor = (status) => {
-    const statusMap = {
-      'Received': 'bg-gray-100 text-gray-800 border-gray-300',
-      'Clearance': 'bg-blue-100 text-blue-800 border-blue-300',
-      'Appetite Check': 'bg-purple-100 text-purple-800 border-purple-300',
-      'Sanctions': 'bg-orange-100 text-orange-800 border-orange-300',
-      'Rating': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-      'Peer Review': 'bg-teal-100 text-teal-800 border-teal-300',
-      'Quoted': 'bg-amber-100 text-amber-800 border-amber-300',
-      'Firm Order': 'bg-green-100 text-green-800 border-green-300',
-      'Bound': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      'Issued': 'bg-sky-100 text-sky-800 border-sky-300',
-      'Registered': 'bg-cyan-100 text-cyan-800 border-cyan-300',
-      'Declined': 'bg-red-100 text-red-800 border-red-300',
-    }
-    return statusMap[status] || 'bg-gray-100 text-gray-800 border-gray-300'
-  }
+  const getStatusColor = (status) => getWorkflowStatusPillClass(status)
 
   const getAppetiteColor = (score) => {
     switch (score) {
@@ -900,24 +1131,236 @@ TARGET QUOTE DATE: July 29, 2025`,
     { id: 'documents', label: 'Documents', icon: Upload },
     { id: 'source', label: 'Source', icon: Mail },
     { id: 'activity', label: 'Activity', icon: Clock },
+    { id: 'tasks', label: 'Ops Tasks', icon: ClipboardCheck },
   ]
 
-  const FieldDisplay = ({ label, value, highlight = false, confidence = null, extracted = false, fieldKey = null }) => {
+  const getEditableValue = (identifier, fallbackValue) => {
+    if (fieldOverrides.hasOwnProperty(identifier)) {
+      return fieldOverrides[identifier]
+    }
+    if (fallbackValue === null || fallbackValue === undefined) return ''
+    return typeof fallbackValue === 'string' ? fallbackValue : String(fallbackValue)
+  }
+
+  const handleFieldInputChange = (identifier, newValue, fieldKey) => {
+    setFieldOverrides(prev => ({ ...prev, [identifier]: newValue }))
+    if (fieldKey) {
+      let nextValue = newValue
+      if (BOOLEAN_FIELD_PARSERS[fieldKey]) {
+        nextValue = BOOLEAN_FIELD_PARSERS[fieldKey](newValue)
+      } else if (NUMERIC_FIELD_KEYS.has(fieldKey)) {
+        const parsed = parseFloat(newValue)
+        nextValue = Number.isNaN(parsed) ? null : parsed
+      }
+
+      setSubmissionData(prev => ({
+        ...prev,
+        [fieldKey]: nextValue
+      }))
+
+      if (fieldKey === 'underwriter') {
+        setUnderwriter(newValue)
+      }
+      if (fieldKey === 'underwriterAssistant') {
+        setUnderwriterAssistant(newValue)
+      }
+    }
+  }
+
+  const FieldDisplay = ({
+    label,
+    value,
+    highlight = false,
+    confidence = null,
+    extracted = false,
+    fieldKey = null,
+    multiline = false,
+    placeholder = 'Enter value',
+    helperText = null,
+    options = null
+  }) => {
+    const identifier = fieldKey || label
+    const resolvedValue = getEditableValue(identifier, value)
+    const [isEditing, setIsEditing] = useState(false)
+    const [draftValue, setDraftValue] = useState(resolvedValue)
+
+    useEffect(() => {
+      if (!isEditing) {
+        setDraftValue(resolvedValue)
+      }
+    }, [resolvedValue, isEditing])
+
+    const determineMultiline = (text) => {
+      return multiline || (text && (text.length > 48 || text.includes('\n')))
+    }
+
+    const InputComponent = determineMultiline(draftValue) ? 'textarea' : 'input'
+
+    const saveChanges = () => {
+      handleFieldInputChange(identifier, draftValue, fieldKey)
+      setIsEditing(false)
+    }
+
+    const cancelEditing = () => {
+      setDraftValue(resolvedValue)
+      setIsEditing(false)
+    }
+
     return (
-      <div>
-        <div className="text-xs text-gray-600 uppercase tracking-wider mb-1 flex items-center justify-between">
-          <span>{label}</span>
+      <div className="space-y-1">
+        <div className="text-xs text-gray-600 uppercase tracking-wider flex items-center justify-between gap-2">
+          <span className="flex-1">{label}</span>
           {confidence && (
             <span className={`text-xs font-semibold ${confidence >= 95 ? 'text-green-600' : confidence >= 90 ? 'text-amber-600' : 'text-orange-600'}`}>
               {confidence}% confidence
             </span>
           )}
         </div>
-        <div className={`text-sm font-semibold ${highlight ? 'text-sompo-red' : 'text-gray-900'}`}>
-          {value || 'N/A'}
+
+        <div
+          className={`rounded-lg border px-3 py-2 transition-all ${
+            isEditing
+              ? 'border-sompo-red bg-white shadow-sm'
+              : 'border-gray-200 bg-white/70 hover:border-sompo-red hover:bg-white cursor-text'
+          }`}
+          onClick={() => !isEditing && setIsEditing(true)}
+        >
+          {isEditing ? (
+            <>
+              {options?.length ? (
+                <select
+                  className={`w-full text-sm font-semibold rounded bg-white px-2 py-1 focus:outline-none focus:ring-1 focus:ring-sompo-red ${highlight ? 'text-sompo-red' : 'text-gray-900'}`}
+                  value={draftValue}
+                  onChange={(e) => setDraftValue(e.target.value)}
+                  autoFocus
+                >
+                  {options.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              ) : (
+                <InputComponent
+                  className={`w-full text-sm font-semibold bg-transparent focus:outline-none ${highlight ? 'text-sompo-red' : 'text-gray-900'} ${determineMultiline(draftValue) ? 'min-h-[42px] resize-y' : ''}`}
+                  value={draftValue}
+                  onChange={(e) => setDraftValue(e.target.value)}
+                  placeholder={placeholder}
+                  rows={determineMultiline(draftValue) ? Math.min(6, Math.max(2, Math.ceil((draftValue || '').length / 40) || 2)) : undefined}
+                  spellCheck={false}
+                  autoFocus
+                />
+              )}
+              <div className="flex justify-end gap-2 mt-2 text-xs">
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  className="px-2 py-1 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveChanges}
+                  className="px-2 py-1 bg-sompo-red text-white rounded-md hover:bg-sompo-dark-red transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className={`text-sm font-semibold ${highlight ? 'text-sompo-red' : 'text-gray-900'}`}>
+              {resolvedValue || <span className="text-gray-400">Click to edit</span>}
+            </div>
+          )}
         </div>
+
+        {helperText && (
+          <div className="text-[11px] text-gray-500">
+            {helperText}
+          </div>
+        )}
       </div>
     )
+  }
+
+  const getStatusBadgeClasses = (statusId) =>
+    workflowStatusMap[statusId]?.pillClass || 'bg-gray-100 text-gray-800 border-gray-300'
+
+  const getStatusLabel = (statusId) =>
+    workflowStatusMap[statusId]?.label || statusId
+
+  const getCategoryBadgeClasses = (category) => {
+    switch (category) {
+      case 'Compliance':
+        return 'bg-orange-50 text-orange-700 border border-orange-200'
+      case 'Actuarial':
+        return 'bg-sky-50 text-sky-700 border border-sky-200'
+      case 'Underwriting':
+        return 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+      case 'Renewal':
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+      default:
+        return 'bg-gray-50 text-gray-700 border border-gray-200'
+    }
+  }
+
+  const formatTaskDueDate = (date) => {
+    if (!date) return 'TBD'
+    const parsed = new Date(date)
+    if (Number.isNaN(parsed.getTime())) return date
+    return parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+
+  const toggleTaskCompletion = (taskId) => {
+    setOpsTasks(prev =>
+      prev.map(task => {
+        if (task.id !== taskId) return task
+        if (task.done) {
+          return { ...task, done: false, state: task.initialState, completedAt: null }
+        }
+        return { ...task, done: true, state: 'Completed', completedAt: new Date().toISOString() }
+      })
+    )
+  }
+
+  const openTaskCount = opsTasks.filter(task => !task.done).length
+  const completedTaskCount = opsTasks.length - openTaskCount
+  const autoTaskCount = opsTasks.filter(task => task.autoCreated).length
+
+  const connectImageRight = () => {
+    setImageRightConnected(true)
+  }
+
+  const handleSharepointUpload = (e) => {
+    e.preventDefault()
+    if (!sharepointFileName.trim()) return
+    const entry = {
+      id: `sp-${Date.now()}`,
+      name: sharepointFileName.trim(),
+      notes: sharepointNotes.trim(),
+      uploadedAt: new Date().toISOString()
+    }
+    setSharepointUploads(prev => [entry, ...prev])
+    setSharepointFileName('')
+    setSharepointNotes('')
+  }
+
+  const handleReplyChange = (field, value) => {
+    setReplyForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleReplySubmit = (e) => {
+    e.preventDefault()
+    if (!replyForm.body.trim()) return
+    const entry = {
+      id: `reply-${Date.now()}`,
+      to: replyForm.to,
+      cc: replyForm.cc,
+      subject: replyForm.subject,
+      body: replyForm.body.trim(),
+      timestamp: new Date().toISOString()
+    }
+    setBrokerReplies(prev => [entry, ...prev])
+    setReplyForm(prev => ({ ...prev, body: '' }))
   }
 
   return (
@@ -1005,11 +1448,20 @@ TARGET QUOTE DATE: July 29, 2025`,
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${getStatusColor(submissionData.status)}`}>
                     {submissionData.status}
                   </span>
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                    submissionData.newRenewal === 'New' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
-                  }`}>
-                    {submissionData.newRenewal}
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getNewRenewalBadgeStrongClasses(submissionData.newRenewal)}`}>
+                    {getNewRenewalLabel(submissionData.newRenewal)}
                   </span>
+                  {isRenewal(submissionData.newRenewal) && submissionData.gwpcPolicyReference && (
+                    <a
+                      href={`/policy/${submissionData.gwpcPolicyReference}`}
+                      onClick={(e) => e.preventDefault()}
+                      className="px-2 py-0.5 rounded-full text-[11px] font-semibold border border-gray-200 text-gray-700 bg-gray-50 flex items-center gap-1"
+                      title="Open GWPC Policy Reference"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      {submissionData.gwpcPolicyReference}
+                    </a>
+                  )}
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-600">
                   <span className="flex items-center gap-1">
@@ -1112,8 +1564,7 @@ TARGET QUOTE DATE: July 29, 2025`,
               >
                 <div className="flex items-start gap-0 min-w-max px-4">
                   {workflowStatuses.map((item, idx) => {
-                    // Check if this is an AI-powered stage
-                    const isAIStage = item.status === 'Extraction Review' || item.status === 'Clearance' || item.completedBy === 'Auto-Approved' || item.completedBy === 'Auto-Intake'
+                    const isAIStage = item.automated
 
                     return (
                     <div key={idx} className="flex items-start flex-shrink-0">
@@ -1161,6 +1612,14 @@ TARGET QUOTE DATE: July 29, 2025`,
                               : 'text-gray-400'
                           }`}>
                             {item.status}
+                            {item.description && (
+                              <span
+                                className="text-gray-400 hover:text-sompo-red cursor-help"
+                                title={item.description}
+                              >
+                                <Info className="w-3 h-3" />
+                              </span>
+                            )}
                           </div>
 
                           {/* Date and duration - condensed */}
@@ -2083,33 +2542,33 @@ TARGET QUOTE DATE: July 29, 2025`,
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Insured Name"
-                    value={submissionData.insuredExtracted}
+                    value={submissionData.insuredExtracted} fieldKey="insuredExtracted"
                   />
                   <FieldDisplay
                     label="Insured Address"
-                    value={submissionData.insuredAddress}
+                    value={submissionData.insuredAddress} fieldKey="insuredAddress"
                   />
                   <FieldDisplay
                     label="Insured Country"
-                    value={submissionData.insuredCountry}
+                    value={submissionData.insuredCountry} fieldKey="insuredCountry"
                   />
                   <FieldDisplay
                     label="Domicile"
-                    value={submissionData.domicile}
+                    value={submissionData.domicile} fieldKey="domicile"
                   />
-                  <FieldDisplay label="Account Number" value={submissionData.accountNo} />
-                  <FieldDisplay label="DUNS Number" value={submissionData.dunsNumber} />
+                  <FieldDisplay label="Account Number" value={submissionData.accountNo} fieldKey="accountNo" />
+                  <FieldDisplay label="DUNS Number" value={submissionData.dunsNumber} fieldKey="dunsNumber" />
                   <FieldDisplay
                     label="Sector/Industry"
-                    value={submissionData.sector}
+                    value={submissionData.sector} fieldKey="sector"
                   />
                   <FieldDisplay
                     label="Sector Sub-Category"
-                    value={submissionData.sectorSubCategory}
+                    value={submissionData.sectorSubCategory} fieldKey="sectorSubCategory"
                   />
                   <FieldDisplay
                     label="Occupancy"
-                    value={submissionData.occupancy}
+                    value={submissionData.occupancy} fieldKey="occupancy"
                   />
 
                   {/* SIC & NAICS Classification */}
@@ -2149,22 +2608,22 @@ TARGET QUOTE DATE: July 29, 2025`,
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Broker Organization"
-                    value={submissionData.broker}
+                    value={submissionData.broker} fieldKey="broker"
                   />
                   <FieldDisplay
                     label="Broker Office"
-                    value={submissionData.brokerOffice}
+                    value={submissionData.brokerOffice} fieldKey="brokerOffice"
                   />
                   <FieldDisplay
                     label="Broker Contact"
-                    value={submissionData.brokerContact}
+                    value={submissionData.brokerContact} fieldKey="brokerContact"
                   />
                   <FieldDisplay
                     label="Broker Email"
-                    value={submissionData.brokerContactEmail}
+                    value={submissionData.brokerContactEmail} fieldKey="brokerContactEmail"
                   />
-                  <FieldDisplay label="Team" value={submissionData.team} />
-                  <FieldDisplay label="Office Location" value={submissionData.officeLocation} />
+                  <FieldDisplay label="Team" value={submissionData.team} fieldKey="team" />
+                  <FieldDisplay label="Office Location" value={submissionData.officeLocation} fieldKey="officeLocation" />
 
                   {/* Editable Underwriter Fields */}
                   <div className="col-span-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -2259,23 +2718,35 @@ TARGET QUOTE DATE: July 29, 2025`,
                 <div className="space-y-2">
                   <FieldDisplay
                     label="Coverage Type"
-                    value={submissionData.coverage}
+                    value={submissionData.coverage} fieldKey="coverage"
                   />
                   <FieldDisplay
                     label="Inception Date"
-                    value={submissionData.inceptionDate}
+                    value={submissionData.inceptionDate} fieldKey="inceptionDate"
                   />
                   <FieldDisplay
                     label="Expiry Date"
-                    value={submissionData.expiryDate}
+                    value={submissionData.expiryDate} fieldKey="expiryDate"
                   />
-                  <FieldDisplay label="Submission Date" value={submissionData.submissionDate} />
-                  <FieldDisplay label="Quote Due Date" value={submissionData.quoteDueDate} highlight={true} />
-                  <FieldDisplay label="Broker Response Due" value={submissionData.brokerResponseDueDate} highlight={true} />
-                  <FieldDisplay label="Attachment Type" value={submissionData.attachmentType} />
-                  <FieldDisplay label="Direct / Assumed Fac" value={submissionData.assumedFac ? 'Assumed Fac' : 'Direct'} />
-                  <FieldDisplay label="Lead" value={submissionData.lead} />
-                  <FieldDisplay label="Written Since (YYYY)" value={submissionData.writtenSince} />
+                  <FieldDisplay label="Submission Date" value={submissionData.submissionDate} fieldKey="submissionDate" />
+                  <FieldDisplay label="Quote Due Date" value={submissionData.quoteDueDate} fieldKey="quoteDueDate" highlight={true} />
+                  <FieldDisplay label="Broker Response Due" value={submissionData.brokerResponseDueDate} fieldKey="brokerResponseDueDate" highlight={true} />
+                  <FieldDisplay label="Attachment Type" value={submissionData.attachmentType} fieldKey="attachmentType" />
+                  <FieldDisplay
+                    label="Submission Type"
+                    value={getNewRenewalLabel(submissionData.newRenewal)}
+                    fieldKey="newRenewal"
+                    options={NEW_RENEWAL_OPTIONS}
+                    helperText={isRenewal(submissionData.newRenewal) && submissionData.gwpcPolicyReference ? `Linked to ${submissionData.gwpcPolicyReference}` : null}
+                  />
+                  <FieldDisplay
+                    label="Direct / Assumed Fac"
+                    value={submissionData.assumedFac ? 'Assumed Fac' : 'Direct'}
+                    fieldKey="assumedFac"
+                    helperText="Type 'Direct' or 'Assumed'"
+                  />
+                  <FieldDisplay label="Lead" value={submissionData.lead} fieldKey="lead" />
+                  <FieldDisplay label="Written Since (YYYY)" value={submissionData.writtenSince} fieldKey="writtenSince" />
                 </div>
               </motion.div>
 
@@ -2291,11 +2762,11 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Programme & Layering
                 </h3>
                 <div className="space-y-2">
-                  <FieldDisplay label="Programme" value={submissionData.programme} />
-                  <FieldDisplay label="Layer" value={submissionData.layer} />
-                  <FieldDisplay label="Layering Structure" value={submissionData.layering} />
-                  <FieldDisplay label="Lead Carrier" value={submissionData.leadCarrier} />
-                  <FieldDisplay label="Lead Carrier Share" value={submissionData.leadCarrierShare} />
+                  <FieldDisplay label="Programme" value={submissionData.programme} fieldKey="programme" />
+                  <FieldDisplay label="Layer" value={submissionData.layer} fieldKey="layer" />
+                  <FieldDisplay label="Layering Structure" value={submissionData.layering} fieldKey="layering" />
+                  <FieldDisplay label="Lead Carrier" value={submissionData.leadCarrier} fieldKey="leadCarrier" />
+                  <FieldDisplay label="Lead Carrier Share" value={submissionData.leadCarrierShare} fieldKey="leadCarrierShare" />
 
                   {/* Sub-Limits */}
                   <div className="pt-2">
@@ -2340,11 +2811,13 @@ TARGET QUOTE DATE: July 29, 2025`,
                   <FileText className="w-4 h-4 text-sompo-red" />
                   Insurer Notes
                 </h3>
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <p className="text-sm text-gray-800 leading-relaxed">
-                    {submissionData.insurerNotes}
-                  </p>
-                </div>
+                <FieldDisplay
+                  label="Notes"
+                  value={submissionData.insurerNotes}
+                  fieldKey="insurerNotes"
+                  multiline
+                  placeholder="Add underwriting notes"
+                />
               </motion.div>
 
               {/* Renewal Information - Only show if this is a renewal */}
@@ -2361,18 +2834,28 @@ TARGET QUOTE DATE: July 29, 2025`,
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <FieldDisplay label="Previous Policy Number" value={submissionData.previousPolicyNumber} highlight />
-                      <FieldDisplay label="GWPC Policy Reference" value={submissionData.gwpcPolicyReference} highlight />
-                      <FieldDisplay label="Prior Carrier" value={submissionData.priorCarrier} />
+                      <FieldDisplay label="Previous Policy Number" value={submissionData.previousPolicyNumber} fieldKey="previousPolicyNumber" highlight />
+                      <FieldDisplay label="GWPC Policy Reference" value={submissionData.gwpcPolicyReference} fieldKey="gwpcPolicyReference" highlight />
+                      <FieldDisplay label="Prior Carrier" value={submissionData.priorCarrier} fieldKey="priorCarrier" />
                     </div>
                     <div className="space-y-2">
-                      <FieldDisplay label="Expiring Premium" value={submissionData.expiringPremium ? currency(submissionData.expiringPremium, submissionData.limitCurrency) : 'N/A'} />
-                      <FieldDisplay label="Renewal Increase (%)" value={submissionData.renewalIncrease ? `${submissionData.renewalIncrease}%` : 'N/A'} />
-                      <FieldDisplay label="Years with Prior Carrier" value={submissionData.yearsWithPriorCarrier} />
+                      <FieldDisplay
+                        label="Expiring Premium"
+                        value={submissionData.expiringPremium ?? ''}
+                        fieldKey="expiringPremium"
+                        helperText={submissionData.expiringPremium ? currency(submissionData.expiringPremium, submissionData.limitCurrency) : 'N/A'}
+                      />
+                      <FieldDisplay
+                        label="Renewal Increase (%)"
+                        value={submissionData.renewalIncrease ?? ''}
+                        fieldKey="renewalIncrease"
+                        helperText={submissionData.renewalIncrease !== null && submissionData.renewalIncrease !== undefined ? `${submissionData.renewalIncrease}%` : 'N/A'}
+                      />
+                      <FieldDisplay label="Years with Prior Carrier" value={submissionData.yearsWithPriorCarrier} fieldKey="yearsWithPriorCarrier" />
                     </div>
                     <div className="space-y-2">
-                      <FieldDisplay label="Loss History" value={submissionData.lossHistory} />
-                      <FieldDisplay label="Reason for Change" value={submissionData.reasonForChange} />
+                      <FieldDisplay label="Loss History" value={submissionData.lossHistory} fieldKey="lossHistory" />
+                      <FieldDisplay label="Reason for Change" value={submissionData.reasonForChange} fieldKey="reasonForChange" />
                     </div>
                   </div>
                 </motion.div>
@@ -2393,14 +2876,14 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Risk Profile Analysis
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Overall Risk Level" value={submissionData.riskLevel} highlight />
-                  <FieldDisplay label="Risk Probability" value={submissionData.riskProbability} />
-                  <FieldDisplay label="Potential Financial Impact" value={submissionData.potentialImpact} />
-                  <FieldDisplay label="Vulnerability Points" value={submissionData.vulnerabilityPoints} />
-                  <FieldDisplay label="Mitigation Strategies" value={submissionData.mitigationStrategies} />
-                  <FieldDisplay label="Preliminary Risk Score" value={submissionData.preliminaryRiskScore} />
-                  <FieldDisplay label="Sector/Industry Risk" value={submissionData.sectorRisk} />
-                  <FieldDisplay label="International Exposure" value={submissionData.internationalExposure} />
+                  <FieldDisplay label="Overall Risk Level" value={submissionData.riskLevel} fieldKey="riskLevel" highlight />
+                  <FieldDisplay label="Risk Probability" value={submissionData.riskProbability} fieldKey="riskProbability" />
+                  <FieldDisplay label="Potential Financial Impact" value={submissionData.potentialImpact} fieldKey="potentialImpact" />
+                  <FieldDisplay label="Vulnerability Points" value={submissionData.vulnerabilityPoints} fieldKey="vulnerabilityPoints" />
+                  <FieldDisplay label="Mitigation Strategies" value={submissionData.mitigationStrategies} fieldKey="mitigationStrategies" />
+                  <FieldDisplay label="Preliminary Risk Score" value={submissionData.preliminaryRiskScore} fieldKey="preliminaryRiskScore" />
+                  <FieldDisplay label="Sector/Industry Risk" value={submissionData.sectorRisk} fieldKey="sectorRisk" />
+                  <FieldDisplay label="International Exposure" value={submissionData.internationalExposure} fieldKey="internationalExposure" />
                 </div>
               </motion.div>
 
@@ -2416,14 +2899,14 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Claims & History
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Claims History" value={submissionData.claimsHistory} />
-                  <FieldDisplay label="Loss Ratio" value={submissionData.lossRatio} />
-                  <FieldDisplay label="M&A (Last 2 Years)" value={submissionData.mnaLast2Years} />
-                  <FieldDisplay label="Sales & Divestitures (Last 2 Years)" value={submissionData.salesDivestituresLast2Years} />
-                  <FieldDisplay label="Years in Business" value={submissionData.yearsInBusiness} />
-                  <FieldDisplay label="Offerings - Type" value={submissionData.offeringsType} />
-                  <FieldDisplay label="Offerings - Size" value={submissionData.offeringsSize} />
-                  <FieldDisplay label="Offerings - Use of Proceeds" value={submissionData.offeringsUseOfProceeds} />
+                  <FieldDisplay label="Claims History" value={submissionData.claimsHistory} fieldKey="claimsHistory" />
+                  <FieldDisplay label="Loss Ratio" value={submissionData.lossRatio} fieldKey="lossRatio" />
+                  <FieldDisplay label="M&A (Last 2 Years)" value={submissionData.mnaLast2Years} fieldKey="mnaLast2Years" />
+                  <FieldDisplay label="Sales & Divestitures (Last 2 Years)" value={submissionData.salesDivestituresLast2Years} fieldKey="salesDivestituresLast2Years" />
+                  <FieldDisplay label="Years in Business" value={submissionData.yearsInBusiness} fieldKey="yearsInBusiness" />
+                  <FieldDisplay label="Offerings - Type" value={submissionData.offeringsType} fieldKey="offeringsType" />
+                  <FieldDisplay label="Offerings - Size" value={submissionData.offeringsSize} fieldKey="offeringsSize" />
+                  <FieldDisplay label="Offerings - Use of Proceeds" value={submissionData.offeringsUseOfProceeds} fieldKey="offeringsUseOfProceeds" />
                 </div>
               </motion.div>
 
@@ -2439,13 +2922,13 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Corporate Governance
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Ownership" value={submissionData.ownership} />
-                  <FieldDisplay label="Listing Type" value={submissionData.listingType} />
-                  <FieldDisplay label="Stock Exchange" value={submissionData.stockExchange} />
-                  <FieldDisplay label="Board Experience" value={submissionData.boardExperience} />
-                  <FieldDisplay label="Corporate Governance" value={submissionData.corporateGovernance} />
-                  <FieldDisplay label="YoY Stock Comparison" value={submissionData.yoyStockComparison} />
-                  <FieldDisplay label="Concern with Stock Movement" value={submissionData.concernWithStockMovement} />
+                  <FieldDisplay label="Ownership" value={submissionData.ownership} fieldKey="ownership" />
+                  <FieldDisplay label="Listing Type" value={submissionData.listingType} fieldKey="listingType" />
+                  <FieldDisplay label="Stock Exchange" value={submissionData.stockExchange} fieldKey="stockExchange" />
+                  <FieldDisplay label="Board Experience" value={submissionData.boardExperience} fieldKey="boardExperience" />
+                  <FieldDisplay label="Corporate Governance" value={submissionData.corporateGovernance} fieldKey="corporateGovernance" />
+                  <FieldDisplay label="YoY Stock Comparison" value={submissionData.yoyStockComparison} fieldKey="yoyStockComparison" />
+                  <FieldDisplay label="Concern with Stock Movement" value={submissionData.concernWithStockMovement} fieldKey="concernWithStockMovement" />
                 </div>
               </motion.div>
 
@@ -2519,10 +3002,15 @@ TARGET QUOTE DATE: July 29, 2025`,
                       <div className="text-lg font-semibold text-gray-900">{currency(submissionData.limitOption2, submissionData.limitCurrency)}</div>
                     </div>
                   </div>
-                  <FieldDisplay label="Limit Currency" value={submissionData.limitCurrency} />
-                  <FieldDisplay label="Limit Basis" value={submissionData.limitBasis} />
-                  <FieldDisplay label="Excess (Currency)" value={submissionData.excess ? currency(submissionData.excess, submissionData.limitCurrency) : 'N/A'} />
-                  <FieldDisplay label="Layer" value={submissionData.layer} />
+                  <FieldDisplay label="Limit Currency" value={submissionData.limitCurrency} fieldKey="limitCurrency" />
+                  <FieldDisplay label="Limit Basis" value={submissionData.limitBasis} fieldKey="limitBasis" />
+                  <FieldDisplay
+                    label="Excess (Currency)"
+                    value={submissionData.excess ?? ''}
+                    fieldKey="excess"
+                    helperText={submissionData.excess ? currency(submissionData.excess, submissionData.limitCurrency) : 'N/A'}
+                  />
+                  <FieldDisplay label="Layer" value={submissionData.layer} fieldKey="layer" />
                 </div>
               </motion.div>
 
@@ -2538,10 +3026,30 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Deductibles
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Primary Deductible (Current Year)" value={currency(submissionData.primaryDeductible, submissionData.limitCurrency)} />
-                  <FieldDisplay label="Side A Deductible (min Currency 0)" value={currency(submissionData.sideADeductible, submissionData.limitCurrency)} />
-                  <FieldDisplay label="Side B USA Deductible (min Currency 35,000)" value={currency(submissionData.sideBUSADeductible, submissionData.limitCurrency)} />
-                  <FieldDisplay label="Side B RoW Deductible (min Currency 15,044)" value={currency(submissionData.sideBRoWDeductible, submissionData.limitCurrency)} />
+                  <FieldDisplay
+                    label="Primary Deductible (Current Year)"
+                    value={submissionData.primaryDeductible}
+                    fieldKey="primaryDeductible"
+                    helperText={currency(submissionData.primaryDeductible, submissionData.limitCurrency)}
+                  />
+                  <FieldDisplay
+                    label="Side A Deductible (min Currency 0)"
+                    value={submissionData.sideADeductible}
+                    fieldKey="sideADeductible"
+                    helperText={currency(submissionData.sideADeductible, submissionData.limitCurrency)}
+                  />
+                  <FieldDisplay
+                    label="Side B USA Deductible (min Currency 35,000)"
+                    value={submissionData.sideBUSADeductible}
+                    fieldKey="sideBUSADeductible"
+                    helperText={currency(submissionData.sideBUSADeductible, submissionData.limitCurrency)}
+                  />
+                  <FieldDisplay
+                    label="Side B RoW Deductible (min Currency 15,044)"
+                    value={submissionData.sideBRoWDeductible}
+                    fieldKey="sideBRoWDeductible"
+                    helperText={currency(submissionData.sideBRoWDeductible, submissionData.limitCurrency)}
+                  />
                 </div>
               </motion.div>
 
@@ -2561,11 +3069,31 @@ TARGET QUOTE DATE: July 29, 2025`,
                     <div className="text-xs text-blue-700 uppercase tracking-wider mb-1">Total Capital Raised</div>
                     <div className="text-2xl font-bold text-blue-900">{currency(submissionData.capitalRaised, 'USD')}</div>
                   </div>
-                  <FieldDisplay label="Assumed Total Assets (Current Year)" value={submissionData.totalAssetsCurrent ? currency(submissionData.totalAssetsCurrent, 'USD') : 'N/A'} />
-                  <FieldDisplay label="Annual Revenue (Current Year)" value={submissionData.annualRevenueCurrent ? currency(submissionData.annualRevenueCurrent, 'USD') : 'USD 0'} />
-                  <FieldDisplay label="Assumed Total Assets (Prev Year)" value={submissionData.totalAssetsPrevious ? currency(submissionData.totalAssetsPrevious, 'USD') : 'N/A'} />
-                  <FieldDisplay label="Annual Revenue (Prev Year)" value={submissionData.annualRevenuePrevious ? currency(submissionData.annualRevenuePrevious, 'USD') : 'N/A'} />
-                  <FieldDisplay label="Market Cap Size" value={submissionData.marketCapSize} />
+                  <FieldDisplay
+                    label="Assumed Total Assets (Current Year)"
+                    value={submissionData.totalAssetsCurrent ?? ''}
+                    fieldKey="totalAssetsCurrent"
+                    helperText={submissionData.totalAssetsCurrent ? currency(submissionData.totalAssetsCurrent, 'USD') : 'N/A'}
+                  />
+                  <FieldDisplay
+                    label="Annual Revenue (Current Year)"
+                    value={submissionData.annualRevenueCurrent ?? ''}
+                    fieldKey="annualRevenueCurrent"
+                    helperText={submissionData.annualRevenueCurrent ? currency(submissionData.annualRevenueCurrent, 'USD') : 'USD 0'}
+                  />
+                  <FieldDisplay
+                    label="Assumed Total Assets (Prev Year)"
+                    value={submissionData.totalAssetsPrevious ?? ''}
+                    fieldKey="totalAssetsPrevious"
+                    helperText={submissionData.totalAssetsPrevious ? currency(submissionData.totalAssetsPrevious, 'USD') : 'N/A'}
+                  />
+                  <FieldDisplay
+                    label="Annual Revenue (Prev Year)"
+                    value={submissionData.annualRevenuePrevious ?? ''}
+                    fieldKey="annualRevenuePrevious"
+                    helperText={submissionData.annualRevenuePrevious ? currency(submissionData.annualRevenuePrevious, 'USD') : 'N/A'}
+                  />
+                  <FieldDisplay label="Market Cap Size" value={submissionData.marketCapSize} fieldKey="marketCapSize" />
                 </div>
               </motion.div>
 
@@ -2581,14 +3109,45 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Brokerage & Adjustments
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Brokerage (%)" value={submissionData.brokerage ? `${submissionData.brokerage}%` : 'N/A'} />
-                  <FieldDisplay label="Brokerage (Layer)" value={submissionData.brokerageLayer} />
-                  <FieldDisplay label="No Claims Bonus" value={`${submissionData.noClaimsBonus}%`} />
-                  <FieldDisplay label="Reinstatements" value={`${submissionData.reinstatements}%`} />
-                  <FieldDisplay label="Comb Limit Disc" value={`${submissionData.combLimitDisc}%`} />
-                  <FieldDisplay label="Other Adjustments" value={`${submissionData.otherAdjustments}%`} />
+                  <FieldDisplay
+                    label="Brokerage (%)"
+                    value={submissionData.brokerage ?? ''}
+                    fieldKey="brokerage"
+                    helperText={submissionData.brokerage !== null && submissionData.brokerage !== undefined ? `${submissionData.brokerage}%` : 'N/A'}
+                  />
+                  <FieldDisplay label="Brokerage (Layer)" value={submissionData.brokerageLayer} fieldKey="brokerageLayer" />
+                  <FieldDisplay
+                    label="No Claims Bonus"
+                    value={submissionData.noClaimsBonus ?? ''}
+                    fieldKey="noClaimsBonus"
+                    helperText={`${submissionData.noClaimsBonus}%`}
+                  />
+                  <FieldDisplay
+                    label="Reinstatements"
+                    value={submissionData.reinstatements ?? ''}
+                    fieldKey="reinstatements"
+                    helperText={`${submissionData.reinstatements}%`}
+                  />
+                  <FieldDisplay
+                    label="Comb Limit Disc"
+                    value={submissionData.combLimitDisc ?? ''}
+                    fieldKey="combLimitDisc"
+                    helperText={`${submissionData.combLimitDisc}%`}
+                  />
+                  <FieldDisplay
+                    label="Other Adjustments"
+                    value={submissionData.otherAdjustments ?? ''}
+                    fieldKey="otherAdjustments"
+                    helperText={`${submissionData.otherAdjustments}%`}
+                  />
                   <div className="pt-3 border-t border-gray-200">
-                    <FieldDisplay label="Total Adjustments" value={`${submissionData.totalAdjustments}%`} highlight />
+                    <FieldDisplay
+                      label="Total Adjustments"
+                      value={submissionData.totalAdjustments ?? ''}
+                      fieldKey="totalAdjustments"
+                      helperText={`${submissionData.totalAdjustments}%`}
+                      highlight
+                    />
                   </div>
                 </div>
               </motion.div>
@@ -2605,9 +3164,24 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Exposure
                 </h3>
                 <div className="grid grid-cols-3 gap-6">
-                  <FieldDisplay label="Bermuda Exposure (AUD)" value={currency(submissionData.bermudaExposureAUD, 'AUD')} />
-                  <FieldDisplay label="Intl Exposure (Currency)" value={submissionData.intlExposure ? currency(submissionData.intlExposure, submissionData.exposureCurrency) : 'N/A'} />
-                  <FieldDisplay label="Total Exposure (Currency)" value={submissionData.totalExposure ? currency(submissionData.totalExposure, submissionData.exposureCurrency) : 'N/A'} />
+                  <FieldDisplay
+                    label="Bermuda Exposure (AUD)"
+                    value={submissionData.bermudaExposureAUD}
+                    fieldKey="bermudaExposureAUD"
+                    helperText={currency(submissionData.bermudaExposureAUD, 'AUD')}
+                  />
+                  <FieldDisplay
+                    label="Intl Exposure (Currency)"
+                    value={submissionData.intlExposure ?? ''}
+                    fieldKey="intlExposure"
+                    helperText={submissionData.intlExposure ? currency(submissionData.intlExposure, submissionData.exposureCurrency) : 'N/A'}
+                  />
+                  <FieldDisplay
+                    label="Total Exposure (Currency)"
+                    value={submissionData.totalExposure ?? ''}
+                    fieldKey="totalExposure"
+                    helperText={submissionData.totalExposure ? currency(submissionData.totalExposure, submissionData.exposureCurrency) : 'N/A'}
+                  />
                 </div>
               </motion.div>
             </div>
@@ -2626,13 +3200,13 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Coverage Details
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Contract Wording" value={submissionData.contractWording} />
-                  <FieldDisplay label="POSI" value={submissionData.posi} />
-                  <FieldDisplay label="Run-off" value={submissionData.runOff} />
-                  <FieldDisplay label="Entity EPL (Currency)" value={submissionData.entityEPL} />
-                  <FieldDisplay label="Corporate Legal Liability (Currency)" value={submissionData.corporateLegalLiability} />
-                  <FieldDisplay label="Years of Prior Acts" value={submissionData.yearsOfPriorActs} />
-                  <FieldDisplay label="Cyber Clause" value={submissionData.cyberClause} />
+                  <FieldDisplay label="Contract Wording" value={submissionData.contractWording} fieldKey="contractWording" />
+                  <FieldDisplay label="POSI" value={submissionData.posi} fieldKey="posi" />
+                  <FieldDisplay label="Run-off" value={submissionData.runOff} fieldKey="runOff" />
+                  <FieldDisplay label="Entity EPL (Currency)" value={submissionData.entityEPL} fieldKey="entityEPL" />
+                  <FieldDisplay label="Corporate Legal Liability (Currency)" value={submissionData.corporateLegalLiability} fieldKey="corporateLegalLiability" />
+                  <FieldDisplay label="Years of Prior Acts" value={submissionData.yearsOfPriorActs} fieldKey="yearsOfPriorActs" />
+                  <FieldDisplay label="Cyber Clause" value={submissionData.cyberClause} fieldKey="cyberClause" />
                 </div>
               </motion.div>
 
@@ -2648,15 +3222,30 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Placement & Order
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Placement Type" value={submissionData.placementType} />
-                  <FieldDisplay label="Expected Order" value={submissionData.expectedOrder} />
-                  <FieldDisplay label="Expected Line" value={submissionData.expectedLine ? `${submissionData.expectedLine}%` : 'N/A'} />
-                  <FieldDisplay label="Offered Line" value={submissionData.offeredLine ? `${submissionData.offeredLine}%` : 'N/A'} />
-                  <FieldDisplay label="Signed Line" value={submissionData.signedLine ? `${submissionData.signedLine}%` : 'TBD'} />
+                  <FieldDisplay label="Placement Type" value={submissionData.placementType} fieldKey="placementType" />
+                  <FieldDisplay label="Expected Order" value={submissionData.expectedOrder} fieldKey="expectedOrder" />
+                  <FieldDisplay
+                    label="Expected Line"
+                    value={submissionData.expectedLine ?? ''}
+                    fieldKey="expectedLine"
+                    helperText={submissionData.expectedLine !== null && submissionData.expectedLine !== undefined ? `${submissionData.expectedLine}%` : 'N/A'}
+                  />
+                  <FieldDisplay
+                    label="Offered Line"
+                    value={submissionData.offeredLine ?? ''}
+                    fieldKey="offeredLine"
+                    helperText={submissionData.offeredLine !== null && submissionData.offeredLine !== undefined ? `${submissionData.offeredLine}%` : 'N/A'}
+                  />
+                  <FieldDisplay
+                    label="Signed Line"
+                    value={submissionData.signedLine ?? ''}
+                    fieldKey="signedLine"
+                    helperText={submissionData.signedLine !== null && submissionData.signedLine !== undefined ? `${submissionData.signedLine}%` : 'TBD'}
+                  />
                   <div className="pt-3 border-t border-gray-200">
-                    <FieldDisplay label="Clearance Status" value={submissionData.clearance} />
-                    <FieldDisplay label="Clearance Date" value={submissionData.clearanceDate} />
-                    <FieldDisplay label="Clearance Approver" value={submissionData.clearanceApprover} />
+                    <FieldDisplay label="Clearance Status" value={submissionData.clearance} fieldKey="clearance" />
+                    <FieldDisplay label="Clearance Date" value={submissionData.clearanceDate} fieldKey="clearanceDate" />
+                    <FieldDisplay label="Clearance Approver" value={submissionData.clearanceApprover} fieldKey="clearanceApprover" />
                   </div>
                 </div>
               </motion.div>
@@ -2673,14 +3262,19 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Rating Information
                 </h3>
                 <div className="grid grid-cols-4 gap-6">
-                  <FieldDisplay label="Rating Status" value={submissionData.ratingStatus} highlight />
-                  <FieldDisplay label="Rating Basis" value={submissionData.ratingBasis} />
-                  <FieldDisplay label="Technical Premium" value={submissionData.technicalPremium ? currency(submissionData.technicalPremium, submissionData.limitCurrency) : 'N/A'} />
-                  <FieldDisplay label="Model Used" value={submissionData.modelUsed} />
-                  <FieldDisplay label="Indicated ILF (Current Year)" value={submissionData.indicatedILF} />
-                  <FieldDisplay label="Selected ILF (Current Year)" value={submissionData.selectedILF} />
-                  <FieldDisplay label="Total UW Modifier" value={submissionData.totalUWModifier} />
-                  <FieldDisplay label="YoY Change in UW Factors" value={submissionData.yoyChangeInUWFactors} />
+                  <FieldDisplay label="Rating Status" value={submissionData.ratingStatus} fieldKey="ratingStatus" highlight />
+                  <FieldDisplay label="Rating Basis" value={submissionData.ratingBasis} fieldKey="ratingBasis" />
+                  <FieldDisplay
+                    label="Technical Premium"
+                    value={submissionData.technicalPremium ?? ''}
+                    fieldKey="technicalPremium"
+                    helperText={submissionData.technicalPremium ? currency(submissionData.technicalPremium, submissionData.limitCurrency) : 'N/A'}
+                  />
+                  <FieldDisplay label="Model Used" value={submissionData.modelUsed} fieldKey="modelUsed" />
+                  <FieldDisplay label="Indicated ILF (Current Year)" value={submissionData.indicatedILF} fieldKey="indicatedILF" />
+                  <FieldDisplay label="Selected ILF (Current Year)" value={submissionData.selectedILF} fieldKey="selectedILF" />
+                  <FieldDisplay label="Total UW Modifier" value={submissionData.totalUWModifier} fieldKey="totalUWModifier" />
+                  <FieldDisplay label="YoY Change in UW Factors" value={submissionData.yoyChangeInUWFactors} fieldKey="yoyChangeInUWFactors" />
                 </div>
               </motion.div>
             </div>
@@ -2699,13 +3293,13 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Compliance & Regulatory Assessment
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Regulatory Classification" value={submissionData.regulatoryClassification} />
-                  <FieldDisplay label="Compliance Requirements" value={submissionData.complianceRequirements} />
-                  <FieldDisplay label="Legal Jurisdictions" value={submissionData.legalJurisdictions} />
-                  <FieldDisplay label="Industry Standards" value={submissionData.industryStandards} />
+                  <FieldDisplay label="Regulatory Classification" value={submissionData.regulatoryClassification} fieldKey="regulatoryClassification" />
+                  <FieldDisplay label="Compliance Requirements" value={submissionData.complianceRequirements} fieldKey="complianceRequirements" />
+                  <FieldDisplay label="Legal Jurisdictions" value={submissionData.legalJurisdictions} fieldKey="legalJurisdictions" />
+                  <FieldDisplay label="Industry Standards" value={submissionData.industryStandards} fieldKey="industryStandards" />
                   <div className="pt-3 border-t border-gray-200">
-                    <FieldDisplay label="Sanctions Status" value={submissionData.sanctionsStatus} highlight />
-                    <FieldDisplay label="Sanctions Check Date" value={submissionData.sanctionsCheckDate} />
+                    <FieldDisplay label="Sanctions Status" value={submissionData.sanctionsStatus} fieldKey="sanctionsStatus" highlight />
+                    <FieldDisplay label="Sanctions Check Date" value={submissionData.sanctionsCheckDate} fieldKey="sanctionsCheckDate" />
                   </div>
                 </div>
               </motion.div>
@@ -2722,9 +3316,9 @@ TARGET QUOTE DATE: July 29, 2025`,
                   Financial Statements
                 </h3>
                 <div className="space-y-3">
-                  <FieldDisplay label="Profit & Loss" value={submissionData.profitLoss} />
-                  <FieldDisplay label="Balance Sheet" value={submissionData.balanceSheet} />
-                  <FieldDisplay label="Cash Flow Statement" value={submissionData.cashFlowStatement} />
+                  <FieldDisplay label="Profit & Loss" value={submissionData.profitLoss} fieldKey="profitLoss" />
+                  <FieldDisplay label="Balance Sheet" value={submissionData.balanceSheet} fieldKey="balanceSheet" />
+                  <FieldDisplay label="Cash Flow Statement" value={submissionData.cashFlowStatement} fieldKey="cashFlowStatement" />
                 </div>
               </motion.div>
             </div>
@@ -2930,12 +3524,260 @@ TARGET QUOTE DATE: July 29, 2025`,
             </div>
           )}
 
+          {activeTab === 'tasks' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Open Tasks</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{openTaskCount}</div>
+                  <p className="text-xs text-gray-500 mt-1">{opsTasks.length} total tasks</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Auto-created</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{autoTaskCount}</div>
+                  <p className="text-xs text-gray-500 mt-1">Generated by workflow rules</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completed</div>
+                  <div className="text-2xl font-bold text-gray-900 mt-1">{completedTaskCount}</div>
+                  <p className="text-xs text-gray-500 mt-1">Updated in the last sync</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Upload className="w-4 h-4 text-sompo-red" />
+                        ImageRight & SharePoint
+                      </h4>
+                      <p className="text-xs text-gray-500">Manual image pipeline (mock)</p>
+                    </div>
+                    <button
+                      onClick={connectImageRight}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md border ${
+                        imageRightConnected ? 'border-emerald-300 text-emerald-700 bg-emerald-50' : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
+                      }`}
+                    >
+                      {imageRightConnected ? 'Connected' : 'Connect'}
+                    </button>
+                  </div>
+                  <div className="text-xs text-gray-600 space-y-2">
+                    <p>
+                      1) Save broker docs locally<br />
+                      2) Upload to ImageRight/note doc ID<br />
+                      3) Store heavy files in SharePoint for Ops audit
+                    </p>
+                  </div>
+                  <form onSubmit={handleSharepointUpload} className="mt-3 space-y-2">
+                    <input
+                      type="text"
+                      value={sharepointFileName}
+                      onChange={(e) => setSharepointFileName(e.target.value)}
+                      placeholder="File name or SharePoint link"
+                      className="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                    />
+                    <textarea
+                      value={sharepointNotes}
+                      onChange={(e) => setSharepointNotes(e.target.value)}
+                      placeholder="Notes (e.g. folder path)"
+                      rows={2}
+                      className="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sompo-red"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full px-3 py-2 bg-sompo-red text-white rounded-lg text-sm font-semibold hover:bg-sompo-dark-red transition-colors"
+                    >
+                      Log SharePoint Upload
+                    </button>
+                  </form>
+                  {sharepointUploads.length > 0 && (
+                    <div className="mt-4 border-t border-gray-200 pt-3 space-y-2 max-h-40 overflow-y-auto">
+                      {sharepointUploads.map(upload => (
+                        <div key={upload.id} className="text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded-lg p-2">
+                          <div className="font-semibold text-gray-900">{upload.name}</div>
+                          {upload.notes && <div className="text-gray-600">{upload.notes}</div>}
+                          <div className="text-gray-500 text-[11px]">Uploaded {formatTaskDueDate(upload.uploadedAt)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <ClipboardCheck className="w-4 h-4 text-sompo-red" />
+                    Ops Checklist
+                  </h4>
+                  <ul className="text-xs text-gray-600 space-y-1.5 list-disc ml-4">
+                    <li>Upload broker packs to ImageRight (PDF, XLS, EML)</li>
+                    <li>Store large imagery in SharePoint with standard naming</li>
+                    <li>Tag compliance follow-ups so automation can re-run checks</li>
+                    <li>Notify underwriter when clearance + doc routing complete</li>
+                  </ul>
+                </div>
+              </div>
+
+                <div className="space-y-4">
+                  {opsTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className={`bg-white border rounded-lg p-4 shadow-sm ${task.done ? 'opacity-90 border-emerald-200' : 'border-gray-200'}`}
+                  >
+                    <div className="flex flex-col md:flex-row gap-4 md:items-start md:justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-base font-semibold text-gray-900">{task.title}</h4>
+                          {task.autoCreated && (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                              Auto
+                            </span>
+                          )}
+                          {task.tags?.map((tag) => (
+                            <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-600">{task.description}</p>
+                        <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                          <span className={`px-2 py-0.5 rounded-full font-semibold border ${getStatusBadgeClasses(task.statusId)}`}>
+                            {getStatusLabel(task.statusId)}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full font-semibold ${getCategoryBadgeClasses(task.category)}`}>
+                            {task.category}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full font-semibold text-gray-700 bg-gray-50 border border-gray-200">
+                            {task.stage}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="min-w-[220px] bg-gray-50 rounded-lg border border-gray-200 p-3 text-sm text-gray-700">
+                        <div>
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase">Owner</div>
+                          <div className="font-semibold text-gray-900">{task.owner}</div>
+                        </div>
+                        <div className="mt-3">
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase">Due</div>
+                          <div className="font-semibold text-gray-900">{formatTaskDueDate(task.dueDate)}</div>
+                        </div>
+                        <div className="mt-3">
+                          <div className="text-[11px] font-semibold text-gray-500 uppercase">State</div>
+                          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            task.done ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {task.state}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleTaskCompletion(task.id)}
+                          className={`w-full mt-3 px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
+                            task.done
+                              ? 'border-gray-300 text-gray-600 hover:bg-gray-100'
+                              : 'border-sompo-red text-sompo-red hover:bg-sompo-red hover:text-white'
+                          }`}
+                        >
+                          {task.done ? 'Reopen Task' : 'Mark Complete'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {activeTab === 'activity' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              className="space-y-6"
             >
+              <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-sompo-red" />
+                  Reply to Broker
+                </h3>
+                <form onSubmit={handleReplySubmit} className="space-y-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 uppercase">To</label>
+                      <input
+                        type="email"
+                        value={replyForm.to}
+                        onChange={(e) => handleReplyChange('to', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sompo-red"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 uppercase">Cc</label>
+                      <input
+                        type="text"
+                        value={replyForm.cc}
+                        onChange={(e) => handleReplyChange('cc', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sompo-red"
+                        placeholder="Optional"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-600 uppercase">Subject</label>
+                    <input
+                      type="text"
+                      value={replyForm.subject}
+                      onChange={(e) => handleReplyChange('subject', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sompo-red"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-600 uppercase">Message</label>
+                    <textarea
+                      value={replyForm.body}
+                      onChange={(e) => handleReplyChange('body', e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sompo-red"
+                      placeholder="Draft reply requesting more information"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setReplyForm((prev) => ({ ...prev, body: '' }))}
+                      className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-sompo-red text-white rounded-lg text-sm font-semibold hover:bg-sompo-dark-red transition-colors"
+                    >
+                      Log Reply
+                    </button>
+                  </div>
+                </form>
+                {brokerReplies.length > 0 && (
+                  <div className="mt-5 space-y-3 border-t border-gray-200 pt-3">
+                    {brokerReplies.map(reply => (
+                      <div key={reply.id} className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        <div className="font-semibold text-gray-900">{reply.subject}</div>
+                        <div className="text-gray-500 text-xs">
+                          {reply.to} | Logged {formatTaskDueDate(reply.timestamp)}
+                        </div>
+                        <p className="mt-2 text-gray-700 whitespace-pre-wrap">{reply.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+              >
               <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-sompo-red" />
                 Activity Timeline
@@ -3008,6 +3850,7 @@ TARGET QUOTE DATE: July 29, 2025`,
                 </div>
               </div>
             </motion.div>
+          </motion.div>
           )}
 
           {/* Email Detail Modal */}

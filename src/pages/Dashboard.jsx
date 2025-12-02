@@ -18,6 +18,9 @@ import {
   ExternalLink
 } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
+import { getNewRenewalBadgeClasses, getNewRenewalLabel, NEW_RENEWAL_OPTIONS } from '../utils/newRenewal'
+import { workflowStatusList } from '../data/workflowConfig'
+import { getWorkflowStatusPillClass } from '../data/workflowConfig'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -26,7 +29,8 @@ const Dashboard = () => {
   const [filters, setFilters] = useState({
     assignee: 'all',
     status: 'all',
-    priority: 'all'
+    priority: 'all',
+    type: 'all'
   })
 
   // Refs for sections
@@ -40,28 +44,32 @@ const Dashboard = () => {
   }
 
   // Mock data for user activities
+  const statusFilterOptions = workflowStatusList.map(status => status.label)
+
   const myTasks = [
     {
       id: 's020',
       insured: 'MediCare Clinics Group',
       lob: 'Healthcare Liability',
       gwp: 420000,
-      status: 'Appetite Check',
+      status: 'Manual Review',
       priority: 'High',
       dueDate: '2025-10-25',
       daysOverdue: 0,
-      assignee: 'Jeremy Isaacs'
+      assignee: 'Jeremy Isaacs',
+      newRenewal: 'New Business'
     },
     {
       id: 's003',
       insured: 'Global Freight Ltd',
       lob: 'Marine',
       gwp: 420000,
-      status: 'Rating',
+      status: 'Risk Assessment In Progress',
       priority: 'Medium',
       dueDate: '2025-10-24',
       daysOverdue: 1,
-      assignee: 'Jeremy Isaacs'
+      assignee: 'Jeremy Isaacs',
+      newRenewal: 'Renewal'
     },
     {
       id: 's007',
@@ -72,7 +80,8 @@ const Dashboard = () => {
       priority: 'High',
       dueDate: '2025-10-26',
       daysOverdue: 0,
-      assignee: 'Jeremy Isaacs'
+      assignee: 'Jeremy Isaacs',
+      newRenewal: 'New Business'
     }
   ]
 
@@ -82,22 +91,24 @@ const Dashboard = () => {
       insured: 'Alpha Manufacturing Ltd',
       lob: 'Property',
       gwp: 560000,
-      status: 'Sanctions',
+      status: 'Sanctions Triggered',
       priority: 'Medium',
       dueDate: '2025-10-25',
       daysOverdue: 0,
-      assignee: 'Sarah Chen'
+      assignee: 'Sarah Chen',
+      newRenewal: 'Renewal'
     },
     {
       id: 's004',
       insured: 'BuildRight Construction',
       lob: 'Casualty',
       gwp: 890000,
-      status: 'Quoted',
+      status: 'Pending Manual Clearance',
       priority: 'High',
       dueDate: '2025-10-24',
       daysOverdue: 1,
-      assignee: 'Mike Johnson'
+      assignee: 'Mike Johnson',
+      newRenewal: 'New Business'
     }
   ]
 
@@ -107,13 +118,29 @@ const Dashboard = () => {
       insured: 'SkyHigh Aviation Services',
       lob: 'Aviation',
       gwp: 2100000,
-      status: 'Clearance',
+      status: 'Checks In Progress',
       priority: 'High',
       dueDate: '2025-10-23',
       daysOverdue: 2,
-      assignee: 'Jeremy Isaacs'
+      assignee: 'Jeremy Isaacs',
+      newRenewal: 'Renewal'
     }
   ]
+
+  const currentUser = 'Jeremy Isaacs'
+
+  const taskMatchesFilters = (task) => {
+    if (filters.status !== 'all' && task.status !== filters.status) return false
+    if (filters.priority !== 'all' && task.priority !== filters.priority) return false
+    if (filters.type !== 'all' && getNewRenewalLabel(task.newRenewal) !== filters.type) return false
+    if (filters.assignee === 'me' && task.assignee !== currentUser) return false
+    if (filters.assignee === 'team' && task.assignee === currentUser) return false
+    return true
+  }
+
+  const filteredMyTasks = myTasks.filter(taskMatchesFilters)
+  const filteredTeamTasks = teamTasks.filter(taskMatchesFilters)
+  const filteredDueSoon = dueSoon.filter(taskMatchesFilters)
 
   // KPI stats with refs
   const kpis = [
@@ -141,24 +168,11 @@ const Dashboard = () => {
     }
   }
 
-  const getStatusColor = (status) => {
-    const colors = {
-      'Received': 'bg-blue-100 text-blue-800 border-blue-300',
-      'Clearance': 'bg-purple-100 text-purple-800 border-purple-300',
-      'Appetite Check': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-      'Sanctions': 'bg-orange-100 text-orange-800 border-orange-300',
-      'Rating': 'bg-cyan-100 text-cyan-800 border-cyan-300',
-      'Peer Review': 'bg-teal-100 text-teal-800 border-teal-300',
-      'Quoted': 'bg-amber-100 text-amber-800 border-amber-300',
-      'Firm Order': 'bg-lime-100 text-lime-800 border-lime-300',
-      'Bound': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      'Issued': 'bg-green-100 text-green-800 border-green-300'
-    }
-    return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300'
-  }
+  const getStatusColor = (status) => getWorkflowStatusPillClass(status)
 
   const TaskCard = ({ task, compact = false }) => {
     const isOverdue = task.daysOverdue > 0
+    const typeLabel = getNewRenewalLabel(task.newRenewal)
 
     if (viewMode === 'list') {
       // Compact list view
@@ -184,6 +198,9 @@ const Dashboard = () => {
           <div className="w-24 font-semibold text-gray-900">{currency(task.gwp)}</div>
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(task.status)}`}>
             {task.status}
+          </span>
+          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${getNewRenewalBadgeClasses(task.newRenewal)}`}>
+            {typeLabel}
           </span>
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getPriorityColor(task.priority)}`}>
             {task.priority}
@@ -234,6 +251,9 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(task.status)}`}>
             {task.status}
+          </span>
+          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${getNewRenewalBadgeClasses(task.newRenewal)}`}>
+            {typeLabel}
           </span>
           <div className={`flex items-center gap-1 text-xs ${isOverdue ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
             <Clock className="w-3 h-3" />
@@ -310,9 +330,9 @@ const Dashboard = () => {
               <div className="flex items-center gap-2">
                 {filtersExpanded ? <ChevronDown className="w-4 h-4 text-sompo-red" /> : <ChevronRight className="w-4 h-4 text-sompo-red" />}
                 <span className="text-sm font-semibold text-gray-900">Filters</span>
-                {!filtersExpanded && (filters.assignee !== 'all' || filters.status !== 'all' || filters.priority !== 'all') && (
+                {!filtersExpanded && (filters.assignee !== 'all' || filters.status !== 'all' || filters.priority !== 'all' || filters.type !== 'all') && (
                   <span className="px-2 py-0.5 bg-sompo-red text-white rounded text-xs font-medium">
-                    {[filters.assignee !== 'all', filters.status !== 'all', filters.priority !== 'all'].filter(Boolean).length} active
+                    {[filters.assignee !== 'all', filters.status !== 'all', filters.priority !== 'all', filters.type !== 'all'].filter(Boolean).length} active
                   </span>
                 )}
               </div>
@@ -368,12 +388,9 @@ const Dashboard = () => {
                         className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
                       >
                         <option value="all">All Status</option>
-                        <option value="Received">Received</option>
-                        <option value="Clearance">Clearance</option>
-                        <option value="Appetite Check">Appetite Check</option>
-                        <option value="Sanctions">Sanctions</option>
-                        <option value="Rating">Rating</option>
-                        <option value="Peer Review">Peer Review</option>
+                        {statusFilterOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -390,6 +407,19 @@ const Dashboard = () => {
                         <option value="Low">Low</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
+                      <select
+                        value={filters.type}
+                        onChange={(e) => setFilters({...filters, type: e.target.value})}
+                        className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sompo-red"
+                      >
+                        <option value="all">All Types</option>
+                        {NEW_RENEWAL_OPTIONS.map(option => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -400,12 +430,16 @@ const Dashboard = () => {
           <div ref={myTasksRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <User className="w-4 h-4 text-sompo-red" />
-              My Tasks ({myTasks.length})
+              My Tasks ({filteredMyTasks.length})
             </h2>
             <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3' : 'bg-white rounded-lg shadow border border-gray-200 overflow-hidden'}>
-              {myTasks.map((task, idx) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
+              {filteredMyTasks.length > 0 ? (
+                filteredMyTasks.map(task => (
+                  <TaskCard key={task.id} task={task} />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-sm text-gray-500 py-6">No tasks match your filters.</div>
+              )}
             </div>
           </div>
 
@@ -413,12 +447,16 @@ const Dashboard = () => {
           <div ref={teamTasksRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <Users className="w-4 h-4 text-sompo-red" />
-              Team Tasks ({teamTasks.length})
+              Team Tasks ({filteredTeamTasks.length})
             </h2>
             <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3' : 'bg-white rounded-lg shadow border border-gray-200 overflow-hidden'}>
-              {teamTasks.map((task, idx) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
+              {filteredTeamTasks.length > 0 ? (
+                filteredTeamTasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-sm text-gray-500 py-6">No team tasks match your filters.</div>
+              )}
             </div>
           </div>
 
@@ -426,12 +464,16 @@ const Dashboard = () => {
           <div ref={dueSoonRef} className="mb-4">
             <h2 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-600" />
-              Due Soon / Overdue ({dueSoon.length})
+              Due Soon / Overdue ({filteredDueSoon.length})
             </h2>
             <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3' : 'bg-white rounded-lg shadow border border-gray-200 overflow-hidden'}>
-              {dueSoon.map((task, idx) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
+              {filteredDueSoon.length > 0 ? (
+                filteredDueSoon.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-sm text-gray-500 py-6">No items due soon for the selected filters.</div>
+              )}
             </div>
           </div>
         </div>
